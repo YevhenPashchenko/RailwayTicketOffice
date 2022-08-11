@@ -22,7 +22,7 @@ import java.util.Locale;
  */
 public class TrainScheduleManager implements Runnable {
 
-    static final Logger logger = LogManager.getLogger(TrainScheduleManager.class);
+    private static final Logger logger = LogManager.getLogger(TrainScheduleManager.class);
     private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
 

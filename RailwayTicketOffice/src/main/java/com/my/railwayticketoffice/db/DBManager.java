@@ -28,7 +28,7 @@ import java.util.Properties;
 
 public class DBManager {
 
-    static final Logger logger = LogManager.getLogger(DBManager.class);
+    private static final Logger logger = LogManager.getLogger(DBManager.class);
 
     private static final String DB_NAME = "dbName";
     private static DBManager instance;

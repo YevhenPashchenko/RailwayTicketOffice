@@ -19,6 +19,8 @@ public class Util {
      * Change the number of days contained in the train schedule
      */
     public static void setScheduleDuration(int scheduleDuration) {
-        Util.scheduleDuration = scheduleDuration;
+        if (scheduleDuration > 0) {
+            Util.scheduleDuration = scheduleDuration;
+        }
     }
 }

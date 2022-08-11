@@ -7,15 +7,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Interface for managing data in database that related to train data.
+ * Interface for managing train data.
  *
  * @author Yevhen Pashchenko
  */
 public interface TrainDAO {
 
     /**
-     * When a class implementing interface {@link TrainDAO} call this method should be return a data
-     * that related to train schedule data.
+     * When a class implementing interface {@link TrainDAO} call this method should be return a train data
+     * for train schedule data.
      * @param connection - Connection object.
      * @throws SQLException – if a database access error occurs.
      * @return a list of {@link Train}
