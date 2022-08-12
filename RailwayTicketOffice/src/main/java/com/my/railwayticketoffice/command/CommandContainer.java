@@ -16,6 +16,9 @@ public class CommandContainer {
 
     static {
         commands = new HashMap<>();
+
+        commands.put("mainPage", new MainPageCommand());
+        commands.put("getTrains", new GetTrainsCommand());
     }
 
     /**

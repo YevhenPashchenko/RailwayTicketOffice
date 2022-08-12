@@ -1,9 +1,6 @@
 package com.my.railwayticketoffice.db;
 
-import com.my.railwayticketoffice.db.dao.MySQLScheduleDAO;
-import com.my.railwayticketoffice.db.dao.MySQLTrainDAO;
-import com.my.railwayticketoffice.db.dao.ScheduleDAO;
-import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.db.dao.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -84,6 +81,10 @@ public class DBManager {
 
     public TrainDAO getTrainDAO() {
         return new MySQLTrainDAO();
+    }
+
+    public StationDAO getStationDAO() {
+        return new MySQLStationDAO();
     }
 
     /**

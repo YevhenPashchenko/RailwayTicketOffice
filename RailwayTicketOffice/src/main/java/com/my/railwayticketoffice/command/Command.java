@@ -1,5 +1,7 @@
 package com.my.railwayticketoffice.command;
 
+import com.my.railwayticketoffice.db.DBException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,7 +16,7 @@ public interface Command {
      * Method implemented by classes that built at command pattern.
      * @param request - HttpServletRequest object.
      * @param response - HttpServletResponse object.
-     * @return string that must be a JSP file name or new request.
+     * @return string that must be a link at JSP or new request.
      */
-    String execute(HttpServletRequest request, HttpServletResponse response);
+    String execute(HttpServletRequest request, HttpServletResponse response) throws DBException;
 }

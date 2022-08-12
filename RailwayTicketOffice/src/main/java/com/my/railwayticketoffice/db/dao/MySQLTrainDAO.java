@@ -2,10 +2,7 @@ package com.my.railwayticketoffice.db.dao;
 
 import com.my.railwayticketoffice.entity.Train;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,5 +25,12 @@ public class MySQLTrainDAO implements TrainDAO {
             trains.add(train);
         }
         return trains;
+    }
+
+    @Override
+    public List<Train> getTrainsSpecifiedByStationsAndDate(Connection connection, int fromStationId, int toStationId, String formattedDate) throws SQLException {
+        List<Train> trains = new ArrayList<>();
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAINS_SPECIFIED_BY_STATIONS_AND_DATE);
+        return null;
     }
 }
