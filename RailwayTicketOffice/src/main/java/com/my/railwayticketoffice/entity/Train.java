@@ -2,9 +2,16 @@ package com.my.railwayticketoffice.entity;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 public class Train implements Serializable {
+
+    /**Key of outer Map is the distance from the first station to the current station,
+    key next Map is the time elapsed from departure from the first station to arrival at the current station
+    and value last Map is a train stop time at the current station*/
+    private Map<Integer, Map<LocalTime, Map<Station, LocalTime>>> route = new TreeMap<>();
 
     private int id;
     private String number;
@@ -41,6 +48,14 @@ public class Train implements Serializable {
 
     public void setDepartureTime(LocalTime departureTime) {
         this.departureTime = departureTime;
+    }
+
+    public Map<Integer, Map<LocalTime, Map<Station, LocalTime>>> getRoute() {
+        return route;
+    }
+
+    public void setRoute(Map<Integer, Map<LocalTime, Map<Station, LocalTime>>> route) {
+        this.route = route;
     }
 
     @Override

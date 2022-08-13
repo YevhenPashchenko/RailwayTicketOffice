@@ -27,7 +27,7 @@ public class MySQLScheduleDAO implements ScheduleDAO {
         StringBuilder query = new StringBuilder();
         query.append(MySQLScheduleDAOQuery.ADD_DATA)
                 .append(MySQLScheduleDAOQuery.VALUES_FOR_ADD_DATA);
-        for (int i = 1; i < scheduleDates.size(); i++) {
+        for (int j = 1; j < scheduleDates.size() * trains.size(); j++) {
             query.append(", ")
                     .append(MySQLScheduleDAOQuery.VALUES_FOR_ADD_DATA);
         }

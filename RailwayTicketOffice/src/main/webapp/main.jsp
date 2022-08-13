@@ -15,7 +15,7 @@
         <header class="container bg-secondary bg-opacity-25">
             <div class="row">
                 <div class="col-4">
-                    <img src="resources/images/train-logo.png" class="img-fluid">
+                    <img src="resources/images/train.png" class="img-fluid">
                 </div>
                 <div class="col-6 align-self-center text-center text-primary text-opacity-75">
                     <p class="fs-2 fw-bolder lh-sm">Залізнична каса</p>
@@ -27,20 +27,24 @@
             </div>
         </header>
         <main class="container bg-secondary bg-gradient bg-opacity-25">
-            <form action="controller?command=getTrains" method="get">
-                <div class="row pt-4">
-                    <div class="col-6">
+            <form action="controller" method="get">
+                <input name="command" value="getTrains" hidden>
+                <div class="row pt-4 position-relative">
+                    <div class="col-6 pe-4">
                         <label for="fromDatalist" class="form-label text-primary text-opacity-75 fs-5 fw-semibold lh-1">Звідки</label>
-                        <input class="form-control" list="fromDatalistOptions" id="fromDatalist" name="from">
+                        <input name="from" hidden>
+                        <input class="form-control" list="fromDatalistOptions" id="fromDatalist">
                         <datalist id="fromDatalistOptions">
                             <c:forEach items="${requestScope.stations}" var="station">
                                 <option value="${station.getName()}" id="${station.getId()}"></option>
                             </c:forEach>
                         </datalist>
                     </div>
-                    <div class="col-6">
+                    <img class="img-fluid w-auto position-absolute top-50 start-50 translate-middle-x" role="button" src="resources/images/two%20arrow.png">
+                    <div class="col-6 ps-4">
                         <label for="toDatalist" class="form-label text-primary text-opacity-75 fs-5 fw-semibold lh-1">Куди</label>
-                        <input class="form-control" list="toDatalistOptions" id="toDatalist" name="to">
+                        <input name="to" hidden>
+                        <input class="form-control" list="toDatalistOptions" id="toDatalist">
                         <datalist id="toDatalistOptions">
                             <c:forEach items="${requestScope.stations}" var="station">
                                 <option value="${station.getName()}" id="${station.getId()}"></option>
@@ -56,10 +60,41 @@
                 </div>
                 <div class="row pb-4 justify-content-center">
                     <div class="col-4">
-                        <button class="btn btn-lg btn-primary opacity-75 fs-5 fw-semibold lh-1" name="searchTrains">Пошук поїздів</button>
+                        <button class="btn btn-lg btn-primary opacity-75 fs-5 fw-semibold lh-1" datatype="searchTrains">Пошук поїздів</button>
                     </div>
                 </div>
             </form>
+            <c:if test="${requestScope.trains.size() > 0}">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>№ Поїзда</th>
+                            <th>Звідки/Куди</th>
+                            <th>Дата</th>
+                            <th>Відправлення/Прибуття</th>
+                            <th>Тривалість</th>
+                            <th>Вільних місць</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <c:forEach items="${requestScope.trains.values()}" var="train">
+                        <tr>
+                            <td>${train.getNumber()}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>${train.getSeats()}</td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </c:if>
+            <c:if test="${requestScope.errorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col-4 text-danger fw-semibold">${requestScope.errorMessage}</div>
+                </div>
+            </c:if>
         </main>
         <script type="text/javascript" src="resources/js/main.js"></script>
     </body>

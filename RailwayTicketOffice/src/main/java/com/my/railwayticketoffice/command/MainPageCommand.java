@@ -36,11 +36,11 @@ public class MainPageCommand implements Command {
         List<Station> stations;
         try(Connection connection = DBManager.getInstance().getConnection()) {
             stations = stationDAO.getStations(connection);
+            request.setAttribute("stations", stations);
         } catch (SQLException e) {
             logger.warn("Failed to get stations from database", e);
             throw new DBException("Failed to get stations from database");
         }
-        request.setAttribute("stations", stations);
         return "main.jsp";
     }
 }

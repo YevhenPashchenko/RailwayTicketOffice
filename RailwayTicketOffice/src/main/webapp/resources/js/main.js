@@ -3,7 +3,11 @@ $(function() {
     let minDate = new Date(dateNow).getDate() + "." + (new Date(dateNow).getMonth() + 1) + "." + new Date(dateNow).getFullYear();
     let maxDate = new Date(dateNow).getDate() + "." + (new Date(dateNow).getMonth() + 1) + "." + (new Date(dateNow).getFullYear() + 1);
     let inputs = $('input[name="datePicker"]');
-    let button = $('button[name="searchTrains"]')[0];
+    let button = $('button[datatype="searchTrains"]')[0];
+    let inputFromDatalist = $('#fromDatalist')[0];
+    let inputFrom = $('input[name="from"]')[0];
+    let inputToDatalist = $('#toDatalist')[0];
+    let inputTo = $('input[name="to"]')[0];
     let uaLocale = {
         "format": "DD.MM.YYYY",
         "separator": "-",
@@ -59,19 +63,56 @@ $(function() {
         button.innerHTML = "Пошук поїздів на " + date;
     }
 
+    addDate();
+
     $('.applyBtn')[0].addEventListener("click", ev => {
         addDate();
     });
 
+    function changeAttribute(inputValue, input) {
+        if (inputValue === "") {
+            input.removeAttribute("value");
+        } else {
+            let options = $('option[value=' + inputValue + ']');
+            if (options[0] === undefined) {
+                input.removeAttribute("value");
+            } else {
+                input.setAttribute("value", options[0].getAttribute('id'));
+            }
+        }
+    }
+
+    inputFromDatalist.addEventListener("change", e => {
+        let inputValue = e.currentTarget.value;
+        changeAttribute(inputValue, inputFrom);
+    });
+
+    inputToDatalist.addEventListener("change", e => {
+        let inputValue = e.currentTarget.value;
+        changeAttribute(inputValue, inputTo);
+    });
+
     button.addEventListener("click", ev => {
-        let array = ["from", "to"];
-        for (const arrayKey in array) {
-            let input = $('input[name=' + array[arrayKey] + ']')[0];
-            let inputValue = input.value;
-            input.value = $('option[value=' + inputValue + ']')[0].getAttribute('id');
+        if (!inputFrom.hasAttribute("value")) {
+            ev.preventDefault();
+            alert("Введіть пункт відправлення");
+            return;
+        }
+        if (!inputTo.hasAttribute("value")) {
+            ev.preventDefault();
+            alert("Введіть пункт призначення");
+        }
+        if (inputFrom.value === inputTo.value) {
+            ev.preventDefault();
+            alert("Станції відправлення та призначення співпадають");
         }
     });
 
-    addDate();
-
+    $('img[role="button"]')[0].addEventListener("click", e => {
+        let value = inputFromDatalist.value;
+        inputFromDatalist.value = inputToDatalist.value;
+        changeAttribute(inputFromDatalist.value, inputFrom);
+        inputToDatalist.value = value;
+        changeAttribute(inputToDatalist.value, inputTo);
+    });
 });
