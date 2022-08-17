@@ -2,7 +2,6 @@ package com.my.railwayticketoffice;
 
 import com.my.railwayticketoffice.command.Command;
 import com.my.railwayticketoffice.command.CommandContainer;
-import com.my.railwayticketoffice.db.DBException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +30,24 @@ public class Controller extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String address = handleRequest(req, resp);
+        req.getRequestDispatcher(address).forward(req, resp);
+    }
+
+    /**
+     * Handles GET request and passes it for processing to the class
+     * object that is built at the command pattern.
+     * @param req - HttpServletRequest object.
+     * @param resp - HttpServletResponse object.
+     * @throws IOException – if a failed or interrupted I/O operations occurs.
+     */
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String address = handleRequest(req, resp);
+        resp.sendRedirect(address);
+    }
+
+    private String handleRequest(HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException {
         req.setCharacterEncoding("UTF-8");
         String address = "error.jsp";
         Command command;
@@ -42,11 +59,6 @@ public class Controller extends HttpServlet {
             logger.warn(e.getMessage(), e);
             req.setAttribute("errorMessage", e.getMessage());
         }
-        req.getRequestDispatcher(address).forward(req, resp);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        return address;
     }
 }

@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class MySQLTrainDAO implements TrainDAO {
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
 
     @Override
     public List<Train> getAllTrainsDataForSchedule(Connection connection) throws SQLException {
@@ -32,8 +32,8 @@ public class MySQLTrainDAO implements TrainDAO {
     }
 
     @Override
-    public Map<Integer, Train> getTrainsSpecifiedByStationsAndDate(Connection connection, int fromStationId, int toStationId, String formattedDate) throws SQLException {
-        Map<Integer, Train> trains = new HashMap<>();
+    public List<Train> getTrainsSpecifiedByStationsAndDate(Connection connection, int fromStationId, int toStationId, String formattedDate) throws SQLException {
+        List<Train> trains = new ArrayList<>();
         PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAINS_SPECIFIED_BY_STATIONS_AND_DATE);
         pstmt.setInt(1, fromStationId);
         pstmt.setInt(2, toStationId);
@@ -45,13 +45,13 @@ public class MySQLTrainDAO implements TrainDAO {
             train.setNumber(rs.getString("number"));
             train.setSeats(rs.getInt("available_seats"));
             train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
-            trains.put(train.getId(), train);
+            trains.add(train);
         }
         return trains;
     }
 
     @Override
-    public void getRoutesForTrains(Connection connection, Map<Integer, Train> trains) throws SQLException {
+    public void getRoutesForTrains(Connection connection, List<Train> trains) throws SQLException {
         int count = 1;
         StringBuilder query = new StringBuilder();
         query.append(MySQLTrainDAOQuery.GET_ROUTES_FOR_TRAINS)
@@ -59,29 +59,62 @@ public class MySQLTrainDAO implements TrainDAO {
         for (int i = 1; i < trains.size(); i++) {
             query.append(", ?");
         }
-        query.append(")");
+        query.append(") ")
+                .append(MySQLTrainDAOQuery.ORDER_BY);
         PreparedStatement pstmt = connection.prepareStatement(query.toString());
-        for (Integer id:
-             trains.keySet()) {
-            pstmt.setInt(count++, id);
+        for (Train train:
+             trains) {
+            pstmt.setInt(count++, train.getId());
         }
         ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
             Station station = new Station();
-            Map<Station, LocalTime> stationAndStopTime = new HashMap<>();
-            Map<LocalTime, Map<Station, LocalTime>> timeSinceStartAndMap = new HashMap<>();
-            Train train = trains.get(rs.getInt("train_id"));
-            Map<Integer, Map<LocalTime, Map<Station, LocalTime>>> route = train.getRoute();
-            LocalTime timeSinceStart = LocalTime.parse(rs.getString("time_since_start"), formatter);
-            LocalTime stopTime = LocalTime.parse(rs.getString("stop_time"), formatter);
-            int distanceFromStart = rs.getInt("distance_from_start");
-            station.setId(rs.getInt("station_id"));
-            station.setName(rs.getString("name"));
-            stationAndStopTime.put(station, stopTime);
-            timeSinceStartAndMap.put(timeSinceStart, stationAndStopTime);
-            route.put(distanceFromStart, timeSinceStartAndMap);
-            train.setRoute(route);
-            trains.put(train.getId(), train);
+            int trainId = rs.getInt("train_id");
+            int index = 0;
+            Train train = new Train();
+            for (int i = 0; i < trains.size(); i++) {
+                if (trains.get(i).getId() == trainId) {
+                    index = i;
+                    train = trains.get(i);
+                }
+            }
+            addRouteToTrain(train, rs, station);
+            trains.set(index, train);
         }
+    }
+
+    @Override
+    public Train getTrain(Connection connection, int trainId) throws SQLException {
+        Train train = new Train();
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN);
+        pstmt.setInt(1, trainId);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            train.setId(trainId);
+            train.setNumber(rs.getString("number"));
+            train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
+            train.setSeats(rs.getInt("available_seats"));
+        }
+        return train;
+    }
+
+    @Override
+    public void getRouteForTrain(Connection connection, Train train) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_ROUTE_FOR_TRAIN);
+        pstmt.setInt(1, train.getId());
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            Station station = new Station();
+            addRouteToTrain(train, rs, station);
+        }
+    }
+
+    private void addRouteToTrain(Train train, ResultSet rs, Station station) throws SQLException {
+        station.setId(rs.getInt("station_id"));
+        station.setName(rs.getString("name"));
+        train.getRoute().addStation(station);
+        train.getRoute().addTimeSinceStart(station.getId(), LocalTime.parse(rs.getString("time_since_start"), formatter));
+        train.getRoute().addStopTime(station.getId(), LocalTime.parse(rs.getString("stop_time"), formatter));
+        train.getRoute().addDistanceFromStart(station.getId(), rs.getInt("distance_from_start"));
     }
 }

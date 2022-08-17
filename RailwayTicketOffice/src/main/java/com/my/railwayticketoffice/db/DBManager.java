@@ -87,6 +87,10 @@ public class DBManager {
         return new MySQLStationDAO();
     }
 
+    public UserDAO getUserDAO() {
+        return new MySQLUserDAO();
+    }
+
     /**
      * Wrapper for standard method Connection object rollback() for avoid try-catch blocks in other classes.
      * Undoes all changes made in the current transaction and releases any database locks currently held

@@ -19,6 +19,9 @@ public class CommandContainer {
 
         commands.put("mainPage", new MainPageCommand());
         commands.put("getTrains", new GetTrainsCommand());
+        commands.put("showRoute", new ShowRouteCommand());
+        commands.put("userLogin", new UserLoginCommand());
+        commands.put("userLogout", new UserLogoutCommand());
     }
 
     /**

@@ -2,6 +2,8 @@ package com.my.railwayticketoffice.db.dao;
 
 /**
  * Utility class that contains MySQL queries for {@link MySQLScheduleDAO} class.
+ *
+ * @author Yevhen Pashchenko
  */
 public class MySQLScheduleDAOQuery {
 

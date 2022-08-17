@@ -1,6 +1,7 @@
 package com.my.railwayticketoffice.command;
 
 
+import com.my.railwayticketoffice.authentication.AuthenticationException;
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.StationDAO;

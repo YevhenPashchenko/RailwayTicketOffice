@@ -12,14 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Class that built at command pattern. Get from database map in which key is {@link com.my.railwayticketoffice.entity.Train} id
- * and value is {@link com.my.railwayticketoffice.entity.Train} traveling through the station specified in the request in the date specified in the request.
+ * Class that built at command pattern. Get from database list of {@link com.my.railwayticketoffice.entity.Train}
+ * traveling through the station specified in the request in the date specified in the request.
  *
  * @author Yevhen Pashchenko
  */
@@ -32,8 +33,8 @@ public class GetTrainsCommand implements Command {
     String formattedDate;
 
     /**
-     * Get from database map in which key is {@link com.my.railwayticketoffice.entity.Train} id
-     * and value is {@link com.my.railwayticketoffice.entity.Train} traveling through the station specified in the request in the date specified in the request.
+     * Get from database list of {@link com.my.railwayticketoffice.entity.Train}
+     * traveling through the station specified in the request in the date specified in the request.
      * @param request - HttpServletRequest object.
      * @param response - HttpServletResponse object.
      * @return request to {@link MainPageCommand}.
@@ -41,14 +42,18 @@ public class GetTrainsCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
-        Map<Integer, Train> trains;
         if (checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
-                trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
+                List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
                 if (trains.size() > 0) {
                     trainDAO.getRoutesForTrains(connection, trains);
+                    List<Train> filteredTrains = trains.stream().filter(train -> train.getRoute()
+                            .checkDirectionIsRight(fromStationId, toStationId)).collect(Collectors.toList());
+                    request.setAttribute("trains", filteredTrains);
                 }
-                request.setAttribute("trains", trains);
+                request.setAttribute("fromStationId", fromStationId);
+                request.setAttribute("toStationId", toStationId);
+                request.setAttribute("departureDate", LocalDate.parse(formattedDate));
             } catch (SQLException e) {
                 logger.warn("Failed to get trains specified by stations and date", e);
                 throw new DBException("Failed to get trains specified by stations and date");
@@ -61,12 +66,14 @@ public class GetTrainsCommand implements Command {
         try {
             fromStationId = Integer.parseInt(request.getParameter("from"));
         } catch (NumberFormatException e) {
+            logger.info("Departure station id is incorrect", e);
             request.setAttribute("errorMessage", "Пункт відправлення задано не коректно");
             return false;
         }
         try {
             toStationId = Integer.parseInt(request.getParameter("to"));
         } catch (NumberFormatException e) {
+            logger.info("Destination station id is incorrect", e);
             request.setAttribute("errorMessage", "Пункт призначення задано не коректно");
             return false;
         }
@@ -84,6 +91,7 @@ public class GetTrainsCommand implements Command {
             try {
                 Integer.parseInt(d);
             } catch (NumberFormatException e) {
+                logger.info("Departure date is incorrect", e);
                 request.setAttribute("errorMessage", "Дату задано не коректно");
                 return false;
             }

@@ -1,7 +1,6 @@
 package com.my.railwayticketoffice.db.dao;
 
 import com.my.railwayticketoffice.entity.Station;
-import com.my.railwayticketoffice.entity.Train;
 
 import java.sql.Connection;
 import java.sql.SQLException;
