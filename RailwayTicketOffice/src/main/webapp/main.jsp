@@ -29,7 +29,109 @@
                     </c:when>
                     <c:otherwise>
                         <div class="col-2 align-self-center">
-                            <a href="controller?command=userLogout" class="btn btn-primary fs-5 fw-semibold lh-1">Вийти</a>
+                            <a href="controller?command=userLogout" class="d-block mb-2 btn btn-primary fs-5 fw-semibold lh-1">Вийти</a>
+                            <a class="text-primary fw-semibold" role="button" data-bs-target="#editUserDataWindow" data-bs-toggle="modal">Редагувати користувача</a>
+                        </div>
+                        <div class="modal fade" id="editUserDataWindow" aria-hidden="true" aria-labelledby="editUserDataWindowLabel" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content w-75">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editUserDataWindowLabel">Редагувати користувача</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="editUserForm" action="controller?command=userEdit" method="post">
+                                            <label>
+                                                <input name="from" hidden>
+                                            </label>
+                                            <label>
+                                                <input name="to" hidden>
+                                            </label>
+                                            <label>
+                                                <input name="datePicker" hidden>
+                                            </label>
+                                            <div class="container px-0">
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <label for="editUserEmailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Пошта</label>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail">
+                                                            </span>
+                                                            <input id="editUserEmailField" type="email" class="form-control" aria-label="E-mail" value="${sessionScope.user.getEmail()}" required disabled>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-10">
+                                                        <label for="editUserPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Пароль</label>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                                                <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                                            </span>
+                                                            <input id="editUserPasswordField" type="password" class="form-control" placeholder="Пароль" name="password" required disabled>
+                                                        </div>
+                                                        <label for="editUserConfirmPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Підтвердити пароль</label>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                                                <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                                            </span>
+                                                            <input id="editUserConfirmPasswordField" type="password" class="form-control" placeholder="Підтвердити пароль" name="confirmPassword" required disabled>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-1 form-check form-switch form-check-reverse align-self-center">
+                                                        <label>
+                                                            <input class="form-check-input" role="switch" type="checkbox">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <label for="editUserSurnameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Прізвище</label>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                                            </span>
+                                                            <label>
+                                                                <input value="${sessionScope.user.getLastName()}" hidden>
+                                                            </label>
+                                                            <input id="editUserSurnameField" type="text" class="form-control" placeholder="Прізвище" name="userSurname" value="${sessionScope.user.getLastName()}" required disabled>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-1 form-check form-switch form-check-reverse align-self-center">
+                                                        <label>
+                                                            <input class="form-check-input" role="switch" type="checkbox">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <label for="editUserNameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Ім'я</label>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                                            </span>
+                                                            <label>
+                                                                <input value="${sessionScope.user.getFirstName()}" hidden>
+                                                            </label>
+                                                            <input id="editUserNameField" type="text" class="form-control" name="userName" value="${sessionScope.user.getFirstName()}" required disabled>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-1 form-check form-switch form-check-reverse align-self-center">
+                                                        <label>
+                                                            <input class="form-check-input" role="switch" type="checkbox">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-primary" form="editUserForm" disabled>Редагувати</button>
+                                        <button class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Назад</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </c:otherwise>
                 </c:choose>
@@ -43,7 +145,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="authenticateForm" action="controller?command=userLogin" method="post">
+                                <form id="authenticationForm" action="controller?command=userLogin" method="post">
                                     <label>
                                         <input name="from" hidden>
                                     </label>
@@ -53,23 +155,23 @@
                                     <label>
                                         <input name="datePicker" hidden>
                                     </label>
+                                    <label for="emailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Пошта</label>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text"><img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail"></span>
-                                        <input type="text" class="form-control" placeholder="E-mail" aria-label="E-mail" name="email">
+                                        <input id="emailField" type="email" class="form-control" placeholder="Пошта" aria-label="E-mail" name="email" required>
                                     </div>
+                                    <label for="passwordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Пароль</label>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text">
                                             <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
                                             <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
                                         </span>
-                                        <label>
-                                            <input type="password" class="form-control" placeholder="Пароль" name="password" required>
-                                        </label>
+                                        <input id="passwordField" type="password" class="form-control" placeholder="Пароль" name="password" required>
                                     </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-primary w-100" form="authenticateForm">Увійти</button>
+                                <button class="btn btn-primary w-100" form="authenticationForm">Увійти</button>
                                 <a class="text-primary" role="button" data-bs-target="#registrationWindow" data-bs-toggle="modal">Зареєструватися</a>
                             </div>
                         </div>
@@ -77,22 +179,217 @@
                 </div>
                 <div class="modal fade" id="registrationWindow" aria-hidden="true" aria-labelledby="registrationWindowLabel" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
+                        <div class="modal-content w-75">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="registrationWindowLabel">Реєстрація</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                Hide this modal and show the first with the button below.
+                                <form id="registrationForm" action="controller?command=userRegistration" method="post">
+                                    <label>
+                                        <input name="from" hidden>
+                                    </label>
+                                    <label>
+                                        <input name="to" hidden>
+                                    </label>
+                                    <label>
+                                        <input name="datePicker" hidden>
+                                    </label>
+                                    <label for="registrationEmailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Пошта</label>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text"><img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail"></span>
+                                        <input id="registrationEmailField" type="email" class="form-control" placeholder="Пошта" aria-label="E-mail" name="email" required>
+                                    </div>
+                                    <label for="registrationPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Пароль</label>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">
+                                            <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                            <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                        </span>
+                                        <input id="registrationPasswordField" type="password" class="form-control" placeholder="Пароль" name="password" required>
+                                    </div>
+                                    <label for="registrationConfirmPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Підтвердити пароль</label>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">
+                                            <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                            <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                        </span>
+                                        <input id="registrationConfirmPasswordField" type="password" class="form-control" placeholder="Підтвердити пароль" name="confirmPassword" required>
+                                    </div>
+                                    <label for="userSurnameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Прізвище</label>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">
+                                            <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                        </span>
+                                        <input id="userSurnameField" type="text" class="form-control" placeholder="Прізвище" name="userSurname" required>
+                                    </div>
+                                    <label for="userNameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1">Ім'я</label>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">
+                                            <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                        </span>
+                                        <input id="userNameField" type="text" class="form-control" placeholder="Ім'я" name="userName" required>
+                                    </div>
+                                </form>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-primary" data-bs-target="#authenticationWindow" data-bs-toggle="modal">Назад до авторизації</button>
+                                <button class="btn btn-primary w-100" form="registrationForm">Зареєструватися</button>
+                                <a class="text-primary" role="button" data-bs-target="#authenticationWindow" data-bs-toggle="modal">Назад</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </c:if>
         </header>
+        <c:if test="${sessionScope.user.getRole() eq 'admin'}">
+            <nav class="navbar bg-primary container px-0">
+                <div class="container-fluid">
+                    <div class="navbar-brand offset-5 text-light fs-4 fw-semibold lh-1">Адміністрування</div>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+                        <div class="offcanvas-header bg-secondary bg-opacity-25">
+                            <h5 class="offcanvas-title offset-3" id="offcanvasNavbarLabel">Адміністрування</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body bg-secondary bg-opacity-25">
+                            <ul class="navbar-nav justify-content-end flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link fs-5 fw-semibold" href="#train" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                        Поїзд
+                                    </a>
+                                    <ul id="train" class="dropdown-menu bg-secondary bg-opacity-50 ps-2">
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#addTrain" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Додати поїзд
+                                            </a>
+                                            <form id="addTrain" class="collapse ps-2" action="controller?command=addTrain" method="post">
+                                                <label for="trainNumber" class="form-label">Номер поїзда</label>
+                                                <input id="trainNumber" class="form-control w-50 mb-2" type="text" name="trainNumber" autocomplete="off" required>
+                                                <label for="trainSeats" class="form-label">Кількість місць поїзда</label>
+                                                <input id="trainSeats" class="form-control w-50 mb-2" type="text" name="trainSeats" required>
+                                                <label for="trainDepartureTime" class="form-label">Час відправлення поїзда</label>
+                                                <input id="trainDepartureTime" class="form-control w-50 mb-2" type="time" name="trainDepartureTime" required>
+                                                <button class="btn btn-primary">Додати поїзд</button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#deleteTrain" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Видалити поїзд
+                                            </a>
+                                            <form id="deleteTrain" class="collapse ps-2" action="controller?command=deleteTrain" method="post">
+                                                <label for="trainNumberForDelete" class="form-label">Номер поїзда</label>
+                                                <label>
+                                                    <input name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForDelete" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <button id="deleteTrainButton" class="btn btn-primary">Видалити поїзд</button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#editTrain" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Редагувати поїзд
+                                            </a>
+                                            <form id="editTrain" class="collapse ps-2" action="controller?command=editTrain" method="post">
+                                                <label for="trainNumberForEdit" class="form-label">Номер поїзда</label>
+                                                <label class="d-block">
+                                                    <input name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForEdit" class="d-inline-block form-control w-50 mb-2" list="trainNumberDatalist" type="text" name="trainNumber" autocomplete="off" required>
+                                                <div class="d-inline-block form-check form-switch ms-2">
+                                                    <label>
+                                                        <input class="form-check-input" role="switch" type="checkbox" hidden>
+                                                    </label>
+                                                </div>
+                                                <label for="trainSeatsForEdit" class="d-block form-label">Кількість місць поїзда</label>
+                                                <input id="trainSeatsForEdit" class="d-inline-block form-control w-50 mb-2" type="text" name="trainSeats" required disabled>
+                                                <div class="d-inline-block form-check form-switch ms-2">
+                                                    <label>
+                                                        <input class="form-check-input" role="switch" type="checkbox" hidden>
+                                                    </label>
+                                                </div>
+                                                <label for="trainDepartureTimeForEdit" class="d-block form-label">Час відправлення поїзда</label>
+                                                <input id="trainDepartureTimeForEdit" class="d-inline-block form-control w-50 mb-2" type="time" name="trainDepartureTime" required disabled>
+                                                <div class="d-inline-block form-check form-switch ms-2">
+                                                    <label>
+                                                        <input class="form-check-input" role="switch" type="checkbox" hidden>
+                                                    </label>
+                                                </div>
+                                                <button class="btn btn-primary" disabled>Редагувати поїзд</button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#editTrainRoute" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Редагувати маршрут поїзда
+                                            </a>
+                                            <form id="editTrainRoute" class="collapse ps-2" action="controller" method="get">
+                                                <label for="trainNumberForEditRoute" class="form-label">Номер поїзда</label>
+                                                <label>
+                                                    <input name="command" value="showRoute" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForEditRoute" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <button class="btn btn-primary">Редагувати маршрут поїзда</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <datalist id="trainNumberDatalist">
+                                                <c:forEach items="${requestScope.trainsForAdmin}" var="train">
+                                                    <option value="${train.getNumber()}" id="${train.getId()}"></option>
+                                                </c:forEach>
+                                            </datalist>
+                                            <datalist id="trainSeatsDatalist">
+                                                <c:forEach items="${requestScope.trainsForAdmin}" var="train">
+                                                    <option value="${train.getSeats()}" id="${train.getId()}"></option>
+                                                </c:forEach>
+                                            </datalist>
+                                            <datalist id="trainDepartureTimeDatalist">
+                                                <c:forEach items="${requestScope.trainsForAdmin}" var="train">
+                                                    <option value="${train.getDepartureTime()}" id="${train.getId()}"></option>
+                                                </c:forEach>
+                                            </datalist>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link fs-5 fw-semibold" href="#station" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                        Станція
+                                    </a>
+                                    <ul id="station" class="dropdown-menu bg-secondary bg-opacity-50 ps-2">
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#addStation" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Додати станцію
+                                            </a>
+                                            <form id="addStation" class="collapse ps-2" action="controller?command=addStation" method="post">
+                                                <label for="stationName" class="form-label">Назва станції</label>
+                                                <input id="stationName" class="form-control w-50 mb-2" type="text" name="stationName" autocomplete="off" required>
+                                                <button class="btn btn-primary">Додати станцію</button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#deleteStation" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Видалити станцію
+                                            </a>
+                                            <form id="deleteStation" class="collapse ps-2" action="controller?command=deleteStation" method="post">
+                                                <label for="stationNameForDelete" class="form-label">Назва станції</label>
+                                                <label>
+                                                    <input name="stationId" hidden>
+                                                </label>
+                                                <input id="stationNameForDelete" class="form-control w-50 mb-2" type="text" list="stationsDatalistOptions" autocomplete="off" required>
+                                                <button class="btn btn-primary">Видалити станцію</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </c:if>
         <main class="container bg-secondary bg-gradient bg-opacity-25">
             <form action="controller" method="get">
                 <label>
@@ -104,12 +401,7 @@
                         <label>
                             <input name="from" hidden>
                         </label>
-                        <input class="form-control fs-5 fw-semibold lh-1" list="fromDatalistOptions" id="fromDatalist">
-                        <datalist id="fromDatalistOptions">
-                            <c:forEach items="${requestScope.stations}" var="station">
-                                <option value="${station.getName()}" id="${station.getId()}"></option>
-                            </c:forEach>
-                        </datalist>
+                        <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="fromDatalist">
                     </div>
                     <img class="img-fluid w-auto position-absolute top-50 start-50 translate-middle-x reverseRoute" role="button" src="resources/images/two%20arrow.png" alt="">
                     <div class="col-6 ps-4">
@@ -117,12 +409,7 @@
                         <label>
                             <input name="to" hidden>
                         </label>
-                        <input class="form-control fs-5 fw-semibold lh-1" list="toDatalistOptions" id="toDatalist">
-                        <datalist id="toDatalistOptions">
-                            <c:forEach items="${requestScope.stations}" var="station">
-                                <option value="${station.getName()}" id="${station.getId()}"></option>
-                            </c:forEach>
-                        </datalist>
+                        <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="toDatalist">
                     </div>
                 </div>
                 <div class="row py-3">
@@ -136,9 +423,14 @@
                         <button class="btn btn-lg btn-primary fs-5 fw-semibold lh-1" datatype="searchTrains">Пошук поїздів</button>
                     </div>
                 </div>
+                <datalist id="stationsDatalistOptions">
+                    <c:forEach items="${requestScope.stations}" var="station">
+                        <option value="${station.getName()}" id="${station.getId()}"></option>
+                    </c:forEach>
+                </datalist>
             </form>
             <c:if test="${requestScope.trains.size() > 0}">
-                <table class="table table-secondary table-bordered text-center mb-4 table-hover align-middle">
+                <table class="table table-secondary table-bordered text-center table-hover align-middle">
                     <thead class="text-primary fs-5 fw-semibold lh-1">
                         <tr class="align-middle">
                             <th>№ Поїзда</th>
@@ -181,10 +473,27 @@
                                 <c:if test="${sessionScope.user ne null}">
                                     <c:choose>
                                         <c:when test="${train.getSeats() gt 0}">
-                                            <a href="#" class="btn btn-primary fs-6 lh-1 mt-2">Купити</a>
+                                            <form action="controller" method="get">
+                                                <label>
+                                                    <input name="command" value="ticketPage" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="trainId" value="${train.getId()}" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="from" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="to" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="datePicker" hidden>
+                                                </label>
+                                                <button class="btn btn-primary fs-6 lh-1 mt-2">Замовити</button>
+                                            </form>
                                         </c:when>
                                         <c:otherwise>
-                                            <a href="#" class="btn btn-primary fs-6 lh-1 mt-2 disabled">Купити</a>
+                                            <a class="btn btn-primary fs-6 lh-1 mt-2 disabled">Замовити</a>
                                         </c:otherwise>
                                     </c:choose>
                                 </c:if>
@@ -199,16 +508,17 @@
                     <div class="col-4 text-success fw-semibold">Не знайдено поїздів на цю дату за даним маршрутом</div>
                 </div>
             </c:if>
-            <c:if test="${requestScope.errorMessage ne null}">
+            <c:if test="${sessionScope.successMessage ne null}">
                 <div class="row pb-4 justify-content-center">
-                    <div class="col-4 text-danger fw-semibold">${requestScope.errorMessage}</div>
+                    <div class="col-4 text-success fs-4 fw-semibold">${sessionScope.successMessage}</div>
                 </div>
+                <c:remove var="successMessage" scope="session"/>
             </c:if>
-            <c:if test="${sessionScope.loginErrorMessage ne null}">
+            <c:if test="${sessionScope.errorMessage ne null}">
                 <div class="row pb-4 justify-content-center">
-                    <div class="col-4 text-danger fw-semibold">${sessionScope.loginErrorMessage}</div>
+                    <div class="col-4 text-danger fw-semibold">${sessionScope.errorMessage}</div>
                 </div>
-                <c:remove var="loginErrorMessage" scope="session"/>
+                <c:remove var="errorMessage" scope="session"/>
             </c:if>
             <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -224,22 +534,52 @@
                     </div>
                 </div>
             </div>
+            <c:if test="${sessionScope.user.getRole() eq 'admin'}">
+                <div class="modal fade" id="confirmDeleteTrainModal" tabindex="-1" aria-labelledby="confirmDeleteTrainModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-warning" id="confirmDeleteTrainModalLabel">Видалення поїзда</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-danger fs-5 fw-semibold lh-2">Ви впевнені, що бажаєте видалити цей поїзд?</div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary" form="deleteTrain">Видалити</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Скасувати</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="confirmDeleteStationModal" tabindex="-1" aria-labelledby="confirmDeleteStationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-warning" id="confirmDeleteStationModalLabel">Видалення станції</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-danger fs-5 fw-semibold lh-2">Ви впевнені, що бажаєте видалити цю станцію?</div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary" form="deleteStation">Видалити</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Скасувати</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </c:if>
         </main>
+        <script type="text/javascript" src="resources/js/main.js"></script>
         <c:if test="${requestScope.departureDate ne null}">
             <script>
-                let inputsFrom = document.querySelectorAll('input[name="from"]');
-                let inputsTo = document.querySelectorAll('input[name="to"]');
                 for (let i = 0; i < inputsFrom.length; i++) {
                     inputsFrom[i].setAttribute("value", ${requestScope.fromStationId});
                 }
-                $('#fromDatalist')[0].setAttribute("value", $('#' + ${requestScope.fromStationId})[0].value);
+                inputFrom.setAttribute("value", $('#' + ${requestScope.fromStationId})[0].value);
                 for (let i = 0; i < inputsTo.length; i++) {
                     inputsTo[i].setAttribute("value", ${requestScope.toStationId});
                 }
-                $('#toDatalist')[0].setAttribute("value", $('#' + ${requestScope.toStationId})[0].value);
+                inputTo.setAttribute("value", $('#' + ${requestScope.toStationId})[0].value);
             </script>
             <span id="checkedDate" hidden>${requestScope.departureDate}</span>
         </c:if>
-        <script type="text/javascript" src="resources/js/main.js"></script>
     </body>
 </html>

@@ -18,14 +18,16 @@ public class MySQLTrainDAO implements TrainDAO {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
 
     @Override
-    public List<Train> getAllTrainsDataForSchedule(Connection connection) throws SQLException {
+    public List<Train> getAllTrains(Connection connection) throws SQLException {
         List<Train> trains = new ArrayList<>();
         Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(MySQLTrainDAOQuery.GET_ALL_TRAINS_DATA_FOR_SCHEDULE);
+        ResultSet rs = stmt.executeQuery(MySQLTrainDAOQuery.GET_ALL_TRAINS_DATA);
         while (rs.next()) {
             Train train = new Train();
             train.setId(rs.getInt("id"));
+            train.setNumber(rs.getString("number"));
             train.setSeats(rs.getInt("seats"));
+            train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
             trains.add(train);
         }
         return trains;
@@ -116,5 +118,79 @@ public class MySQLTrainDAO implements TrainDAO {
         train.getRoute().addTimeSinceStart(station.getId(), LocalTime.parse(rs.getString("time_since_start"), formatter));
         train.getRoute().addStopTime(station.getId(), LocalTime.parse(rs.getString("stop_time"), formatter));
         train.getRoute().addDistanceFromStart(station.getId(), rs.getInt("distance_from_start"));
+    }
+
+    @Override
+    public void addTrain(Connection connection, String trainNumber, int trainSeats, String trainDepartureTime) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.ADD_TRAIN);
+        pstmt.setString(1, trainNumber);
+        pstmt.setInt(2, trainSeats);
+        pstmt.setString(3, trainDepartureTime);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to add new train in database");
+        }
+    }
+
+    @Override
+    public void deleteTrain(Connection connection, int trainId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.DELETE_TRAIN);
+        pstmt.setInt(1, trainId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to delete train from database");
+        }
+    }
+
+    @Override
+    public void editTrain(Connection connection, Train train) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.EDIT_TRAIN);
+        pstmt.setString(1, train.getNumber());
+        pstmt.setInt(2, train.getSeats());
+        pstmt.setObject(3, train.getDepartureTime());
+        pstmt.setInt(4, train.getId());
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to edit train data in database");
+        }
+    }
+
+    @Override
+    public void deleteStationFromTrainRoute(Connection connection, int trainId, int stationId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.DELETE_STATION_FROM_TRAIN_ROUTE);
+        pstmt.setInt(1, trainId);
+        pstmt.setInt(2, stationId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to delete station from train route");
+        }
+    }
+
+    @Override
+    public void addStationToTrainRoute(Connection connection, String timeSinceStart, String stopTime, int distanceFromStart, int trainId, int stationId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.ADD_STATION_TO_TRAIN_ROUTE);
+        pstmt.setString(1, timeSinceStart);
+        pstmt.setString(2, stopTime);
+        pstmt.setInt(3, distanceFromStart);
+        pstmt.setInt(4, trainId);
+        pstmt.setInt(5, stationId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to add station to train route");
+        }
+    }
+
+    @Override
+    public void editStationDataOnTrainRoute(Connection connection, String timeSinceStart, String stopTime, int distanceFromStart, int trainId, int stationId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.EDIT_STATION_DATA_ON_TRAIN_ROUTE);
+        pstmt.setString(1, timeSinceStart);
+        pstmt.setString(2, stopTime);
+        pstmt.setInt(3, distanceFromStart);
+        pstmt.setInt(4, trainId);
+        pstmt.setInt(5, stationId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to edit station data on train route");
+        }
     }
 }

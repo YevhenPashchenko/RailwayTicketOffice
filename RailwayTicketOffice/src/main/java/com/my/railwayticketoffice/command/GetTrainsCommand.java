@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -30,14 +31,14 @@ public class GetTrainsCommand implements Command {
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private int fromStationId;
     private int toStationId;
-    String formattedDate;
+    private String formattedDate;
 
     /**
      * Get from database list of {@link com.my.railwayticketoffice.entity.Train}
      * traveling through the station specified in the request in the date specified in the request.
      * @param request - HttpServletRequest object.
      * @param response - HttpServletResponse object.
-     * @return request to {@link MainPageCommand}.
+     * @return link to {@link MainPageCommand}.
      * @throws DBException if {@link SQLException} occurs.
      */
     @Override
@@ -63,27 +64,28 @@ public class GetTrainsCommand implements Command {
     }
 
     private boolean checkParametersForCorrectness(HttpServletRequest request) {
+        HttpSession session = request.getSession();
         try {
             fromStationId = Integer.parseInt(request.getParameter("from"));
         } catch (NumberFormatException e) {
             logger.info("Departure station id is incorrect", e);
-            request.setAttribute("errorMessage", "Пункт відправлення задано не коректно");
+            session.setAttribute("errorMessage", "Пункт відправлення задано не коректно");
             return false;
         }
         try {
             toStationId = Integer.parseInt(request.getParameter("to"));
         } catch (NumberFormatException e) {
             logger.info("Destination station id is incorrect", e);
-            request.setAttribute("errorMessage", "Пункт призначення задано не коректно");
+            session.setAttribute("errorMessage", "Пункт призначення задано не коректно");
             return false;
         }
         if (fromStationId == toStationId) {
-            request.setAttribute("errorMessage", "Станції відправлення та призначення співпадають");
+            session.setAttribute("errorMessage", "Станції відправлення та призначення співпадають");
             return false;
         }
         List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
         if (date.size() != 3) {
-            request.setAttribute("errorMessage", "Дату задано не коректно");
+            session.setAttribute("errorMessage", "Дату задано не коректно");
             return false;
         }
         for (String d:
@@ -92,7 +94,7 @@ public class GetTrainsCommand implements Command {
                 Integer.parseInt(d);
             } catch (NumberFormatException e) {
                 logger.info("Departure date is incorrect", e);
-                request.setAttribute("errorMessage", "Дату задано не коректно");
+                session.setAttribute("errorMessage", "Дату задано не коректно");
                 return false;
             }
         }

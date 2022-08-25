@@ -153,15 +153,134 @@
                                     </td>
                                 </c:when>
                                 <c:otherwise>
-                                    <td class="text-start align-bottom py-0">${station.getName()}</td>
+                                    <td class="d-flex text-start align-bottom py-0 justify-content-between align-items-end" style="height: 70px;">
+                                        ${station.getName()}
+                                        <c:if test="${sessionScope.user.getRole() eq 'admin'}">
+                                            <div>
+                                                <div class="d-inline-block position-relative">
+                                                    <button class="btn border-0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Редагувати дані станції на маршруті">
+                                                        <img src="resources/images/edit-icon.png" alt="Редагувати дані станції на маршруті">
+                                                    </button>
+                                                    <form id="editStationDataOnTrainRoute" action="controller?command=editStationDataOnTrainRoute" class="position-absolute end-100 top-0 collapse fw-semibold bg-secondary p-1 rounded" style="width: 200px" method="post">
+                                                        <label>
+                                                            <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                                                        </label>
+                                                        <label>
+                                                            <input name="stationId" value="${station.getId()}" hidden>
+                                                        </label>
+                                                        <label for="timeSinceStartForEdit">Час з моменту відправлення поїзда з першої станції маршруту</label>
+                                                        <input id="timeSinceStartForEdit" class="d-inline-block w-50 form-control mb-1" name="timeSinceStart" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" type="time" required disabled>
+                                                        <div class="d-inline-block form-check form-switch ms-2">
+                                                            <label>
+                                                                <input class="form-check-input" role="switch" type="checkbox">
+                                                            </label>
+                                                            <label>
+                                                                <input value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" hidden>
+                                                            </label>
+                                                        </div>
+                                                        <label for="stopTimeForEdit">Час зупинки поїзда на станції</label>
+                                                        <input id="stopTimeForEdit" class="d-inline-block w-50 form-control mb-1" name="stopTime" value="${requestScope.train.getRoute().getStopTime(station.getId())}" type="time" required disabled>
+                                                        <div class="d-inline-block form-check form-switch ms-2">
+                                                            <label>
+                                                                <input class="form-check-input" role="switch" type="checkbox">
+                                                            </label>
+                                                            <label>
+                                                                <input value="${requestScope.train.getRoute().getStopTime(station.getId())}" hidden>
+                                                            </label>
+                                                        </div>
+                                                        <label for="distanceFromStartForEdit">Відстань до першої станції маршруту</label>
+                                                        <input id="distanceFromStartForEdit" class="d-inline-block w-50 form-control mb-1" name="distanceFromStart" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" type="text" required disabled>
+                                                        <div class="d-inline-block form-check form-switch ms-2">
+                                                            <label>
+                                                                <input class="form-check-input" role="switch" type="checkbox">
+                                                            </label>
+                                                            <label>
+                                                                <input value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" hidden>
+                                                            </label>
+                                                        </div>
+                                                        <button class="btn btn-primary" disabled>Редагувати</button>
+                                                    </form>
+                                                </div>
+                                                <form class="align-self-center d-inline-block" action="controller?command=deleteStationFromTrainRoute" method="post">
+                                                    <label>
+                                                        <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                                                    </label>
+                                                    <label>
+                                                        <input name="stationId" value="${station.getId()}" hidden>
+                                                    </label>
+                                                    <button class="btn border-0" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Видалити станцію з маршруту">
+                                                        <img src="resources/images/minus-icon.png" alt="Видалити станцію з маршруту">
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </c:if>
+                                    </td>
                                 </c:otherwise>
                             </c:choose>
                         </tr>
                     </c:forEach>
                     </tbody>
                 </table>
+                <div class="col-2 offset-1">
+                    <button class="btn btn-primary fw-semibold" data-bs-toggle="collapse" data-bs-target="#addStationToTrainRoute" aria-expanded="false" aria-controls="addStationToTrainRoute">
+                        Додати станцію до маршруту поїзда
+                    </button>
+                    <form id="addStationToTrainRoute" class="collapse fw-semibold bg-secondary bg-opacity-50 p-1 rounded" action="controller?command=addStationToTrainRoute" method="post">
+                        <label for="stationName">Назва станції</label>
+                        <label>
+                            <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                        </label>
+                        <label>
+                            <input name="stationId" hidden>
+                        </label>
+                        <input id="stationName" class="form-control mb-1" list="stationNameDatalist" type="text" autocomplete="off" required>
+                        <datalist id="stationNameDatalist">
+                            <c:forEach items="${requestScope.stations}" var="station">
+                                <option value="${station.getName()}" id="${station.getId()}"></option>
+                            </c:forEach>
+                        </datalist>
+                        <label for="timeSinceStart">Час з моменту відправлення поїзда з першої станції маршруту</label>
+                        <input id="timeSinceStart" class="form-control mb-1" name="timeSinceStart" type="time" required>
+                        <label for="stopTime">Час зупинки поїзда на станції</label>
+                        <input id="stopTime" class="form-control mb-1" name="stopTime" type="time" required>
+                        <label for="distanceFromStart">Відстань до першої станції маршруту</label>
+                        <input id="distanceFromStart" class="form-control mb-1" name="distanceFromStart" type="text" required>
+                        <button class="btn btn-primary">Додати станцію</button>
+                    </form>
+                </div>
             </div>
+            <c:if test="${sessionScope.user.getRole() eq 'admin'}">
+                <div class="modal fade" id="confirmDeleteStationFromTrainRouteModal" tabindex="-1" aria-labelledby="confirmDeleteStationFromTrainRouteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-warning" id="confirmDeleteStationFromTrainRouteModalLabel">Видалення станції з маршруту поїзда</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-danger fs-5 fw-semibold lh-2">Ви впевнені, що бажаєте видалити цю станцію з маршруту поїзда?</div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Видалити</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Скасувати</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-danger" id="errorModalLabel">Помилка</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body fs-5 fw-semibold lh-2 errorModalBody"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Закрити</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </c:if>
         </main>
-        <script type="text/javascript" src="resources/js/main.js"></script>
+        <script type="text/javascript" src="resources/js/route.js"></script>
     </body>
 </html>

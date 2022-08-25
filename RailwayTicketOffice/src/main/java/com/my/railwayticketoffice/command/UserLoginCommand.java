@@ -16,6 +16,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Class that built at command pattern. Authenticate user and save him in session on login.
@@ -26,6 +28,9 @@ public class UserLoginCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(UserLoginCommand.class);
     private final UserDAO userDAO = DBManager.getInstance().getUserDAO();
+    private int fromStationId;
+    private int toStationId;
+    private String formattedDate;
 
     /**
      * Authenticate user and save him in session on login.
@@ -46,7 +51,7 @@ public class UserLoginCommand implements Command {
                 session.setAttribute("user", user);
                 return chooseLink(request);
             }
-            session.setAttribute("loginErrorMessage", "Помилкова пошта або пароль");
+            session.setAttribute("errorMessage", "Помилкова пошта або пароль");
             return chooseLink(request);
         } catch (SQLException e) {
             logger.warn("Failed to authenticate user", e);
@@ -59,14 +64,37 @@ public class UserLoginCommand implements Command {
 
     private String chooseLink(HttpServletRequest request) {
         String link;
-        String from = request.getParameter("from");
-        String to = request.getParameter("to");
-        String datePicker = request.getParameter("datePicker");
-        if (!from.equals("") && !to.equals("")) {
-            link = "controller?command=getTrains&from=" + from + "&to=" + to + "&datePicker=" + datePicker;
+        if (checkParametersForCorrectness(request)) {
+            link = "controller?command=getTrains&from=" + fromStationId + "&to=" + toStationId + "&datePicker=" + formattedDate;
         } else {
             link = "controller?command=mainPage";
         }
         return link;
+    }
+
+    private boolean checkParametersForCorrectness(HttpServletRequest request) {
+        try {
+            fromStationId = Integer.parseInt(request.getParameter("from"));
+            toStationId = Integer.parseInt(request.getParameter("to"));
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        if (fromStationId == toStationId) {
+            return false;
+        }
+        List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
+        if (date.size() != 3) {
+            return false;
+        }
+        for (String d:
+                date) {
+            try {
+                Integer.parseInt(d);
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        formattedDate = String.join(".", date);
+        return true;
     }
 }

@@ -2,10 +2,7 @@ package com.my.railwayticketoffice.db.dao;
 
 import com.my.railwayticketoffice.entity.Train;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 /**
@@ -54,6 +51,31 @@ public class MySQLScheduleDAO implements ScheduleDAO {
         int deletedRows = pstmt.executeUpdate();
         if (deletedRows == 0) {
             throw new SQLException("Data not deleted from train schedule");
+        }
+    }
+
+    @Override
+    public int getTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate) throws SQLException {
+        int availableSeats = 0;
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.GET_AVAILABLE_SEATS);
+        pstmt.setInt(1, trainId);
+        pstmt.setString(2, selectedDate);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            availableSeats = rs.getInt("available_seats");
+        }
+        return availableSeats;
+    }
+
+    @Override
+    public void changeTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate, int availableSeatsNow) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHANGE_AVAILABLE_SEATS);
+        pstmt.setInt(1, availableSeatsNow);
+        pstmt.setInt(2, trainId);
+        pstmt.setString(3, selectedDate);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to change train available seats on this date");
         }
     }
 }

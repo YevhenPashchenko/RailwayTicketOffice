@@ -2,10 +2,7 @@ package com.my.railwayticketoffice.db.dao;
 
 import com.my.railwayticketoffice.entity.Station;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,5 +25,25 @@ public class MySQLStationDAO implements StationDAO {
             stations.add(station);
         }
         return stations;
+    }
+
+    @Override
+    public void addStation(Connection connection, String stationName) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION);
+        pstmt.setString(1, stationName);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to add station to database");
+        }
+    }
+
+    @Override
+    public void deleteStation(Connection connection, int stationId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.DELETE_STATION);
+        pstmt.setInt(1, stationId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to delete station from database");
+        }
     }
 }

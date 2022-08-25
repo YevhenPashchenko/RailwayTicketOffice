@@ -20,8 +20,20 @@ public class CommandContainer {
         commands.put("mainPage", new MainPageCommand());
         commands.put("getTrains", new GetTrainsCommand());
         commands.put("showRoute", new ShowRouteCommand());
+        commands.put("userRegistration", new UserRegistrationCommand());
         commands.put("userLogin", new UserLoginCommand());
         commands.put("userLogout", new UserLogoutCommand());
+        commands.put("userEdit", new UserEditCommand());
+        commands.put("ticketPage", new TicketPageCommand());
+        commands.put("buyTicket", new BuyTicketCommand());
+        commands.put("addTrain", new AddTrainCommand());
+        commands.put("deleteTrain", new DeleteTrainCommand());
+        commands.put("editTrain", new EditTrainCommand());
+        commands.put("deleteStationFromTrainRoute", new DeleteStationFromTrainRouteCommand());
+        commands.put("addStationToTrainRoute", new AddStationToTrainRouteCommand());
+        commands.put("editStationDataOnTrainRoute", new EditStationDataOnTrainRouteCommand());
+        commands.put("addStation", new AddStationCommand());
+        commands.put("deleteStation", new DeleteStationCommand());
     }
 
     /**

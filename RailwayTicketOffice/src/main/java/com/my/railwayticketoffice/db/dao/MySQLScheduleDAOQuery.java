@@ -11,4 +11,6 @@ public class MySQLScheduleDAOQuery {
     public static final String ADD_DATA = "INSERT INTO schedules VALUES ";
     public static final String VALUES_FOR_ADD_DATA = "(?, ?, ?)";
     public static final String DELETE_DATA = "DELETE FROM schedules WHERE day < ?";
+    public static final String GET_AVAILABLE_SEATS = "SELECT available_seats FROM schedules WHERE train_id = ? AND day = ?";
+    public static final String CHANGE_AVAILABLE_SEATS = "UPDATE schedules SET available_seats = ? WHERE train_id = ? AND day = ?";
 }

@@ -20,7 +20,7 @@ public interface TrainDAO {
      * @return a list of {@link Train}
      * @throws SQLException – if a database access error occurs.
      */
-    List<Train> getAllTrainsDataForSchedule(Connection connection) throws SQLException;
+    List<Train> getAllTrains(Connection connection) throws SQLException;
 
     /**
      * When a class implementing interface {@link TrainDAO} call this method should be return
@@ -61,4 +61,63 @@ public interface TrainDAO {
      * @throws SQLException – if a database access error occurs.
      */
     void getRouteForTrain(Connection connection, Train train) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should be added new {@link Train} to database.
+     * @param connection - Connection object.
+     * @param trainNumber - number of the new train.
+     * @param trainSeats - number of seats of the new train.
+     * @param trainDepartureTime - departure time of the new train. Must match the pattern "hh:mm" or "hh:mm:ss".
+     * @throws SQLException – if a database access error occurs.
+     */
+    void addTrain(Connection connection, String trainNumber, int trainSeats, String trainDepartureTime) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should delete {@link Train} from database.
+     * @param connection - Connection object.
+     * @param trainId - number of deleted train.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void deleteTrain(Connection connection, int trainId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should edit {@link Train} data in database.
+     * @param connection - Connection object.
+     * @param train - edited {@link Train}.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void editTrain(Connection connection, Train train) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should delete station from train route.
+     * @param connection - Connection object.
+     * @param trainId - train id.
+     * @param stationId - id station that must be deleted from train route.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void deleteStationFromTrainRoute(Connection connection, int trainId, int stationId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should add station to train route.
+     * @param connection - Connection object.
+     * @param timeSinceStart - time from the moment the train departs from the first station of the route.
+     * @param stopTime - train stop time at the route station.
+     * @param distanceFromStart - distance from the first station of the train route.
+     * @param trainId - train id.
+     * @param stationId - id station that must be added to train route.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void addStationToTrainRoute(Connection connection, String timeSinceStart, String stopTime, int distanceFromStart, int trainId, int stationId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should edit station data on train route.
+     * @param connection - Connection object.
+     * @param timeSinceStart - time from the moment the train departs from the first station of the route.
+     * @param stopTime - train stop time at the route station.
+     * @param distanceFromStart - distance from the first station of the train route.
+     * @param trainId - train id.
+     * @param stationId - id station.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void editStationDataOnTrainRoute(Connection connection, String timeSinceStart, String stopTime, int distanceFromStart, int trainId, int stationId) throws SQLException;
 }

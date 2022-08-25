@@ -38,4 +38,26 @@ public interface ScheduleDAO {
      * @throws SQLException – if a database access error occurs.
      */
     void deleteData(Connection connection, String currentDate) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should be return a number of train
+     * available seats on selected date.
+     * @param connection - Connection object.
+     * @param trainId - train id.
+     * @param selectedDate - selected date.
+     * @return - number of train available seats.
+     * @throws SQLException – if a database access error occurs.
+     */
+    int getTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should be change a number of train
+     * available seats on selected date.
+     * @param connection - Connection object.
+     * @param trainId - train id.
+     * @param selectedDate - selected date.
+     * @param availableSeatsNow - new number of train available seats.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void changeTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate, int availableSeatsNow) throws SQLException;
 }

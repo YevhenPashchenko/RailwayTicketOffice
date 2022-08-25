@@ -140,7 +140,7 @@ public class Train implements Serializable {
         public String getCostOfTripAsString(int fromStationId, int toStationId) {
             int tripDistance = distanceFromStartMap.get(toStationId) - distanceFromStartMap.get(fromStationId);
             double costOfTrip = Util.getBasicTicketCost() + tripDistance * Util.getOneKilometerRoadCost() * (1 - getCoefficientDependingOnDistanceOfTrip(tripDistance));
-            return new DecimalFormat("#0.0").format(costOfTrip);
+            return new DecimalFormat("#0.00").format(costOfTrip);
         }
 
         private double getCoefficientDependingOnDistanceOfTrip(int tripDistance) {
@@ -151,8 +151,28 @@ public class Train implements Serializable {
             return coefficient;
         }
 
+        public String getStationNameByStationId(int stationId) {
+            String stationName = "";
+            for (Station station:
+                 stations) {
+                if (station.getId() == stationId) {
+                    stationName = station.getName();
+                    break;
+                }
+            }
+            return stationName;
+        }
+
         public List<Station> getStations() {
             return stations;
+        }
+
+        public LocalTime getTimeSinceStart(Integer stationId) {
+            return timeSinceStartMap.get(stationId);
+        }
+
+        public LocalTime getStopTime(Integer stationId) {
+            return stopTimeMap.get(stationId);
         }
 
         public void addStation(Station station) {

@@ -38,7 +38,7 @@ public class TrainScheduleManager implements Runnable {
                 scheduleDates.add(currentDate);
                 date = date.plusDays(1);
             }
-            List<Train> trains = trainDAO.getAllTrainsDataForSchedule(connection);
+            List<Train> trains = trainDAO.getAllTrains(connection);
             scheduleDAO.clearTable(connection);
             if (trains.size() > 0) {
                 scheduleDAO.addData(connection, scheduleDates, trains);
@@ -61,7 +61,7 @@ public class TrainScheduleManager implements Runnable {
             List<String> scheduleDates = new ArrayList<>();
             scheduleDAO.deleteData(connection, currentDate);
             scheduleDates.add(newLastScheduleDate);
-            List<Train> trains = trainDAO.getAllTrainsDataForSchedule(connection);
+            List<Train> trains = trainDAO.getAllTrains(connection);
             scheduleDAO.addData(connection, scheduleDates, trains);
         } catch (SQLException e) {
             logger.warn("Failed to update train schedule", e);

@@ -20,4 +20,20 @@ public interface StationDAO {
      * @return a list of {@link Station}.
      */
     List<Station> getStations(Connection connection) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link StationDAO} call this method should be added stations to database.
+     * @param connection - Connection object.
+     * @param stationName - station name.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void addStation(Connection connection, String stationName) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link StationDAO} call this method should be deleted stations from database.
+     * @param connection - Connection object.
+     * @param stationId - station id.
+     * @throws SQLException – if a database access error occurs.
+     */
+    void deleteStation(Connection connection, int stationId) throws SQLException;
 }
