@@ -35,6 +35,19 @@ if (confirmDeleteStationModal != null) {
         keyboard: false,
     });
 }
+let oldStationNameForEditInput = document.querySelector('#oldStationNameForEdit');
+let newStationNameForEditInput = document.querySelector('#newStationNameForEdit');
+let editStationButton = document.querySelector('#editStation button');
+let trainNumberForAddToScheduleInput = document.querySelector('#trainNumberForAddToSchedule');
+let addTrainToScheduleButton = document.querySelector('#addTrainToSchedule button');
+let trainNumberForDeleteFromScheduleInput = document.querySelector('#trainNumberForDeleteFromSchedule');
+let deleteTrainFromScheduleButton = document.querySelector('#deleteTrainFromSchedule button');
+let confirmDeleteTrainFromScheduleModal = document.querySelector('#confirmDeleteTrainFromScheduleModal');
+if (confirmDeleteTrainFromScheduleModal != null) {
+    confirmDeleteTrainFromScheduleModal = new bootstrap.Modal(confirmDeleteTrainFromScheduleModal, {
+        keyboard: false,
+    });
+}
 
 $(function() {
     let dateNow = Date.now();
@@ -251,11 +264,11 @@ function changeAttribute(inputValue, input) {
     if (inputValue === "") {
         input.removeAttribute("value");
     } else {
-        let options = document.querySelector('option[value="' + inputValue + '"]');
-        if (options === undefined) {
+        let option = document.querySelector('option[value="' + inputValue + '"]');
+        if (option === undefined) {
             input.removeAttribute("value");
         } else {
-            input.setAttribute("value", options.getAttribute('id'));
+            input.setAttribute("value", option.getAttribute('id'));
         }
     }
 }
@@ -334,6 +347,10 @@ if (inputTrainNumberForEdit !== null) {
             inputDepartureTime.setAttribute("disabled", "");
             for (let i = 0; i < editTrainCheckboxes.length; i++) {
                 editTrainCheckboxes[i].removeAttribute("hidden");
+                if (i === 0 && editTrainCheckboxes[i].hasAttribute("checked")) {
+                    editTrainCheckboxes[i].click();
+                    editTrainForm.querySelector('button').setAttribute("disabled", "");
+                }
             }
         }
     })
@@ -373,5 +390,86 @@ if (deleteStationButton != null) {
             return;
         }
         confirmDeleteStationModal.show();
+    });
+}
+
+if (oldStationNameForEditInput != null) {
+    oldStationNameForEditInput.addEventListener("change", evt => {
+        let input = evt.currentTarget;
+        changeAttribute(input.value, evt.currentTarget.previousElementSibling.firstElementChild);
+        if (input.value !== "") {
+            newStationNameForEditInput.removeAttribute("disabled");
+        } else {
+            newStationNameForEditInput.setAttribute("disabled", "");
+        }
+    });
+    newStationNameForEditInput.addEventListener("change", evt => {
+        let inputValue = evt.currentTarget.value;
+        if (inputValue !== "") {
+            editStationButton.removeAttribute("disabled");
+        } else {
+            editStationButton.setAttribute("disabled", "");
+        }
+    });
+    editStationButton.addEventListener("click", evt => {
+        if (!oldStationNameForEditInput.previousElementSibling.firstElementChild.hasAttribute("value")) {
+            evt.preventDefault();
+            modalBody.innerHTML = "Виберіть існуючу станцію";
+            errorModal.show();
+            return;
+        }
+        if (newStationNameForEditInput.value === "") {
+            evt.preventDefault();
+            modalBody.innerHTML = "Ім'я станції не може бути пустим";
+            errorModal.show();
+            return;
+        }
+        if (oldStationNameForEditInput.value === newStationNameForEditInput.value) {
+            evt.preventDefault();
+            modalBody.innerHTML = "Нове та старе імена станції однакові";
+            errorModal.show();
+        }
+    });
+}
+
+if (trainNumberForAddToScheduleInput != null) {
+    trainNumberForAddToScheduleInput.addEventListener("change", evt => {
+        let input = evt.currentTarget;
+        changeAttribute(input.value, input.previousElementSibling.firstElementChild);
+        if (input.value !== "") {
+            addTrainToScheduleButton.removeAttribute("disabled");
+        } else {
+            addTrainToScheduleButton.setAttribute("disabled", "");
+        }
+    });
+    addTrainToScheduleButton.addEventListener("click", evt => {
+        let trainIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
+        if (!trainIdInput.hasAttribute("value")) {
+            evt.preventDefault();
+            modalBody.innerHTML = "Виберіть існуючий поїзд";
+            errorModal.show();
+        }
+    });
+}
+
+if (trainNumberForDeleteFromScheduleInput != null) {
+    trainNumberForDeleteFromScheduleInput.addEventListener("change", evt => {
+        let input = evt.currentTarget;
+        changeAttribute(input.value, input.previousElementSibling.firstElementChild);
+        if (input.value !== "") {
+            deleteTrainFromScheduleButton.removeAttribute("disabled");
+        } else {
+            deleteTrainFromScheduleButton.setAttribute("disabled", "");
+        }
+    });
+    deleteTrainFromScheduleButton.addEventListener("click", evt => {
+        let trainIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
+        evt.preventDefault();
+        if (!trainIdInput.hasAttribute("value")) {
+            modalBody.innerHTML = "Виберіть існуючий поїзд";
+            errorModal.show();
+            return;
+        }
+        confirmDeleteTrainFromScheduleModal.show();
     });
 }

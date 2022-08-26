@@ -10,6 +10,7 @@ public class Util {
     private static int scheduleDuration = 14;
     private static int basicTicketCost = 50;
     private static double oneKilometerRoadCost = 0.5;
+    private static int numberTrainOnPage = 2;
 
     /**
      * Returns the number of days contained in the train schedule
@@ -42,5 +43,13 @@ public class Util {
 
     public static void setOneKilometerRoadCost(double oneKilometerRoadCost) {
         Util.oneKilometerRoadCost = oneKilometerRoadCost;
+    }
+
+    public static int getNumberTrainOnPage() {
+        return numberTrainOnPage;
+    }
+
+    public static void setNumberTrainOnPage(int numberTrainOnPage) {
+        Util.numberTrainOnPage = numberTrainOnPage;
     }
 }

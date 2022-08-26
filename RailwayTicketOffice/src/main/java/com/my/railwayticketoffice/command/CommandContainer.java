@@ -34,6 +34,13 @@ public class CommandContainer {
         commands.put("editStationDataOnTrainRoute", new EditStationDataOnTrainRouteCommand());
         commands.put("addStation", new AddStationCommand());
         commands.put("deleteStation", new DeleteStationCommand());
+        commands.put("editStation", new EditStationCommand());
+        commands.put("addTrainToSchedule", new AddTrainToScheduleCommand());
+        commands.put("deleteTrainFromSchedule", new DeleteTrainFromSchedule());
+        commands.put("getTrainsSortedByDurationTrip", new GetTrainsSortedByDurationTripCommand());
+        commands.put("getTrainsSortedByDepartureTime", new GetTrainsSortedByDepartureTimeCommand());
+        commands.put("getTrainsSortedByDestinationTime", new GetTrainsSortedByDestinationTimeCommand());
+        commands.put("getTrainsSortedByAvailableSeats", new GetTrainsSortedByAvailableSeatsCommand());
     }
 
     /**

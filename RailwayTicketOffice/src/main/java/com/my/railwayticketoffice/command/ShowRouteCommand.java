@@ -44,12 +44,15 @@ public class ShowRouteCommand implements Command {
         User user = (User) session.getAttribute("user");
         if (checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
-                Train train = trainDAO.getTrain(connection, trainId);
-                trainDAO.getRouteForTrain(connection, train);
+                Train train = trainDAO.getTrainThatIsInSchedule(connection, trainId);
                 if (user != null && "admin".equals(user.getRole())) {
+                    if (train.getId() == 0) {
+                        train = trainDAO.getTrain(connection, trainId);
+                    }
                     List<Station> stations = stationDAO.getStations(connection);
                     request.setAttribute("stations", stations);
                 }
+                trainDAO.getRouteForTrain(connection, train);
                 request.setAttribute("fromStationId", fromStationId);
                 request.setAttribute("toStationId", toStationId);
                 request.setAttribute("train", train);
@@ -68,7 +71,18 @@ public class ShowRouteCommand implements Command {
         User user = (User) session.getAttribute("user");
         try {
             trainId = Integer.parseInt(request.getParameter("trainId"));
-            if (user == null || !"admin".equals(user.getRole())) {
+            if (user != null && "admin".equals(user.getRole())) {
+                if (request.getParameter("fromStationId") != null) {
+                    fromStationId = Integer.parseInt(request.getParameter("fromStationId"));
+                } else {
+                    fromStationId = 0;
+                }
+                if (request.getParameter("toStationId") != null) {
+                    toStationId = Integer.parseInt(request.getParameter("toStationId"));
+                } else {
+                    toStationId = 0;
+                }
+            } else {
                 fromStationId = Integer.parseInt(request.getParameter("fromStationId"));
                 toStationId = Integer.parseInt(request.getParameter("toStationId"));
             }

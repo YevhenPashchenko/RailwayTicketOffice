@@ -45,13 +45,14 @@ public interface TrainDAO {
     void getRoutesForTrains(Connection connection, List<Train> trains) throws SQLException;
 
     /**
-     * When a class implementing interface {@link TrainDAO} call this method should be return {@link com.my.railwayticketoffice.entity.Train}.
+     * When a class implementing interface {@link TrainDAO} call this method should be return {@link com.my.railwayticketoffice.entity.Train}
+     * if it is in schedule.
      * @param connection - Connection object.
      * @param trainId - {@link com.my.railwayticketoffice.entity.Train} id.
      * @return {@link com.my.railwayticketoffice.entity.Train}.
      * @throws SQLException – if a database access error occurs.
      */
-    Train getTrain(Connection connection, int trainId) throws SQLException;
+    Train getTrainThatIsInSchedule(Connection connection, int trainId) throws SQLException;
 
     /**
      * When a class implementing interface {@link TrainDAO} call this method should be added route to
@@ -120,4 +121,13 @@ public interface TrainDAO {
      * @throws SQLException – if a database access error occurs.
      */
     void editStationDataOnTrainRoute(Connection connection, String timeSinceStart, String stopTime, int distanceFromStart, int trainId, int stationId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should be return {@link com.my.railwayticketoffice.entity.Train}.
+     * @param connection - Connection object.
+     * @param trainId - train id.
+     * @return {@link com.my.railwayticketoffice.entity.Train}.
+     * @throws SQLException – if a database access error occurs.
+     */
+    Train getTrain(Connection connection, int trainId) throws SQLException;
 }

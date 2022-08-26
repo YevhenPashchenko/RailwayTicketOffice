@@ -382,6 +382,54 @@
                                                 <button class="btn btn-primary">Видалити станцію</button>
                                             </form>
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#editStation" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Редагувати станцію
+                                            </a>
+                                            <form id="editStation" class="collapse ps-2" action="controller?command=editStation" method="post">
+                                                <label for="oldStationNameForEdit" class="form-label">Назва станції</label>
+                                                <label>
+                                                    <input name="stationId" hidden>
+                                                </label>
+                                                <input id="oldStationNameForEdit" class="form-control w-50 mb-2" type="text" list="stationsDatalistOptions" autocomplete="off" required>
+                                                <label for="newStationNameForEdit" class="form-label">Назва станції</label>
+                                                <input id="newStationNameForEdit" class="form-control w-50 mb-2" type="text" name="stationName" autocomplete="off" required disabled>
+                                                <button class="btn btn-primary" disabled>Редагувати станцію</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link fs-5 fw-semibold" href="#schedule" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                        Розклад
+                                    </a>
+                                    <ul id="schedule" class="dropdown-menu bg-secondary bg-opacity-50 ps-2">
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#addTrainToSchedule" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Додати поїзд до розкладу
+                                            </a>
+                                            <form id="addTrainToSchedule" class="collapse ps-2" action="controller?command=addTrainToSchedule" method="post">
+                                                <label for="trainNumberForAddToSchedule" class="form-label">Назва поїзда</label>
+                                                <label>
+                                                    <input name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForAddToSchedule" class="form-control w-50 mb-2" type="text" list="trainNumberDatalist" autocomplete="off" required>
+                                                <button class="btn btn-primary" disabled>Додати</button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#deleteTrainFromSchedule" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                Видалити поїзд з розкладу
+                                            </a>
+                                            <form id="deleteTrainFromSchedule" class="collapse ps-2" action="controller?command=deleteTrainFromSchedule" method="post">
+                                                <label for="trainNumberForDeleteFromSchedule" class="form-label">Назва поїзда</label>
+                                                <label>
+                                                    <input name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForDeleteFromSchedule" class="form-control w-50 mb-2" type="text" list="trainNumberDatalist" autocomplete="off" required>
+                                                <button class="btn btn-primary" disabled>Видалити</button>
+                                            </form>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -394,6 +442,9 @@
             <form action="controller" method="get">
                 <label>
                     <input name="command" value="getTrains" hidden>
+                </label>
+                <label>
+                    <input name="page" value="1" hidden>
                 </label>
                 <div class="row pt-4 position-relative">
                     <div class="col-6 pe-4">
@@ -437,12 +488,36 @@
                             <th>Звідки/Куди</th>
                             <th>Дата</th>
                             <th class="text-start">
-                                <div>Відправлення</div>
-                                <div>Прибуття</div>
+                                <div>Відправлення
+                                    <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByDepartureTime'}">
+                                        <a href="controller?command=getTrainsSortedByDepartureTime&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                            <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
+                                        </a>
+                                    </c:if>
+                                </div>
+                                <div>Прибуття
+                                    <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByDestinationTime'}">
+                                        <a href="controller?command=getTrainsSortedByDestinationTime&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                            <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
+                                        </a>
+                                    </c:if>
+                                </div>
                             </th>
-                            <th>Тривалість</th>
+                            <th>Тривалість
+                                <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByDurationTrip'}">
+                                    <a href="controller?command=getTrainsSortedByDurationTrip&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                        <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
+                                    </a>
+                                </c:if>
+                            </th>
                             <th>Ціна проїзду, грн</th>
-                            <th>Вільних місць</th>
+                            <th>Вільних місць
+                                <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByAvailableSeats'}">
+                                    <a href="controller?command=getTrainsSortedByAvailableSeats&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                        <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
+                                    </a>
+                                </c:if>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="fs-5 fw-semibold lh-1">
@@ -502,6 +577,66 @@
                     </c:forEach>
                     </tbody>
                 </table>
+                <c:if test="${requestScope.numberOfPages gt 1}">
+                    <c:choose>
+                        <c:when test="${requestScope.trainsSortedCommand ne null}">
+                            <c:set var="trainsSortedCommand" value="${requestScope.trainsSortedCommand}" scope="page"/>
+                        </c:when>
+                        <c:otherwise>
+                            <c:set var="trainsSortedCommand" value="getTrains" scope="page"/>
+                        </c:otherwise>
+                    </c:choose>
+                    <nav class="d-flex justify-content-center">
+                        <ul class="pagination">
+                            <c:choose>
+                                <c:when test="${requestScope.page eq 1}">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="page-item">
+                                        <a class="page-link" href="controller?command=${pageScope.trainsSortedCommand}&page=${requestScope.page - 1}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:forEach begin="1" end="${requestScope.numberOfPages}" varStatus="loop">
+                                <c:choose>
+                                    <c:when test="${requestScope.page eq loop.count}">
+                                        <li class="page-item active">
+                                            <a class="page-link">${loop.count}</a>
+                                        </li>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li class="page-item">
+                                            <a class="page-link" href="controller?command=${pageScope.trainsSortedCommand}&page=${loop.count}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">${loop.count}</a>
+                                        </li>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:forEach>
+                            <c:choose>
+                                <c:when test="${requestScope.page eq requestScope.numberOfPages}">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="page-item">
+                                        <a class="page-link" href="controller?command=${pageScope.trainsSortedCommand}&page=${requestScope.page + 1}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                        </ul>
+                    </nav>
+                </c:if>
             </c:if>
             <c:if test="${requestScope.trains.size() eq 0}">
                 <div class="row pb-4 justify-content-center">
@@ -565,6 +700,21 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="confirmDeleteTrainFromScheduleModal" tabindex="-1" aria-labelledby="confirmDeleteTrainFromScheduleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-warning" id="confirmDeleteTrainFromScheduleModalLabel">Видалення поїзда з розкладу</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-danger fs-5 fw-semibold lh-2">Ви впевнені, що бажаєте видалити цей поїзд з розкладу?</div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary" form="deleteTrainFromSchedule">Видалити</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Скасувати</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </c:if>
         </main>
         <script type="text/javascript" src="resources/js/main.js"></script>
@@ -573,11 +723,11 @@
                 for (let i = 0; i < inputsFrom.length; i++) {
                     inputsFrom[i].setAttribute("value", ${requestScope.fromStationId});
                 }
-                inputFrom.setAttribute("value", $('#' + ${requestScope.fromStationId})[0].value);
+                inputFrom.setAttribute("value", document.querySelector('#stationsDatalistOptions option[id="' + ${requestScope.fromStationId} + '"]').value);
                 for (let i = 0; i < inputsTo.length; i++) {
                     inputsTo[i].setAttribute("value", ${requestScope.toStationId});
                 }
-                inputTo.setAttribute("value", $('#' + ${requestScope.toStationId})[0].value);
+                inputTo.setAttribute("value", document.querySelector('#stationsDatalistOptions option[id="' + ${requestScope.toStationId} + '"]').value);
             </script>
             <span id="checkedDate" hidden>${requestScope.departureDate}</span>
         </c:if>

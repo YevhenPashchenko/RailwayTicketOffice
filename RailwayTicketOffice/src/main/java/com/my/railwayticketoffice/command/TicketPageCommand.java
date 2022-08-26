@@ -45,7 +45,7 @@ public class TicketPageCommand implements Command {
         User user = (User) session.getAttribute("user");
         if (user != null && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
-                Train train = trainDAO.getTrain(connection, trainId);
+                Train train = trainDAO.getTrainThatIsInSchedule(connection, trainId);
                 trainDAO.getRouteForTrain(connection, train);
                 request.setAttribute("train", train);
                 request.setAttribute("fromStationId", fromStationId);

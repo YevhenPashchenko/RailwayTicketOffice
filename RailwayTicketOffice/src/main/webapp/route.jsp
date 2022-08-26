@@ -25,7 +25,9 @@
                 Маршрут поїзда
                 <img class="img-fluid w-auto" src="resources/images/train-icon.png" alt="">
                 <span class="fw-bold">№${requestScope.train.getNumber()}</span>
-                ${requestScope.train.getRoute().getDepartureStationName()} - ${requestScope.train.getRoute().getDestinationStationName()}
+                <c:if test="${requestScope.train.getRoute().getStations().size() gt 0}">
+                    ${requestScope.train.getRoute().getDepartureStationName()} - ${requestScope.train.getRoute().getDestinationStationName()}
+                </c:if>
             </div>
             <div class="row justify-content-center">
                 <table class="table table-secondary text-center mb-4 w-50 col-3 table-hover">
@@ -139,84 +141,84 @@
                                 </c:otherwise>
                             </c:choose>
                             <td class="align-bottom py-0">${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}</td>
-                            <c:choose>
-                                <c:when test="${station.getId() eq requestScope.fromStationId}">
-                                    <td class="text-start align-bottom py-0">
-                                        <div class="text-primary">Станція відправлення:</div>
+                            <td class="d-flex text-start align-bottom py-0 justify-content-between align-items-end" style="height: 70px;">
+                                <c:choose>
+                                    <c:when test="${station.getId() eq requestScope.fromStationId}">
+                                        <div>
+                                            <div class="text-primary align-self-baseline">Станція відправлення:</div>
+                                            ${station.getName()}
+                                        </div>
+                                    </c:when>
+                                    <c:when test="${station.getId() eq requestScope.toStationId}">
+                                        <div>
+                                            <div class="text-primary align-self-baseline">Станція призначення:</div>
+                                            ${station.getName()}
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
                                         ${station.getName()}
-                                    </td>
-                                </c:when>
-                                <c:when test="${station.getId() eq requestScope.toStationId}">
-                                    <td class="text-start align-bottom py-0">
-                                        <div class="text-primary">Станція призначення:</div>
-                                        ${station.getName()}
-                                    </td>
-                                </c:when>
-                                <c:otherwise>
-                                    <td class="d-flex text-start align-bottom py-0 justify-content-between align-items-end" style="height: 70px;">
-                                        ${station.getName()}
-                                        <c:if test="${sessionScope.user.getRole() eq 'admin'}">
-                                            <div>
-                                                <div class="d-inline-block position-relative">
-                                                    <button class="btn border-0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Редагувати дані станції на маршруті">
-                                                        <img src="resources/images/edit-icon.png" alt="Редагувати дані станції на маршруті">
-                                                    </button>
-                                                    <form id="editStationDataOnTrainRoute" action="controller?command=editStationDataOnTrainRoute" class="position-absolute end-100 top-0 collapse fw-semibold bg-secondary p-1 rounded" style="width: 200px" method="post">
-                                                        <label>
-                                                            <input name="trainId" value="${requestScope.train.getId()}" hidden>
-                                                        </label>
-                                                        <label>
-                                                            <input name="stationId" value="${station.getId()}" hidden>
-                                                        </label>
-                                                        <label for="timeSinceStartForEdit">Час з моменту відправлення поїзда з першої станції маршруту</label>
-                                                        <input id="timeSinceStartForEdit" class="d-inline-block w-50 form-control mb-1" name="timeSinceStart" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" type="time" required disabled>
-                                                        <div class="d-inline-block form-check form-switch ms-2">
-                                                            <label>
-                                                                <input class="form-check-input" role="switch" type="checkbox">
-                                                            </label>
-                                                            <label>
-                                                                <input value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" hidden>
-                                                            </label>
-                                                        </div>
-                                                        <label for="stopTimeForEdit">Час зупинки поїзда на станції</label>
-                                                        <input id="stopTimeForEdit" class="d-inline-block w-50 form-control mb-1" name="stopTime" value="${requestScope.train.getRoute().getStopTime(station.getId())}" type="time" required disabled>
-                                                        <div class="d-inline-block form-check form-switch ms-2">
-                                                            <label>
-                                                                <input class="form-check-input" role="switch" type="checkbox">
-                                                            </label>
-                                                            <label>
-                                                                <input value="${requestScope.train.getRoute().getStopTime(station.getId())}" hidden>
-                                                            </label>
-                                                        </div>
-                                                        <label for="distanceFromStartForEdit">Відстань до першої станції маршруту</label>
-                                                        <input id="distanceFromStartForEdit" class="d-inline-block w-50 form-control mb-1" name="distanceFromStart" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" type="text" required disabled>
-                                                        <div class="d-inline-block form-check form-switch ms-2">
-                                                            <label>
-                                                                <input class="form-check-input" role="switch" type="checkbox">
-                                                            </label>
-                                                            <label>
-                                                                <input value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" hidden>
-                                                            </label>
-                                                        </div>
-                                                        <button class="btn btn-primary" disabled>Редагувати</button>
-                                                    </form>
+                                    </c:otherwise>
+                                </c:choose>
+                                <c:if test="${sessionScope.user.getRole() eq 'admin'}">
+                                    <div>
+                                        <div class="d-inline-block position-relative">
+                                            <button class="btn border-0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Редагувати дані станції на маршруті">
+                                                <img src="resources/images/edit-icon.png" alt="Редагувати дані станції на маршруті">
+                                            </button>
+                                            <form id="editStationDataOnTrainRoute" action="controller?command=editStationDataOnTrainRoute" class="position-absolute end-100 top-0 collapse fw-semibold bg-secondary p-1 rounded" style="width: 200px" method="post">
+                                                <label>
+                                                    <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="stationId" value="${station.getId()}" hidden>
+                                                </label>
+                                                <label for="timeSinceStartForEdit">Час з моменту відправлення поїзда з першої станції маршруту</label>
+                                                <input id="timeSinceStartForEdit" class="d-inline-block w-50 form-control mb-1" name="timeSinceStart" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" type="time" required disabled>
+                                                <div class="d-inline-block form-check form-switch ms-2">
+                                                    <label>
+                                                        <input class="form-check-input" role="switch" type="checkbox">
+                                                    </label>
+                                                    <label>
+                                                        <input value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" hidden>
+                                                    </label>
                                                 </div>
-                                                <form class="align-self-center d-inline-block" action="controller?command=deleteStationFromTrainRoute" method="post">
+                                                <label for="stopTimeForEdit">Час зупинки поїзда на станції</label>
+                                                <input id="stopTimeForEdit" class="d-inline-block w-50 form-control mb-1" name="stopTime" value="${requestScope.train.getRoute().getStopTime(station.getId())}" type="time" required disabled>
+                                                <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
-                                                        <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                                                        <input class="form-check-input" role="switch" type="checkbox">
                                                     </label>
                                                     <label>
-                                                        <input name="stationId" value="${station.getId()}" hidden>
+                                                        <input value="${requestScope.train.getRoute().getStopTime(station.getId())}" hidden>
                                                     </label>
-                                                    <button class="btn border-0" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Видалити станцію з маршруту">
-                                                        <img src="resources/images/minus-icon.png" alt="Видалити станцію з маршруту">
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </c:if>
-                                    </td>
-                                </c:otherwise>
-                            </c:choose>
+                                                </div>
+                                                <label for="distanceFromStartForEdit">Відстань до першої станції маршруту</label>
+                                                <input id="distanceFromStartForEdit" class="d-inline-block w-50 form-control mb-1" name="distanceFromStart" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" type="text" required disabled>
+                                                <div class="d-inline-block form-check form-switch ms-2">
+                                                    <label>
+                                                        <input class="form-check-input" role="switch" type="checkbox">
+                                                    </label>
+                                                    <label>
+                                                        <input value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" hidden>
+                                                    </label>
+                                                </div>
+                                                <button class="btn btn-primary" disabled>Редагувати</button>
+                                            </form>
+                                        </div>
+                                        <form class="align-self-center d-inline-block" action="controller?command=deleteStationFromTrainRoute" method="post">
+                                            <label>
+                                                <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                                            </label>
+                                            <label>
+                                                <input name="stationId" value="${station.getId()}" hidden>
+                                            </label>
+                                            <button class="btn border-0" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Видалити станцію з маршруту">
+                                                <img src="resources/images/minus-icon.png" alt="Видалити станцію з маршруту">
+                                            </button>
+                                        </form>
+                                    </div>
+                                </c:if>
+                            </td>
                         </tr>
                     </c:forEach>
                     </tbody>

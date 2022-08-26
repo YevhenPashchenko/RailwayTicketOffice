@@ -46,4 +46,15 @@ public class MySQLStationDAO implements StationDAO {
             throw new SQLException("Failed to delete station from database");
         }
     }
+
+    @Override
+    public void editStation(Connection connection, int stationId, String stationName) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.EDIT_STATION);
+        pstmt.setString(1, stationName);
+        pstmt.setInt(2, stationId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to edit station data in database");
+        }
+    }
 }

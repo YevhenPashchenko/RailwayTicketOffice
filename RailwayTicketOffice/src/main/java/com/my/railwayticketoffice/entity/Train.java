@@ -116,7 +116,7 @@ public class Train implements Serializable {
             LocalDateTime departureDateFromDepartureStation;
             LocalTime timeSinceDepartureFromFirstStation = timeSinceStartMap.get(stationId);
             departureDateFromDepartureStation = departureDate.atTime(departureTime).plusNanos(timeSinceDepartureFromFirstStation.toNanoOfDay());
-            return DayOfWeekLocaleUA.of(departureDateFromDepartureStation.getDayOfWeek().getValue()).toString() +
+            return DayOfWeekLocaleUA.of(departureDateFromDepartureStation.getDayOfWeek().getValue()) +
                     ", " + departureDateFromDepartureStation.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
         }
 

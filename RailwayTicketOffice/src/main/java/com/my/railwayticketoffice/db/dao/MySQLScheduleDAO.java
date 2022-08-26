@@ -78,4 +78,26 @@ public class MySQLScheduleDAO implements ScheduleDAO {
             throw new SQLException("Failed to change train available seats on this date");
         }
     }
+
+    @Override
+    public boolean checkIfRecordExists(Connection connection, int trainId) throws SQLException {
+        int result = 0;
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_RECORD_EXISTS);
+        pstmt.setInt(1, trainId);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            result = rs.getInt("exist");
+        }
+        return result > 0;
+    }
+
+    @Override
+    public void deleteTrainFromSchedule(Connection connection, int trainId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_TRAIN_FROM_SCHEDULE);
+        pstmt.setInt(1, trainId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to delete train from schedule");
+        }
+    }
 }

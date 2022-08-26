@@ -86,16 +86,16 @@ public class MySQLTrainDAO implements TrainDAO {
     }
 
     @Override
-    public Train getTrain(Connection connection, int trainId) throws SQLException {
+    public Train getTrainThatIsInSchedule(Connection connection, int trainId) throws SQLException {
         Train train = new Train();
-        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN);
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN_THAT_IS_IN_SCHEDULE);
         pstmt.setInt(1, trainId);
         ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
             train.setId(trainId);
             train.setNumber(rs.getString("number"));
-            train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
             train.setSeats(rs.getInt("available_seats"));
+            train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
         }
         return train;
     }
@@ -192,5 +192,20 @@ public class MySQLTrainDAO implements TrainDAO {
         if (affectedRow == 0) {
             throw new SQLException("Failed to edit station data on train route");
         }
+    }
+
+    @Override
+    public Train getTrain(Connection connection, int trainId) throws SQLException {
+        Train train = new Train();
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN);
+        pstmt.setInt(1, trainId);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            train.setId(trainId);
+            train.setNumber(rs.getString("number"));
+            train.setSeats(rs.getInt("seats"));
+            train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
+        }
+        return train;
     }
 }

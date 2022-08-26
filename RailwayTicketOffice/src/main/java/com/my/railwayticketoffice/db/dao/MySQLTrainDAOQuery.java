@@ -15,7 +15,7 @@ public class MySQLTrainDAOQuery {
             "(SELECT name FROM stations WHERE trains_stations.station_id = stations.id) AS name " +
             "FROM trains_stations WHERE trains_stations.train_id IN ";
     public static final String ORDER_BY = "ORDER BY distance_from_start";
-    public static final String GET_TRAIN = "SELECT DISTINCT number, departure_time, (SELECT available_seats) AS available_seats " +
+    public static final String GET_TRAIN_THAT_IS_IN_SCHEDULE = "SELECT DISTINCT number, departure_time, (SELECT available_seats) AS available_seats " +
             "FROM trains, schedules WHERE trains.id = schedules.train_id AND trains.id = ?";
     public static final String GET_ROUTE_FOR_TRAIN = "SELECT time_since_start, stop_time, distance_from_start, train_id, station_id, " +
             "(SELECT name FROM stations WHERE trains_stations.station_id = stations.id) AS name " +
@@ -26,4 +26,5 @@ public class MySQLTrainDAOQuery {
     public static final String DELETE_STATION_FROM_TRAIN_ROUTE = "DELETE FROM trains_stations WHERE train_id = ? AND station_id = ?";
     public static final String ADD_STATION_TO_TRAIN_ROUTE = "INSERT INTO trains_stations VALUES (?, ?, ?, ?, ?)";
     public static final String EDIT_STATION_DATA_ON_TRAIN_ROUTE = "UPDATE trains_stations SET time_since_start = ?, stop_time = ?, distance_from_start = ? WHERE train_id = ? AND station_id = ?";
+    public static final String GET_TRAIN = "SELECT number, seats, departure_time FROM trains WHERE id = ?";
 }

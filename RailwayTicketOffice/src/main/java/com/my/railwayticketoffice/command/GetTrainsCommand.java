@@ -1,10 +1,13 @@
 package com.my.railwayticketoffice.command;
 
 
+import com.my.railwayticketoffice.Util;
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
+import com.my.railwayticketoffice.pagination.MainPagePagination;
+import com.my.railwayticketoffice.pagination.Pagination;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,6 +32,8 @@ public class GetTrainsCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(GetTrainsCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
+    private final Pagination pagination = new MainPagePagination();
+    private int page;
     private int fromStationId;
     private int toStationId;
     private String formattedDate;
@@ -48,10 +53,16 @@ public class GetTrainsCommand implements Command {
                 List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
                 if (trains.size() > 0) {
                     trainDAO.getRoutesForTrains(connection, trains);
-                    List<Train> filteredTrains = trains.stream().filter(train -> train.getRoute()
-                            .checkDirectionIsRight(fromStationId, toStationId)).collect(Collectors.toList());
-                    request.setAttribute("trains", filteredTrains);
+                    List<Train> filteredTrains = trains.stream()
+                            .filter(train -> train.getRoute().checkDirectionIsRight(fromStationId, toStationId))
+                            .collect(Collectors.toList());
+                    int numberOfPages = (int) Math.ceil((float) filteredTrains.size() / Util.getNumberTrainOnPage());
+                    List<Train> trainsPerPage = pagination.paginate(filteredTrains, page);
+                    request.setAttribute("trains", trainsPerPage);
+                    request.setAttribute("numberOfPages", numberOfPages);
+                    request.setAttribute("departureDateForSortingAndPagination", request.getParameter("datePicker"));
                 }
+                request.setAttribute("page", page);
                 request.setAttribute("fromStationId", fromStationId);
                 request.setAttribute("toStationId", toStationId);
                 request.setAttribute("departureDate", LocalDate.parse(formattedDate));
@@ -65,6 +76,11 @@ public class GetTrainsCommand implements Command {
 
     private boolean checkParametersForCorrectness(HttpServletRequest request) {
         HttpSession session = request.getSession();
+        try {
+            page = Integer.parseInt(request.getParameter("page"));
+        } catch (NumberFormatException e) {
+            page = 1;
+        }
         try {
             fromStationId = Integer.parseInt(request.getParameter("from"));
         } catch (NumberFormatException e) {
