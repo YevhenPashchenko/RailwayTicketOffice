@@ -167,10 +167,10 @@
                                             </button>
                                             <form id="editStationDataOnTrainRoute" action="controller?command=editStationDataOnTrainRoute" class="position-absolute end-100 top-0 collapse fw-semibold bg-secondary p-1 rounded" style="width: 200px" method="post">
                                                 <label>
-                                                    <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                                                    <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
                                                 </label>
                                                 <label>
-                                                    <input name="stationId" value="${station.getId()}" hidden>
+                                                    <input type="number" name="stationId" value="${station.getId()}" hidden>
                                                 </label>
                                                 <label for="timeSinceStartForEdit">Час з моменту відправлення поїзда з першої станції маршруту</label>
                                                 <input id="timeSinceStartForEdit" class="d-inline-block w-50 form-control mb-1" name="timeSinceStart" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" type="time" required disabled>
@@ -179,7 +179,7 @@
                                                         <input class="form-check-input" role="switch" type="checkbox">
                                                     </label>
                                                     <label>
-                                                        <input value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" hidden>
+                                                        <input type="time" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" hidden>
                                                     </label>
                                                 </div>
                                                 <label for="stopTimeForEdit">Час зупинки поїзда на станції</label>
@@ -189,17 +189,17 @@
                                                         <input class="form-check-input" role="switch" type="checkbox">
                                                     </label>
                                                     <label>
-                                                        <input value="${requestScope.train.getRoute().getStopTime(station.getId())}" hidden>
+                                                        <input type="time" value="${requestScope.train.getRoute().getStopTime(station.getId())}" hidden>
                                                     </label>
                                                 </div>
                                                 <label for="distanceFromStartForEdit">Відстань до першої станції маршруту</label>
-                                                <input id="distanceFromStartForEdit" class="d-inline-block w-50 form-control mb-1" name="distanceFromStart" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" type="text" required disabled>
+                                                <input id="distanceFromStartForEdit" class="d-inline-block w-50 form-control mb-1" name="distanceFromStart" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" type="number" required disabled>
                                                 <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
                                                         <input class="form-check-input" role="switch" type="checkbox">
                                                     </label>
                                                     <label>
-                                                        <input value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" hidden>
+                                                        <input type="number" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" hidden>
                                                     </label>
                                                 </div>
                                                 <button class="btn btn-primary" disabled>Редагувати</button>
@@ -207,10 +207,10 @@
                                         </div>
                                         <form class="align-self-center d-inline-block" action="controller?command=deleteStationFromTrainRoute" method="post">
                                             <label>
-                                                <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                                                <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
                                             </label>
                                             <label>
-                                                <input name="stationId" value="${station.getId()}" hidden>
+                                                <input type="number" name="stationId" value="${station.getId()}" hidden>
                                             </label>
                                             <button class="btn border-0" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Видалити станцію з маршруту">
                                                 <img src="resources/images/minus-icon.png" alt="Видалити станцію з маршруту">
@@ -230,10 +230,10 @@
                     <form id="addStationToTrainRoute" class="collapse fw-semibold bg-secondary bg-opacity-50 p-1 rounded" action="controller?command=addStationToTrainRoute" method="post">
                         <label for="stationName">Назва станції</label>
                         <label>
-                            <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                            <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
                         </label>
                         <label>
-                            <input name="stationId" hidden>
+                            <input type="number" name="stationId" hidden>
                         </label>
                         <input id="stationName" class="form-control mb-1" list="stationNameDatalist" type="text" autocomplete="off" required>
                         <datalist id="stationNameDatalist">
@@ -246,7 +246,7 @@
                         <label for="stopTime">Час зупинки поїзда на станції</label>
                         <input id="stopTime" class="form-control mb-1" name="stopTime" type="time" required>
                         <label for="distanceFromStart">Відстань до першої станції маршруту</label>
-                        <input id="distanceFromStart" class="form-control mb-1" name="distanceFromStart" type="text" required>
+                        <input id="distanceFromStart" class="form-control mb-1" name="distanceFromStart" type="number" required>
                         <button class="btn btn-primary">Додати станцію</button>
                     </form>
                 </div>

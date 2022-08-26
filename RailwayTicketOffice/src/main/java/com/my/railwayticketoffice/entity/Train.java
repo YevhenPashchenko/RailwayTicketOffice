@@ -190,6 +190,19 @@ public class Train implements Serializable {
         public void addDistanceFromStart(Integer stationId, Integer distanceFromStart) {
             distanceFromStartMap.put(stationId, distanceFromStart);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Route route = (Route) o;
+            return Objects.equals(stations, route.stations) && Objects.equals(timeSinceStartMap, route.timeSinceStartMap) && Objects.equals(stopTimeMap, route.stopTimeMap) && Objects.equals(distanceFromStartMap, route.distanceFromStartMap);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(stations, timeSinceStartMap, stopTimeMap, distanceFromStartMap);
+        }
     }
 
     @Override
@@ -197,11 +210,11 @@ public class Train implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Train train = (Train) o;
-        return id == train.id && seats == train.seats && Objects.equals(number, train.number) && Objects.equals(departureTime, train.departureTime);
+        return id == train.id && seats == train.seats && Objects.equals(route, train.route) && Objects.equals(number, train.number) && Objects.equals(departureTime, train.departureTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, number, seats, departureTime);
+        return Objects.hash(route, id, number, seats, departureTime);
     }
 }

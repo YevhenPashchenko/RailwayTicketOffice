@@ -42,10 +42,10 @@
                                     <div class="modal-body">
                                         <form id="editUserForm" action="controller?command=userEdit" method="post">
                                             <label>
-                                                <input name="from" hidden>
+                                                <input type="number" name="from" hidden>
                                             </label>
                                             <label>
-                                                <input name="to" hidden>
+                                                <input type="number" name="to" hidden>
                                             </label>
                                             <label>
                                                 <input name="datePicker" hidden>
@@ -147,10 +147,10 @@
                             <div class="modal-body">
                                 <form id="authenticationForm" action="controller?command=userLogin" method="post">
                                     <label>
-                                        <input name="from" hidden>
+                                        <input type="number" name="from" hidden>
                                     </label>
                                     <label>
-                                        <input name="to" hidden>
+                                        <input type="number" name="to" hidden>
                                     </label>
                                     <label>
                                         <input name="datePicker" hidden>
@@ -187,10 +187,10 @@
                             <div class="modal-body">
                                 <form id="registrationForm" action="controller?command=userRegistration" method="post">
                                     <label>
-                                        <input name="from" hidden>
+                                        <input type="number" name="from" hidden>
                                     </label>
                                     <label>
-                                        <input name="to" hidden>
+                                        <input type="number" name="to" hidden>
                                     </label>
                                     <label>
                                         <input name="datePicker" hidden>
@@ -268,7 +268,7 @@
                                                 <label for="trainNumber" class="form-label">Номер поїзда</label>
                                                 <input id="trainNumber" class="form-control w-50 mb-2" type="text" name="trainNumber" autocomplete="off" required>
                                                 <label for="trainSeats" class="form-label">Кількість місць поїзда</label>
-                                                <input id="trainSeats" class="form-control w-50 mb-2" type="text" name="trainSeats" required>
+                                                <input id="trainSeats" class="form-control w-50 mb-2" type="number" name="trainSeats" required>
                                                 <label for="trainDepartureTime" class="form-label">Час відправлення поїзда</label>
                                                 <input id="trainDepartureTime" class="form-control w-50 mb-2" type="time" name="trainDepartureTime" required>
                                                 <button class="btn btn-primary">Додати поїзд</button>
@@ -281,7 +281,7 @@
                                             <form id="deleteTrain" class="collapse ps-2" action="controller?command=deleteTrain" method="post">
                                                 <label for="trainNumberForDelete" class="form-label">Номер поїзда</label>
                                                 <label>
-                                                    <input name="trainId" hidden>
+                                                    <input type="number" name="trainId" hidden>
                                                 </label>
                                                 <input id="trainNumberForDelete" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
                                                 <button id="deleteTrainButton" class="btn btn-primary">Видалити поїзд</button>
@@ -294,7 +294,7 @@
                                             <form id="editTrain" class="collapse ps-2" action="controller?command=editTrain" method="post">
                                                 <label for="trainNumberForEdit" class="form-label">Номер поїзда</label>
                                                 <label class="d-block">
-                                                    <input name="trainId" hidden>
+                                                    <input type="number" name="trainId" hidden>
                                                 </label>
                                                 <input id="trainNumberForEdit" class="d-inline-block form-control w-50 mb-2" list="trainNumberDatalist" type="text" name="trainNumber" autocomplete="off" required>
                                                 <div class="d-inline-block form-check form-switch ms-2">
@@ -303,7 +303,7 @@
                                                     </label>
                                                 </div>
                                                 <label for="trainSeatsForEdit" class="d-block form-label">Кількість місць поїзда</label>
-                                                <input id="trainSeatsForEdit" class="d-inline-block form-control w-50 mb-2" type="text" name="trainSeats" required disabled>
+                                                <input id="trainSeatsForEdit" class="d-inline-block form-control w-50 mb-2" type="number" name="trainSeats" required disabled>
                                                 <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
                                                         <input class="form-check-input" role="switch" type="checkbox" hidden>
@@ -329,7 +329,7 @@
                                                     <input name="command" value="showRoute" hidden>
                                                 </label>
                                                 <label>
-                                                    <input name="trainId" hidden>
+                                                    <input type="number" name="trainId" hidden>
                                                 </label>
                                                 <input id="trainNumberForEditRoute" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
                                                 <button class="btn btn-primary">Редагувати маршрут поїзда</button>
@@ -376,7 +376,7 @@
                                             <form id="deleteStation" class="collapse ps-2" action="controller?command=deleteStation" method="post">
                                                 <label for="stationNameForDelete" class="form-label">Назва станції</label>
                                                 <label>
-                                                    <input name="stationId" hidden>
+                                                    <input type="number" name="stationId" hidden>
                                                 </label>
                                                 <input id="stationNameForDelete" class="form-control w-50 mb-2" type="text" list="stationsDatalistOptions" autocomplete="off" required>
                                                 <button class="btn btn-primary">Видалити станцію</button>
@@ -389,7 +389,7 @@
                                             <form id="editStation" class="collapse ps-2" action="controller?command=editStation" method="post">
                                                 <label for="oldStationNameForEdit" class="form-label">Назва станції</label>
                                                 <label>
-                                                    <input name="stationId" hidden>
+                                                    <input type="number" name="stationId" hidden>
                                                 </label>
                                                 <input id="oldStationNameForEdit" class="form-control w-50 mb-2" type="text" list="stationsDatalistOptions" autocomplete="off" required>
                                                 <label for="newStationNameForEdit" class="form-label">Назва станції</label>
@@ -411,7 +411,7 @@
                                             <form id="addTrainToSchedule" class="collapse ps-2" action="controller?command=addTrainToSchedule" method="post">
                                                 <label for="trainNumberForAddToSchedule" class="form-label">Назва поїзда</label>
                                                 <label>
-                                                    <input name="trainId" hidden>
+                                                    <input type="number" name="trainId" hidden>
                                                 </label>
                                                 <input id="trainNumberForAddToSchedule" class="form-control w-50 mb-2" type="text" list="trainNumberDatalist" autocomplete="off" required>
                                                 <button class="btn btn-primary" disabled>Додати</button>
@@ -424,7 +424,7 @@
                                             <form id="deleteTrainFromSchedule" class="collapse ps-2" action="controller?command=deleteTrainFromSchedule" method="post">
                                                 <label for="trainNumberForDeleteFromSchedule" class="form-label">Назва поїзда</label>
                                                 <label>
-                                                    <input name="trainId" hidden>
+                                                    <input type="number" name="trainId" hidden>
                                                 </label>
                                                 <input id="trainNumberForDeleteFromSchedule" class="form-control w-50 mb-2" type="text" list="trainNumberDatalist" autocomplete="off" required>
                                                 <button class="btn btn-primary" disabled>Видалити</button>
@@ -444,13 +444,13 @@
                     <input name="command" value="getTrains" hidden>
                 </label>
                 <label>
-                    <input name="page" value="1" hidden>
+                    <input type="number" name="page" value="1" hidden>
                 </label>
                 <div class="row pt-4 position-relative">
                     <div class="col-6 pe-4">
                         <label for="fromDatalist" class="form-label text-primary fs-5 fw-semibold lh-1">Звідки</label>
                         <label>
-                            <input name="from" hidden>
+                            <input type="number" name="from" hidden>
                         </label>
                         <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="fromDatalist">
                     </div>
@@ -458,7 +458,7 @@
                     <div class="col-6 ps-4">
                         <label for="toDatalist" class="form-label text-primary fs-5 fw-semibold lh-1">Куди</label>
                         <label>
-                            <input name="to" hidden>
+                            <input type="number" name="to" hidden>
                         </label>
                         <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="toDatalist">
                     </div>
@@ -553,13 +553,13 @@
                                                     <input name="command" value="ticketPage" hidden>
                                                 </label>
                                                 <label>
-                                                    <input name="trainId" value="${train.getId()}" hidden>
+                                                    <input type="number" name="trainId" value="${train.getId()}" hidden>
                                                 </label>
                                                 <label>
-                                                    <input name="from" hidden>
+                                                    <input type="number" name="from" hidden>
                                                 </label>
                                                 <label>
-                                                    <input name="to" hidden>
+                                                    <input type="number" name="to" hidden>
                                                 </label>
                                                 <label>
                                                     <input name="datePicker" hidden>

@@ -99,13 +99,13 @@
             </div>
             <form action="controller?command=buyTicket" method="post">
                 <label>
-                    <input name="trainId" value="${requestScope.train.getId()}" hidden>
+                    <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
                 </label>
                 <label>
-                    <input name="fromStationId" value="${requestScope.fromStationId}" hidden>
+                    <input type="number" name="fromStationId" value="${requestScope.fromStationId}" hidden>
                 </label>
                 <label>
-                    <input name="toStationId" value="${requestScope.toStationId}" hidden>
+                    <input type="number" name="toStationId" value="${requestScope.toStationId}" hidden>
                 </label>
                 <label>
                     <input name="departureDate" value="${requestScope.departureDate}" hidden>
