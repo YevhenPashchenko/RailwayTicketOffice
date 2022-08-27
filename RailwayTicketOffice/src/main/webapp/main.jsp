@@ -532,8 +532,8 @@
                                 <div>${train.getRoute().getDestinationStationName()}</div>
                             </td>
                             <td class="text-start fs-6 fw-normal">
-                                <div class="d-flex justify-content-between mb-1 lh-sm"><span>Відправлення</span> <span>${train.getRoute().getDateOfWeekAndDateAsString(requestScope.fromStationId, requestScope.departureDate)}</span></div>
-                                <div class="d-flex justify-content-between"><span>Прибуття</span> <span>${train.getRoute().getDateOfWeekAndDateAsString(requestScope.toStationId, requestScope.departureDate)}</span></div>
+                                <div class="d-flex justify-content-between mb-1 lh-sm"><span>Відправлення</span> <span>${train.getRoute().getDepartureDateOfWeekAndDateAsString(requestScope.departureDate)}</span></div>
+                                <div class="d-flex justify-content-between"><span>Прибуття</span> <span>${train.getRoute().getDestinationDateOfWeekAndDateAsString(requestScope.fromStationId, requestScope.toStationId, requestScope.departureDate)}</span></div>
                             </td>
                             <td>
                                 <div class="lh-sm">${train.getRoute().getArrivalTime(requestScope.fromStationId)}</div>

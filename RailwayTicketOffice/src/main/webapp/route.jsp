@@ -6,6 +6,7 @@
         <title>Залізнична каса - маршрут поїзда</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/html-duration-picker@latest/dist/html-duration-picker.min.js"></script>
     </head>
     <body>
         <header class="container bg-secondary bg-opacity-25">
@@ -173,13 +174,13 @@
                                                     <input type="number" name="stationId" value="${station.getId()}" hidden>
                                                 </label>
                                                 <label for="timeSinceStartForEdit">Час з моменту відправлення поїзда з першої станції маршруту</label>
-                                                <input id="timeSinceStartForEdit" class="d-inline-block w-50 form-control mb-1" name="timeSinceStart" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" type="time" required disabled>
+                                                <input id="timeSinceStartForEdit" class="d-inline-block form-control mb-1 html-duration-picker text-start" data-hide-seconds name="timeSinceStart" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" required disabled>
                                                 <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
                                                         <input class="form-check-input" role="switch" type="checkbox">
                                                     </label>
                                                     <label>
-                                                        <input type="time" value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" hidden>
+                                                        <input value="${requestScope.train.getRoute().getTimeSinceStart(station.getId())}" hidden>
                                                     </label>
                                                 </div>
                                                 <label for="stopTimeForEdit">Час зупинки поїзда на станції</label>
@@ -223,33 +224,35 @@
                     </c:forEach>
                     </tbody>
                 </table>
-                <div class="col-2 offset-1">
-                    <button class="btn btn-primary fw-semibold" data-bs-toggle="collapse" data-bs-target="#addStationToTrainRoute" aria-expanded="false" aria-controls="addStationToTrainRoute">
-                        Додати станцію до маршруту поїзда
-                    </button>
-                    <form id="addStationToTrainRoute" class="collapse fw-semibold bg-secondary bg-opacity-50 p-1 rounded" action="controller?command=addStationToTrainRoute" method="post">
-                        <label for="stationName">Назва станції</label>
-                        <label>
-                            <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
-                        </label>
-                        <label>
-                            <input type="number" name="stationId" hidden>
-                        </label>
-                        <input id="stationName" class="form-control mb-1" list="stationNameDatalist" type="text" autocomplete="off" required>
-                        <datalist id="stationNameDatalist">
-                            <c:forEach items="${requestScope.stations}" var="station">
-                                <option value="${station.getName()}" id="${station.getId()}"></option>
-                            </c:forEach>
-                        </datalist>
-                        <label for="timeSinceStart">Час з моменту відправлення поїзда з першої станції маршруту</label>
-                        <input id="timeSinceStart" class="form-control mb-1" name="timeSinceStart" type="time" required>
-                        <label for="stopTime">Час зупинки поїзда на станції</label>
-                        <input id="stopTime" class="form-control mb-1" name="stopTime" type="time" required>
-                        <label for="distanceFromStart">Відстань до першої станції маршруту</label>
-                        <input id="distanceFromStart" class="form-control mb-1" name="distanceFromStart" type="number" required>
-                        <button class="btn btn-primary">Додати станцію</button>
-                    </form>
-                </div>
+                <c:if test="${sessionScope.user.getRole() eq 'admin'}">
+                    <div class="col-2 offset-1">
+                        <button class="btn btn-primary fw-semibold" data-bs-toggle="collapse" data-bs-target="#addStationToTrainRoute" aria-expanded="false" aria-controls="addStationToTrainRoute">
+                            Додати станцію до маршруту поїзда
+                        </button>
+                        <form id="addStationToTrainRoute" class="collapse fw-semibold bg-secondary bg-opacity-50 p-1 rounded" action="controller?command=addStationToTrainRoute" method="post">
+                            <label for="stationName">Назва станції</label>
+                            <label>
+                                <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
+                            </label>
+                            <label>
+                                <input type="number" name="stationId" hidden>
+                            </label>
+                            <input id="stationName" class="form-control mb-1" list="stationNameDatalist" type="text" autocomplete="off" required>
+                            <datalist id="stationNameDatalist">
+                                <c:forEach items="${requestScope.stations}" var="station">
+                                    <option value="${station.getName()}" id="${station.getId()}"></option>
+                                </c:forEach>
+                            </datalist>
+                            <label for="timeSinceStart">Час з моменту відправлення поїзда з першої станції маршруту</label>
+                            <input id="timeSinceStart" class="form-control w-100 mb-1 html-duration-picker text-start" data-hide-seconds name="timeSinceStart" required>
+                            <label for="stopTime">Час зупинки поїзда на станції</label>
+                            <input id="stopTime" class="form-control mb-1" name="stopTime" type="time" required>
+                            <label for="distanceFromStart">Відстань до першої станції маршруту</label>
+                            <input id="distanceFromStart" class="form-control mb-1" name="distanceFromStart" type="number" required>
+                            <button class="btn btn-primary">Додати станцію</button>
+                        </form>
+                    </div>
+                </c:if>
             </div>
             <c:if test="${sessionScope.user.getRole() eq 'admin'}">
                 <div class="modal fade" id="confirmDeleteStationFromTrainRouteModal" tabindex="-1" aria-labelledby="confirmDeleteStationFromTrainRouteModalLabel" aria-hidden="true">

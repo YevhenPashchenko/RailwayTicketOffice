@@ -68,7 +68,7 @@ public class Train implements Serializable {
         /**
          * Key - station id, value - the time elapsed from departure from the first station to the current station.
          */
-        private final Map<Integer, LocalTime> timeSinceStartMap = new HashMap<>();
+        private final Map<Integer, String> timeSinceStartMap = new HashMap<>();
         /**
          * Key - station id, value - the train stop time on current station.
          */
@@ -90,7 +90,6 @@ public class Train implements Serializable {
         }
 
         /**
-         *
          * @return name of the first station of the train route.
          */
         public String getDepartureStationName() {
@@ -98,7 +97,6 @@ public class Train implements Serializable {
         }
 
         /**
-         *
          * @return name of the last station of the train route.
          */
         public String getDestinationStationName() {
@@ -106,37 +104,58 @@ public class Train implements Serializable {
         }
 
         /**
-         *
-         * @param stationId - departure or destination station id.
          * @param departureDate - departure {@link LocalDate}.
-         * @return date of week and date when train departs from the departure station
-         * or arrives at the destination station as string.
+         * @return day of week and date when train departs from the departure station as string.
          */
-        public String getDateOfWeekAndDateAsString(int stationId, LocalDate departureDate) {
-            LocalDateTime departureDateFromDepartureStation;
-            LocalTime timeSinceDepartureFromFirstStation = timeSinceStartMap.get(stationId);
-            departureDateFromDepartureStation = departureDate.atTime(departureTime).plusNanos(timeSinceDepartureFromFirstStation.toNanoOfDay());
-            return DayOfWeekLocaleUA.of(departureDateFromDepartureStation.getDayOfWeek().getValue()) +
-                    ", " + departureDateFromDepartureStation.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
+        public String getDepartureDateOfWeekAndDateAsString(LocalDate departureDate) {
+            return DayOfWeekLocaleUA.of(departureDate.getDayOfWeek().getValue()) +
+                    ", " + departureDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
         }
 
+        /**
+         * @param fromStationId - departure  station id.
+         * @param toStationId - destination station id.
+         * @param departureDate - departure {@link LocalDate}.
+         * @return day of week and date when train arrive to destination station as string.
+         */
+        public String getDestinationDateOfWeekAndDateAsString(int fromStationId, int toStationId, LocalDate departureDate) {
+            int daysOfTrip = Integer.parseInt(timeSinceStartMap.get(toStationId).split(":")[0]) / 24;
+            LocalDate destinationDate;
+            if (LocalTime.parse(getArrivalTime(fromStationId)).compareTo(LocalTime.parse(getArrivalTime(toStationId))) > 0) {
+                destinationDate = departureDate.plusDays(1 + daysOfTrip);
+            } else {
+                destinationDate = departureDate.plusDays(daysOfTrip);
+            }
+            return DayOfWeekLocaleUA.of(destinationDate.getDayOfWeek().getValue()) +
+                    ", " + destinationDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
+        }
+
+        /**
+         * @param stationId - id of destination station.
+         * @return time duration between first station and destination station as string.
+         */
         public String getArrivalTime(int stationId) {
-            return departureTime.plusNanos(timeSinceStartMap.get(stationId).toNanoOfDay()).toString();
+            return departureTime.plusHours(Long.parseLong(timeSinceStartMap.get(stationId).split(":")[0]))
+                    .plusMinutes(Long.parseLong(timeSinceStartMap.get(stationId).split(":")[1])).toString();
         }
 
+        /**
+         * @param fromStationId - id of departure station.
+         * @param toStationId - id of destination station.
+         * @return trip duration as string.
+         */
         public String getDurationTrip(int fromStationId, int toStationId) {
-            return departureTime.plusNanos(timeSinceStartMap.get(toStationId).toNanoOfDay())
-                    .minusNanos(departureTime.plusNanos(timeSinceStartMap.get(fromStationId).toNanoOfDay()).toNanoOfDay()).toString();
+            return departureTime.plusHours(Long.parseLong(timeSinceStartMap.get(toStationId).split(":")[0]))
+                    .plusMinutes(Long.parseLong(timeSinceStartMap.get(toStationId).split(":")[1]))
+                    .minusNanos(departureTime.plusHours(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[0]))
+                            .plusMinutes(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[0])).toNanoOfDay()).toString();
         }
 
-        public int getDistanceFromFirstStation(int stationId) {
-            return distanceFromStartMap.get(stationId);
-        }
-
-        public int getTimeStopAtStationInMinutes(int stationId) {
-            return stopTimeMap.get(stationId).getMinute();
-        }
-
+        /**
+         * @param fromStationId - id of departure station.
+         * @param toStationId - id of destination station.
+         * @return cost of trip between departure station and destination station.
+         */
         public String getCostOfTripAsString(int fromStationId, int toStationId) {
             int tripDistance = distanceFromStartMap.get(toStationId) - distanceFromStartMap.get(fromStationId);
             double costOfTrip = Util.getBasicTicketCost() + tripDistance * Util.getOneKilometerRoadCost() * (1 - getCoefficientDependingOnDistanceOfTrip(tripDistance));
@@ -149,6 +168,14 @@ public class Train implements Serializable {
                 coefficient = 0.5;
             }
             return coefficient;
+        }
+
+        public int getDistanceFromFirstStation(int stationId) {
+            return distanceFromStartMap.get(stationId);
+        }
+
+        public int getTimeStopAtStationInMinutes(int stationId) {
+            return stopTimeMap.get(stationId).getMinute();
         }
 
         public String getStationNameByStationId(int stationId) {
@@ -167,8 +194,8 @@ public class Train implements Serializable {
             return stations;
         }
 
-        public LocalTime getTimeSinceStart(Integer stationId) {
-            return timeSinceStartMap.get(stationId);
+        public String getTimeSinceStart(Integer stationId) {
+            return timeSinceStartMap.get(stationId).substring(0, 5);
         }
 
         public LocalTime getStopTime(Integer stationId) {
@@ -179,7 +206,7 @@ public class Train implements Serializable {
             stations.add(station);
         }
 
-        public void addTimeSinceStart(Integer stationId, LocalTime timeSinceStart) {
+        public void addTimeSinceStart(Integer stationId, String timeSinceStart) {
             timeSinceStartMap.put(stationId, timeSinceStart);
         }
 

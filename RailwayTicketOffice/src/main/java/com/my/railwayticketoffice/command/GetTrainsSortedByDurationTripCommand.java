@@ -5,6 +5,8 @@ import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
+import com.my.railwayticketoffice.filter.TrainFilter;
+import com.my.railwayticketoffice.filter.TrainFilterByDirectionAndDepartureTime;
 import com.my.railwayticketoffice.pagination.MainPagePagination;
 import com.my.railwayticketoffice.pagination.Pagination;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +34,7 @@ public class GetTrainsSortedByDurationTripCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(GetTrainsSortedByDurationTripCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
+    private final TrainFilter trainFilter = new TrainFilterByDirectionAndDepartureTime();
     private final Pagination pagination = new MainPagePagination();
     private int page;
     private int fromStationId;
@@ -53,8 +56,7 @@ public class GetTrainsSortedByDurationTripCommand implements Command {
                 List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
                 if (trains.size() > 0) {
                     trainDAO.getRoutesForTrains(connection, trains);
-                    List<Train> filteredTrains = trains.stream()
-                            .filter(train -> train.getRoute().checkDirectionIsRight(fromStationId, toStationId))
+                    List<Train> filteredTrains = trainFilter.filter(trains, fromStationId, toStationId, LocalDate.parse(formattedDate)).stream()
                             .sorted((train1, train2) -> {
                                 LocalTime durationTrip1 = LocalTime.parse(train1.getRoute().getDurationTrip(fromStationId, toStationId));
                                 LocalTime durationTrip2 = LocalTime.parse(train2.getRoute().getDurationTrip(fromStationId, toStationId));

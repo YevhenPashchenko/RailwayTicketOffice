@@ -5,6 +5,8 @@ import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
+import com.my.railwayticketoffice.filter.TrainFilter;
+import com.my.railwayticketoffice.filter.TrainFilterByDirectionAndDepartureTime;
 import com.my.railwayticketoffice.pagination.MainPagePagination;
 import com.my.railwayticketoffice.pagination.Pagination;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +18,7 @@ import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +32,7 @@ public class GetTrainsSortedByDepartureTimeCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(GetTrainsSortedByDepartureTimeCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
+    private final TrainFilter trainFilter = new TrainFilterByDirectionAndDepartureTime();
     private final Pagination pagination = new MainPagePagination();
     private int page;
     private int fromStationId;
@@ -51,11 +54,14 @@ public class GetTrainsSortedByDepartureTimeCommand implements Command {
                 List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
                 if (trains.size() > 0) {
                     trainDAO.getRoutesForTrains(connection, trains);
-                    List<Train> filteredTrains = trains.stream()
-                            .filter(train -> train.getRoute().checkDirectionIsRight(fromStationId, toStationId))
+                    List<Train> filteredTrains = trainFilter.filter(trains, fromStationId, toStationId, LocalDate.parse(formattedDate)).stream()
                             .sorted((train1, train2) -> {
-                                LocalDateTime departureTime1 = LocalDate.parse(formattedDate).atTime(train1.getDepartureTime()).plusNanos(train1.getRoute().getTimeSinceStart(fromStationId).toNanoOfDay());
-                                LocalDateTime departureTime2 = LocalDate.parse(formattedDate).atTime(train2.getDepartureTime()).plusNanos(train2.getRoute().getTimeSinceStart(fromStationId).toNanoOfDay());
+                                LocalTime departureTime1 = train1.getDepartureTime()
+                                        .plusHours(Long.parseLong(train1.getRoute().getTimeSinceStart(fromStationId).split(":")[0]))
+                                        .plusMinutes(Long.parseLong(train1.getRoute().getTimeSinceStart(fromStationId).split(":")[1]));
+                                LocalTime departureTime2 = train2.getDepartureTime()
+                                        .plusHours(Long.parseLong(train2.getRoute().getTimeSinceStart(fromStationId).split(":")[0]))
+                                        .plusMinutes(Long.parseLong(train2.getRoute().getTimeSinceStart(fromStationId).split(":")[1]));
                                 return departureTime1.compareTo(departureTime2);
                             })
                             .collect(Collectors.toList());

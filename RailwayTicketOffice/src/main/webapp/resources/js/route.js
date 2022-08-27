@@ -97,10 +97,15 @@ if (editIconButtons != null) {
 if (editStationDataOnTrainRouteCheckboxes != null) {
     for (let i = 0; i < editStationDataOnTrainRouteCheckboxes.length; i++) {
         editStationDataOnTrainRouteCheckboxes[i].addEventListener("click", evt => {
+            let timeSinceStartInput = false;
             let checkbox = evt.currentTarget;
             let input = checkbox.parentElement.parentElement.previousElementSibling;
+            if (input.tagName !== "INPUT") {
+                input = input.firstElementChild;
+                timeSinceStartInput = true;
+            }
             let form = checkbox.parentElement.parentElement.parentElement;
-            let button = form.querySelector('button');
+            let button = form.querySelector('button[class="btn btn-primary"]');
             if (checkbox.hasAttribute("checked")) {
                 let checkboxes = form.querySelectorAll('input[class="form-check-input"]');
                 checkbox.removeAttribute("checked");
@@ -114,10 +119,16 @@ if (editStationDataOnTrainRouteCheckboxes != null) {
                         button.setAttribute("disabled", "");
                     }
                 }
+                if (timeSinceStartInput) {
+                    input.nextElementSibling.setAttribute("hidden", "");
+                }
             } else {
                 checkbox.setAttribute("checked", "");
                 input.removeAttribute("disabled");
                 button.removeAttribute("disabled");
+                if (timeSinceStartInput) {
+                    input.nextElementSibling.removeAttribute("hidden");
+                }
             }
         });
     }
@@ -154,3 +165,27 @@ if (editStationDataOnTrainRouteButtons != null) {
         });
     }
 }
+
+window.addEventListener("load", () => {
+    let increaseDurationButtons = document.querySelectorAll('button[aria-label="Increase duration"]');
+    let decreaseDurationButtons = document.querySelectorAll('button[aria-label="Decrease duration"]');
+    if (increaseDurationButtons != null) {
+        for (let i = 0; i < increaseDurationButtons.length; i++) {
+            let button = increaseDurationButtons[i];
+            button.style.top = "3px";
+            button.style.padding = "0 3px 0 0";
+            button.firstElementChild.style.borderWidth = "0 7px 12px 7px";
+            button = decreaseDurationButtons[i];
+            button.style.top = "20px";
+            button.style.padding = "0 3px 0 0";
+            button.firstElementChild.style.borderWidth = "12px 7px 0px 7px";
+            if (button.parentElement.parentElement.parentElement.id !== "addStationToTrainRoute") {
+                button.parentElement.setAttribute("hidden", "");
+            } else {
+                button.parentElement.style.left = null;
+                button.parentElement.style.right = "20px";
+                button.parentElement.parentElement.style.width = "auto";
+            }
+        }
+    }
+});

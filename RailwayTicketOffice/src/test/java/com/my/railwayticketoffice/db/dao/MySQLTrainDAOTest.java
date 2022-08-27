@@ -123,7 +123,7 @@ public class MySQLTrainDAOTest {
         station.setName("Station");
 
         train.getRoute().addStation(station);
-        train.getRoute().addTimeSinceStart(station.getId(), LocalTime.parse(time.format(formatter)));
+        train.getRoute().addTimeSinceStart(station.getId(), time.format(formatter));
         train.getRoute().addStopTime(station.getId(), LocalTime.parse(time.format(formatter)));
         train.getRoute().addDistanceFromStart(station.getId(), 100);
 
@@ -209,7 +209,7 @@ public class MySQLTrainDAOTest {
         station.setName("Station");
 
         train.getRoute().addStation(station);
-        train.getRoute().addTimeSinceStart(station.getId(), LocalTime.parse(time.format(formatter)));
+        train.getRoute().addTimeSinceStart(station.getId(), time.format(formatter));
         train.getRoute().addStopTime(station.getId(), LocalTime.parse(time.format(formatter)));
         train.getRoute().addDistanceFromStart(station.getId(), 100);
 

@@ -115,7 +115,7 @@ public class MySQLTrainDAO implements TrainDAO {
         station.setId(rs.getInt("station_id"));
         station.setName(rs.getString("name"));
         train.getRoute().addStation(station);
-        train.getRoute().addTimeSinceStart(station.getId(), LocalTime.parse(rs.getString("time_since_start"), formatter));
+        train.getRoute().addTimeSinceStart(station.getId(), rs.getString("time_since_start"));
         train.getRoute().addStopTime(station.getId(), LocalTime.parse(rs.getString("stop_time"), formatter));
         train.getRoute().addDistanceFromStart(station.getId(), rs.getInt("distance_from_start"));
     }
