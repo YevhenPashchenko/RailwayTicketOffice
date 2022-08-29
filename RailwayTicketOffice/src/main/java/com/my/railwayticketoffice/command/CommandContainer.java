@@ -41,6 +41,7 @@ public class CommandContainer {
         commands.put("getTrainsSortedByDepartureTime", new GetTrainsSortedByDepartureTimeCommand());
         commands.put("getTrainsSortedByDestinationTime", new GetTrainsSortedByDestinationTimeCommand());
         commands.put("getTrainsSortedByAvailableSeats", new GetTrainsSortedByAvailableSeatsCommand());
+        commands.put("changeMainPageLocale", new ChangeMainPageLocaleCommand());
     }
 
     /**

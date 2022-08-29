@@ -48,6 +48,7 @@ if (confirmDeleteTrainFromScheduleModal != null) {
         keyboard: false,
     });
 }
+let currentLocale = document.querySelector('input[type="image"]').getAttribute("alt");
 
 $(function() {
     let dateNow = Date.now();
@@ -60,13 +61,11 @@ $(function() {
         startDate = minDate;
     }
     let maxDate = new Date(dateNow).getDate() + "." + (new Date(dateNow).getMonth() + 1) + "." + (new Date(dateNow).getFullYear() + 1);
-    let uaLocale = {
+    let ukLocale = {
         "format": "DD.MM.YYYY",
         "separator": "-",
         "applyLabel": "Готово",
         "cancelLabel": "Відміна",
-        "fromLabel": "З",
-        "toLabel": "До",
         "daysOfWeek": [
             "Нд",
             "Пн",
@@ -92,13 +91,51 @@ $(function() {
         ],
         "firstDay": 1
     };
+    let enLocale = {
+        "format": "DD.MM.YYYY",
+        "separator": "-",
+        "applyLabel": "Ok",
+        "cancelLabel": "Cancel",
+        "daysOfWeek": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "firstDay": 0
+    };
+
+    let locale;
+
+    if (currentLocale === "en") {
+        locale = enLocale;
+    } else {
+        locale = ukLocale;
+    }
 
     $('#datePicker').daterangepicker({
         "singleDatePicker": true,
         "showDropdowns": true,
         "minYear": minDate.split(".")[2],
         "maxYear": maxDate.split(".")[2],
-        "locale": uaLocale,
+        "locale": locale,
         "startDate": startDate,
         "endDate": maxDate,
         "minDate": minDate,
@@ -123,7 +160,11 @@ $(function() {
             }
             inputs[i].setAttribute("value", date);
         }
-        button.innerHTML = "Пошук поїздів на " + date;
+        if (currentLocale === "en") {
+            button.innerHTML = "Search trains at " + date;
+        } else {
+            button.innerHTML = "Пошук поїздів на " + date;
+        }
     }
 
     addDate();
@@ -151,18 +192,30 @@ inputTo.addEventListener("change", e => {
 button.addEventListener("click", ev => {
     if (!inputsFrom[0].hasAttribute("value")) {
         ev.preventDefault();
-        modalBody.innerHTML = "Введіть пункт відправлення";
+        if (currentLocale === "en") {
+            modalBody.innerHTML = "Enter your destination";
+        } else {
+            modalBody.innerHTML = "Введіть пункт відправлення";
+        }
         errorModal.show();
         return;
     }
     if (!inputsTo[0].hasAttribute("value")) {
         ev.preventDefault();
-        modalBody.innerHTML = "Введіть пункт призначення";
+        if (currentLocale === "en") {
+            modalBody.innerHTML = "Enter your destination";
+        } else {
+            modalBody.innerHTML = "Введіть пункт відправлення";
+        }
         errorModal.show();
     }
     if (inputsFrom[0].value === inputsTo[0].value) {
         ev.preventDefault();
-        modalBody.innerHTML = "Станції відправлення та призначення співпадають";
+        if (currentLocale === "en") {
+            modalBody.innerHTML = "Departure and destination stations match";
+        } else {
+            modalBody.innerHTML = "Станції відправлення та призначення співпадають";
+        }
         errorModal.show();
     }
 });
@@ -200,7 +253,11 @@ if (registrationFormButton !== null) {
         let confirmPassword = document.querySelector("#registrationConfirmPasswordField").value;
         if (password !== confirmPassword) {
             ev.preventDefault();
-            modalBody.innerHTML = "Введені паролі не співпадають";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Entered passwords do not match";
+            } else {
+                modalBody.innerHTML = "Введені паролі не співпадають";
+            }
             errorModal.show();
         }
     });
@@ -212,7 +269,11 @@ if (editUserFormButton !== null) {
         let confirmPassword = document.querySelector("#editUserConfirmPasswordField").value;
         if (password !== confirmPassword) {
             ev.preventDefault();
-            modalBody.innerHTML = "Введені паролі не співпадають";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Entered passwords do not match";
+            } else {
+                modalBody.innerHTML = "Введені паролі не співпадають";
+            }
             errorModal.show();
         }
     });
@@ -284,7 +345,11 @@ if (deleteTrainButton !== null) {
     deleteTrainButton.addEventListener("click", e => {
         e.preventDefault();
         if (!inputTrainNumberForDelete.previousElementSibling.firstElementChild.hasAttribute("value")) {
-            modalBody.innerHTML = "Виберіть існуючий поїзд";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Select an existing train";
+            } else {
+                modalBody.innerHTML = "Виберіть існуючий поїзд";
+            }
             errorModal.show();
             return;
         }
@@ -367,7 +432,11 @@ if (addStationButton != null) {
     addStationButton.addEventListener("click", evt => {
         if (evt.currentTarget.previousElementSibling.value === "") {
             evt.preventDefault();
-            modalBody.innerHTML = "Ім'я станції не може бути пустим";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Station name cannot be empty";
+            } else {
+                modalBody.innerHTML = "Ім'я станції не може бути пустим";
+            }
             errorModal.show();
         }
     });
@@ -385,7 +454,11 @@ if (deleteStationButton != null) {
         let stationIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
         evt.preventDefault();
         if (!stationIdInput.hasAttribute("value")) {
-            modalBody.innerHTML = "Виберіть існуючу станцію";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Select an existing station";
+            } else {
+                modalBody.innerHTML = "Виберіть існуючу станцію";
+            }
             errorModal.show();
             return;
         }
@@ -414,19 +487,31 @@ if (oldStationNameForEditInput != null) {
     editStationButton.addEventListener("click", evt => {
         if (!oldStationNameForEditInput.previousElementSibling.firstElementChild.hasAttribute("value")) {
             evt.preventDefault();
-            modalBody.innerHTML = "Виберіть існуючу станцію";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Select an existing station";
+            } else {
+                modalBody.innerHTML = "Виберіть існуючу станцію";
+            }
             errorModal.show();
             return;
         }
         if (newStationNameForEditInput.value === "") {
             evt.preventDefault();
-            modalBody.innerHTML = "Ім'я станції не може бути пустим";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Station name cannot be empty";
+            } else {
+                modalBody.innerHTML = "Ім'я станції не може бути пустим";
+            }
             errorModal.show();
             return;
         }
         if (oldStationNameForEditInput.value === newStationNameForEditInput.value) {
             evt.preventDefault();
-            modalBody.innerHTML = "Нове та старе імена станції однакові";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "New and old station name match";
+            } else {
+                modalBody.innerHTML = "Нове та старе імена станції однакові";
+            }
             errorModal.show();
         }
     });
@@ -446,7 +531,11 @@ if (trainNumberForAddToScheduleInput != null) {
         let trainIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
         if (!trainIdInput.hasAttribute("value")) {
             evt.preventDefault();
-            modalBody.innerHTML = "Виберіть існуючий поїзд";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Select an existing train";
+            } else {
+                modalBody.innerHTML = "Виберіть існуючий поїзд";
+            }
             errorModal.show();
         }
     });
@@ -466,7 +555,11 @@ if (trainNumberForDeleteFromScheduleInput != null) {
         let trainIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
         evt.preventDefault();
         if (!trainIdInput.hasAttribute("value")) {
-            modalBody.innerHTML = "Виберіть існуючий поїзд";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Select an existing train";
+            } else {
+                modalBody.innerHTML = "Виберіть існуючий поїзд";
+            }
             errorModal.show();
             return;
         }

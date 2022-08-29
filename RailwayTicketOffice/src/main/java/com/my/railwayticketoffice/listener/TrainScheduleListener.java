@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Class that implements {@link ServletContextListener} for receiving notification events about ServletContext lifecycle changes.
+ * Methods this class managing {@link TrainScheduleManager} object.
  *
  * @author Yevhen Pashchenko
  */
@@ -40,6 +41,10 @@ public class TrainScheduleListener implements ServletContextListener {
         scheduler.scheduleAtFixedRate(scheduleManager, initialDelay, periodInMillis, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Shutdown scheduler that managed {@link TrainScheduleManager} object.
+     * @param sce - ServletContextEvent object.
+     */
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         scheduler.shutdownNow();
