@@ -42,10 +42,18 @@ public class AddTrainCommand implements Command {
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 trainDAO.addTrain(connection, trainNumber, trainSeats, trainDepartureTime);
-                session.setAttribute("successMessage", "Новий поїзд створено");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "New train has been created");
+                } else {
+                    session.setAttribute("successMessage", "Новий поїзд створено");
+                }
             } catch (SQLException e) {
                 logger.info("Failed to add new train in database");
-                throw new DBException("Failed to add new train in database");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for create new train in database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб створити новий поїзд в базі даних");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -55,19 +63,31 @@ public class AddTrainCommand implements Command {
         HttpSession session = request.getSession();
         trainNumber = request.getParameter("trainNumber");
         if ("".equals(trainNumber)) {
-            session.setAttribute("errorMessage", "Номер поїзда не задано");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Train number is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Номер поїзда не задано");
+            }
             return false;
         }
         try {
             trainSeats = Integer.parseInt(request.getParameter("trainSeats"));
         } catch (NumberFormatException e) {
-            session.setAttribute("errorMessage", "Кількість місць поїзда не задано");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Train seats is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Кількість місць в поїзді не задано");
+            }
             return false;
         }
         trainDepartureTime = request.getParameter("trainDepartureTime");
         List<String> minutesSeconds = Arrays.asList(trainDepartureTime.split(":"));
         if (minutesSeconds.size() != 2) {
-            session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Train departure time is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
+            }
             return false;
         }
         try {
@@ -76,7 +96,11 @@ public class AddTrainCommand implements Command {
                 Integer.parseInt(time);
             }
         } catch (NumberFormatException e) {
-            session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Train departure time is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
+            }
             return false;
         }
         return true;

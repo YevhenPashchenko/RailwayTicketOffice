@@ -37,10 +37,19 @@ public class EditStationCommand implements Command {
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 stationDAO.editStation(connection, stationId, stationName);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "Station data has been edited");
+                } else {
+                    session.setAttribute("successMessage", "Дані станції відредаговано");
+                }
                 session.setAttribute("successMessage", "Дані станції відредаговано");
             } catch (SQLException e) {
-                logger.warn("Failed to edit station data in database", e);
-                throw new DBException("Failed to edit station data in database");
+                logger.warn("Failed to connect to database for edit station data in database", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for edit station data in database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати станцію");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -53,12 +62,20 @@ public class EditStationCommand implements Command {
             stationId = Integer.parseInt(request.getParameter("stationId"));
         } catch (NumberFormatException e) {
             logger.info("Station id is incorrect");
-            session.setAttribute("errorMessage", "Виберіть існуючу станцію для редагування");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         if ("".equals(stationName)) {
             logger.info("Station name is incorrect");
-            session.setAttribute("errorMessage", "Ім'я станції не може бути пустим");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Station name cannot be empty");
+            } else {
+                session.setAttribute("errorMessage", "Ім'я станції не може бути пустим");
+            }
             return false;
         }
         return true;

@@ -49,6 +49,7 @@ public class GetTrainsSortedByDepartureTimeCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
+        HttpSession session = request.getSession();
         if (checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
@@ -77,8 +78,12 @@ public class GetTrainsSortedByDepartureTimeCommand implements Command {
                 request.setAttribute("toStationId", toStationId);
                 request.setAttribute("departureDate", LocalDate.parse(formattedDate));
             } catch (SQLException e) {
-                logger.warn("Failed to get trains specified by stations and date", e);
-                throw new DBException("Failed to get trains specified by stations and date");
+                logger.warn("Failed to connect to database for get trains specified by stations and date", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for get trains specified by stations and date");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати поїзди за заданими станціями та датою");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -91,38 +96,37 @@ public class GetTrainsSortedByDepartureTimeCommand implements Command {
         } catch (NumberFormatException e) {
             page = 1;
         }
-        try {
-            fromStationId = Integer.parseInt(request.getParameter("from"));
-        } catch (NumberFormatException e) {
-            logger.info("Departure station id is incorrect", e);
-            session.setAttribute("errorMessage", "Пункт відправлення задано не коректно");
+        List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
+        if (date.size() != 3) {
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Departure date is incorrect");
+            } else {
+                session.setAttribute("errorMessage", "Дату відправлення задано не коректно");
+            }
             return false;
         }
         try {
+            fromStationId = Integer.parseInt(request.getParameter("from"));
             toStationId = Integer.parseInt(request.getParameter("to"));
+            for (String d:
+                    date) {
+                Integer.parseInt(d);
+            }
         } catch (NumberFormatException e) {
-            logger.info("Destination station id is incorrect", e);
-            session.setAttribute("errorMessage", "Пункт призначення задано не коректно");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         if (fromStationId == toStationId) {
-            session.setAttribute("errorMessage", "Станції відправлення та призначення співпадають");
-            return false;
-        }
-        List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
-        if (date.size() != 3) {
-            session.setAttribute("errorMessage", "Дату задано не коректно");
-            return false;
-        }
-        for (String d:
-                date) {
-            try {
-                Integer.parseInt(d);
-            } catch (NumberFormatException e) {
-                logger.info("Departure date is incorrect", e);
-                session.setAttribute("errorMessage", "Дату задано не коректно");
-                return false;
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Departure and destination stations match");
+            } else {
+                session.setAttribute("errorMessage", "Станції відправлення та призначення співпадають");
             }
+            return false;
         }
         Collections.reverse(date);
         formattedDate = String.join("-", date);

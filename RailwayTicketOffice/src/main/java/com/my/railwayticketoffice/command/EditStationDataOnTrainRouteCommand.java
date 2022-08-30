@@ -42,10 +42,19 @@ public class EditStationDataOnTrainRouteCommand implements Command {
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 trainDAO.editStationDataOnTrainRoute(connection, timeSinceStart, stopTime, distanceFromStart, trainId, stationId);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "Station data on train route has been edited");
+                } else {
+                    session.setAttribute("successMessage", "Дані станції на маршруті поїзда відредаговано");
+                }
                 return "controller?command=showRoute&trainId=" + trainId;
             } catch (SQLException e) {
-                logger.warn("Failed to edit station data on train route", e);
-                throw new DBException("Failed to edit station data on train route");
+                logger.warn("Failed to connect to database for edit station data on train route in database", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for edit station data on train route in database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати станцію на маршруті поїзда");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -56,13 +65,21 @@ public class EditStationDataOnTrainRouteCommand implements Command {
         timeSinceStart = request.getParameter("timeSinceStart");
         if ("".equals(timeSinceStart)) {
             logger.info("Time since start is incorrect");
-            session.setAttribute("errorMessage", "Час з моменту відправлення поїзда з першої станції маршруту не задано");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Time since the departure of the train from the first station of the route is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Час з моменту відправлення поїзда з першої станції маршруту не задано");
+            }
             return false;
         }
         stopTime = request.getParameter("stopTime");
         if ("".equals(stopTime)) {
             logger.info("Stop time is incorrect");
-            session.setAttribute("errorMessage", "Час зупинки поїзда на станції не задано");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Time stop of the train at the station is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Час зупинки поїзда на станції не задано");
+            }
             return false;
         }
         try {
@@ -79,7 +96,11 @@ public class EditStationDataOnTrainRouteCommand implements Command {
             }
         } catch (NumberFormatException e) {
             logger.info("Link data is incorrect", e);
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         return true;

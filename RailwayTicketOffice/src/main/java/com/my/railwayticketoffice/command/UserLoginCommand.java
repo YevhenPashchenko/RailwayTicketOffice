@@ -51,14 +51,26 @@ public class UserLoginCommand implements Command {
                 session.setAttribute("user", user);
                 return chooseLink(request);
             }
-            session.setAttribute("errorMessage", "Помилкова пошта або пароль");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Email or password is wrong");
+            } else {
+                session.setAttribute("errorMessage", "Помилкова пошта або пароль");
+            }
             return chooseLink(request);
         } catch (SQLException e) {
-            logger.warn("Failed to authenticate user", e);
-            throw new DBException("Failed to authenticate user");
+            logger.warn("Failed to connect to database for get user data in database", e);
+            if ("en".equals(session.getAttribute("locale"))) {
+                throw new DBException("Failed to connect to database for get user data in database");
+            } else {
+                throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати дані користувача");
+            }
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            logger.warn("Failed to authenticate user", e);
-            throw new AuthenticationException("Failed to authenticate user");
+            logger.warn("Password decryption error", e);
+            if ("en".equals(session.getAttribute("locale"))) {
+                throw new AuthenticationException("Password decryption error");
+            } else {
+                throw new AuthenticationException("Помилка при розшифровці пароля");
+            }
         }
     }
 

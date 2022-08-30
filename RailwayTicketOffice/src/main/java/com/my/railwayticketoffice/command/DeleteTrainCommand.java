@@ -38,10 +38,18 @@ public class DeleteTrainCommand implements Command {
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 trainDAO.deleteTrain(connection, trainId);
-                session.setAttribute("successMessage", "Поїзд видалено");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "Train has been deleted");
+                } else {
+                    session.setAttribute("successMessage", "Поїзд видалено");
+                }
             } catch (SQLException e) {
-                logger.info("Failed to delete train from database", e);
-                throw new DBException("Failed to delete train from database");
+                logger.info("Failed to connect to database for delete train from database", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for delete train from database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб видалити поїзд з бази даних");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -52,7 +60,12 @@ public class DeleteTrainCommand implements Command {
         try {
             trainId = Integer.parseInt(request.getParameter("trainId"));
         } catch (NumberFormatException e) {
-            session.setAttribute("errorMessage", "Номер поїзда не задано або поїзда з таким номером немає");
+            logger.info("Train id is incorrect");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         return true;

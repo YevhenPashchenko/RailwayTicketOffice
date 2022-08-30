@@ -52,7 +52,11 @@ public class UserRegistrationCommand implements Command {
                 connection.setAutoCommit(false);
                 User user = userDAO.getUser(connection, email);
                 if (email.equals(user.getEmail())) {
-                    session.setAttribute("errorMessage", "Користувач з такою поштою вже зареєстрований");
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("errorMessage", "User with this email is already registered");
+                    } else {
+                        session.setAttribute("errorMessage", "Користувач з такою поштою вже зареєстрований");
+                    }
                     return chooseLink(request);
                 }
                 user.setEmail(email);
@@ -61,14 +65,22 @@ public class UserRegistrationCommand implements Command {
                 user.setLastName(surname);
                 userDAO.addUser(connection, user);
                 connection.commit();
-                session.setAttribute("successMessage", "Реєстрація успішна");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "Registration successful");
+                } else {
+                    session.setAttribute("successMessage", "Реєстрація успішна");
+                }
                 return chooseLink(request);
             } catch (SQLException e) {
-                logger.info("Failed to register user in database");
+                logger.info("Failed to connect to database for register user in database");
                 DBManager.getInstance().rollback(connection, e);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                logger.warn("Failed to get hashed password", e);
-                throw new AuthenticationException("Failed to get hashed password");
+                logger.info("Failed to encrypt password", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new AuthenticationException("Failed to encrypt password");
+                } else {
+                    throw new AuthenticationException("Не вдалося зашифрувати пароль");
+                }
             } finally {
                 DBManager.getInstance().close(connection);
             }
@@ -82,21 +94,37 @@ public class UserRegistrationCommand implements Command {
         Pattern pattern = Pattern.compile("^(.+)@(.+)$");
         Matcher matcher = pattern.matcher(email);
         if (email.equals("") || !matcher.matches()) {
-            session.setAttribute("errorMessage", "Адреса пошти некоректна");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Email address is incorrect");
+            } else {
+                session.setAttribute("errorMessage", "Адреса пошти некоректна");
+            }
             return false;
         }
         if (!request.getParameter("password").equals(request.getParameter("confirmPassword"))) {
-            session.setAttribute("errorMessage", "Введені паролі не співпадають");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Entered password do not match");
+            } else {
+                session.setAttribute("errorMessage", "Введені паролі не співпадають");
+            }
             return false;
         }
         surname = request.getParameter("userSurname");
         if (surname.equals("")) {
-            session.setAttribute("errorMessage", "Прізвище не має бути пустим");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Surname cannot be empty");
+            } else {
+                session.setAttribute("errorMessage", "Прізвище не має бути пустим");
+            }
             return false;
         }
         name = request.getParameter("userName");
         if (name.equals("")) {
-            session.setAttribute("errorMessage", "Ім'я не має бути пустим");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Name cannot be empty");
+            } else {
+                session.setAttribute("errorMessage", "Ім'я не має бути пустим");
+            }
             return false;
         }
         return true;

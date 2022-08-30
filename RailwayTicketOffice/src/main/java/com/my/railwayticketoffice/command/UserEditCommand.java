@@ -56,14 +56,26 @@ public class UserEditCommand implements Command {
                 } else {
                     userDAO.updateUser(connection, user);
                 }
-                session.setAttribute("successMessage", "Дані користувача змінено успішно");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "User data has been edited");
+                } else {
+                    session.setAttribute("successMessage", "Дані користувача змінено");
+                }
                 return chooseLink(request);
             } catch (SQLException e) {
-                logger.info("Failed to edit user data in database", e);
-                throw new DBException("Failed to edit user data in database");
+                logger.info("Failed to connect to database for edit user data in database", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for edit user data in database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати дані користувача");
+                }
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                logger.info("Failed to get hashed password", e);
-                throw new AuthenticationException("Failed to get hashed password");
+                logger.info("Failed to encrypt new password", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new AuthenticationException("Failed to encrypt new password");
+                } else {
+                    throw new AuthenticationException("Не вдалося зашифрувати новий пароль");
+                }
             }
         }
         return chooseLink(request);
@@ -74,17 +86,29 @@ public class UserEditCommand implements Command {
         password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
         if (password != null && !password.equals(confirmPassword)) {
-            session.setAttribute("errorMessage", "Введені паролі не співпадають");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Entered password do not match");
+            } else {
+                session.setAttribute("errorMessage", "Введені паролі не співпадають");
+            }
             return false;
         }
         surname = request.getParameter("userSurname");
         if (surname != null && surname.equals("")) {
-            session.setAttribute("errorMessage", "Прізвище не має бути пустим");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Surname cannot be empty");
+            } else {
+                session.setAttribute("errorMessage", "Прізвище не має бути пустим");
+            }
             return false;
         }
         name = request.getParameter("userName");
         if (name != null && name.equals("")) {
-            session.setAttribute("errorMessage", "Ім'я не має бути пустим");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Name cannot be empty");
+            } else {
+                session.setAttribute("errorMessage", "Ім'я не має бути пустим");
+            }
             return false;
         }
         return true;

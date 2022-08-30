@@ -38,10 +38,18 @@ public class DeleteStationCommand implements Command {
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 stationDAO.deleteStation(connection, stationId);
-                session.setAttribute("successMessage", "Станцію успішно видалено");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "Station deleted");
+                } else {
+                    session.setAttribute("successMessage", "Станцію видалено");
+                }
             } catch (SQLException e) {
                 logger.warn("Failed to delete station from database", e);
-                throw new DBException("Failed to delete station from database");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for delete station from database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб видалити станцію з бази даних");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -53,7 +61,11 @@ public class DeleteStationCommand implements Command {
             stationId = Integer.parseInt(request.getParameter("stationId"));
         } catch (NumberFormatException e) {
             logger.info("Station id is incorrect");
-            session.setAttribute("errorMessage", "Виберіть існуючу станцію");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Select an existing station");
+            } else {
+                session.setAttribute("errorMessage", "Виберіть існуючу станцію");
+            }
             return false;
         }
         return true;

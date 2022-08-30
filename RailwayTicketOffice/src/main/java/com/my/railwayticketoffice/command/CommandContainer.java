@@ -36,12 +36,15 @@ public class CommandContainer {
         commands.put("deleteStation", new DeleteStationCommand());
         commands.put("editStation", new EditStationCommand());
         commands.put("addTrainToSchedule", new AddTrainToScheduleCommand());
-        commands.put("deleteTrainFromSchedule", new DeleteTrainFromSchedule());
+        commands.put("deleteTrainFromSchedule", new DeleteTrainFromScheduleCommand());
         commands.put("getTrainsSortedByDurationTrip", new GetTrainsSortedByDurationTripCommand());
         commands.put("getTrainsSortedByDepartureTime", new GetTrainsSortedByDepartureTimeCommand());
         commands.put("getTrainsSortedByDestinationTime", new GetTrainsSortedByDestinationTimeCommand());
         commands.put("getTrainsSortedByAvailableSeats", new GetTrainsSortedByAvailableSeatsCommand());
         commands.put("changeMainPageLocale", new ChangeMainPageLocaleCommand());
+        commands.put("changeRoutePageLocale", new ChangeRoutePageLocaleCommand());
+        commands.put("changeTicketPageLocale", new ChangeTicketPageLocaleCommand());
+        commands.put("changeSuccessPageLocale", new ChangeSuccessPageLocaleCommand());
     }
 
     /**

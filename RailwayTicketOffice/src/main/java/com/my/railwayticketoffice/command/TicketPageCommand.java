@@ -51,10 +51,15 @@ public class TicketPageCommand implements Command {
                 request.setAttribute("fromStationId", fromStationId);
                 request.setAttribute("toStationId", toStationId);
                 request.setAttribute("departureDate", LocalDate.parse(formattedDate));
+                request.setAttribute("unformattedDepartureDate", request.getParameter("datePicker"));
                 return "ticket.jsp";
             } catch (SQLException e) {
-                logger.warn("Failed to get train from database", e);
-                throw new DBException("Failed to get train from database");
+                logger.warn("Failed to connect to database for get train and its route", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for get train and its route");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати поїзд та його маршрут");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -62,46 +67,37 @@ public class TicketPageCommand implements Command {
 
     private boolean checkParametersForCorrectness(HttpServletRequest request) {
         HttpSession session = request.getSession();
-        try {
-            trainId = Integer.parseInt(request.getParameter("trainId"));
-        } catch (NumberFormatException e) {
-            logger.info("Train id is incorrect", e);
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+        List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
+        if (date.size() != 3) {
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Departure date is incorrect");
+            } else {
+                session.setAttribute("errorMessage", "Дату відправлення задано не коректно");
+            }
             return false;
         }
         try {
             fromStationId = Integer.parseInt(request.getParameter("from"));
-        } catch (NumberFormatException e) {
-            logger.info("Departure station id is incorrect", e);
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
-            return false;
-        }
-        try {
             toStationId = Integer.parseInt(request.getParameter("to"));
+            for (String d:
+                    date) {
+                Integer.parseInt(d);
+            }
         } catch (NumberFormatException e) {
-            logger.info("Destination station id is incorrect", e);
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         if (fromStationId == toStationId) {
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
-            return false;
-        }
-        List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
-        if (date.size() != 3) {
-            logger.info("Departure date is incorrect");
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
-            return false;
-        }
-        for (String d:
-                date) {
-            try {
-                Integer.parseInt(d);
-            } catch (NumberFormatException e) {
-                logger.info("Departure date is incorrect", e);
-                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
-                return false;
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Departure and destination stations match");
+            } else {
+                session.setAttribute("errorMessage", "Станції відправлення та призначення співпадають");
             }
+            return false;
         }
         Collections.reverse(date);
         formattedDate = String.join("-", date);

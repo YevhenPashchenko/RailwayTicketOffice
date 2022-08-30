@@ -52,31 +52,43 @@ public class BuyTicketCommand implements Command {
                     return "success.jsp";
                 }
                 connection.commit();
-                session.setAttribute("errorMessage", "Вільних місць менше, ніж замовлених білетів, виберіть інший поїзд");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("errorMessage", "There are fewer free seats on the train that the ordered tickets, choose something else");
+                } else {
+                    session.setAttribute("errorMessage", "Вільних місць в поїзді менше, ніж замовлених білетів, виберіть щось інше");
+                }
                 return chooseLink(request);
             } catch (SQLException e) {
-                logger.info("Failed to change train available seats on this date");
+                logger.info("Failed to connect to database for change train available seats on this date");
                 DBManager.getInstance().rollback(connection, e);
             } finally {
                 DBManager.getInstance().close(connection);
             }
         }
-        session.setAttribute("errorMessage", "Будь ласка, авторизуйтеся");
         return chooseLink(request);
     }
 
     private boolean checkParametersForCorrectness(HttpServletRequest request) {
+        HttpSession session = request.getSession();
         try {
             trainId = Integer.parseInt(request.getParameter("trainId"));
         } catch (NumberFormatException e) {
             logger.info("Train id is incorrect", e);
-            request.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         List<String> departureDate = Arrays.asList(request.getParameter("departureDate").split("-"));
         if (departureDate.size() != 3) {
-            logger.info("Departure date is incorrect");
-            request.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            logger.info("Train departure date is incorrect");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Train departure time is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
+            }
             return false;
         }
         for (String d:
@@ -84,8 +96,12 @@ public class BuyTicketCommand implements Command {
             try {
                 Integer.parseInt(d);
             } catch (NumberFormatException e) {
-                logger.info("Departure date is incorrect", e);
-                request.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+                logger.info("Train departure date is incorrect", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("errorMessage", "Train departure time is not specified");
+                } else {
+                    session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
+                }
                 return false;
             }
         }
@@ -95,9 +111,13 @@ public class BuyTicketCommand implements Command {
         String[] passengerSurnames = passengersData.get("passengerSurname");
         for (String passengerName:
              passengerNames) {
-            if (passengerName.equals("")) {
+            if ("".equals(passengerName)) {
                 logger.info("Passenger name is incorrect");
-                request.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("errorMessage", "Passenger name is not specified");
+                } else {
+                    session.setAttribute("errorMessage", "Ім'я пасажира не задано");
+                }
                 return false;
             }
         }
@@ -105,7 +125,11 @@ public class BuyTicketCommand implements Command {
                 passengerSurnames) {
             if (passengerSurname.equals("")) {
                 logger.info("Passenger surname is incorrect");
-                request.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("errorMessage", "Passenger surname is not specified");
+                } else {
+                    session.setAttribute("errorMessage", "Прізвище пасажира не задано");
+                }
                 return false;
             }
         }

@@ -45,7 +45,11 @@ public class AddTrainToScheduleCommand implements Command {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 boolean isExists = scheduleDAO.checkIfRecordExists(connection, trainId);
                 if (isExists) {
-                    session.setAttribute("errorMessage", "Поїзд вже додано до розкладу");
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("errorMessage", "Train has already been added to the schedule");
+                    } else {
+                        session.setAttribute("errorMessage", "Поїзд вже додано до розкладу");
+                    }
                 } else {
                     Train train = trainDAO.getTrain(connection, trainId);
                     if (train.getDepartureTime() != null) {
@@ -65,14 +69,22 @@ public class AddTrainToScheduleCommand implements Command {
                             date = date.plusDays(1);
                         }
                         scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train));
-                        session.setAttribute("successMessage", "Поїзд додано до розкладу");
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("successMessage", "Train has been added to schedule");
+                        } else {
+                            session.setAttribute("successMessage", "Поїзд додано до розкладу");
+                        }
                     } else {
                         session.setAttribute("errorMessage", "Виберіть існуючий поїзд");
                     }
                 }
             } catch (SQLException e) {
-                logger.warn("Failed to add train to schedule", e);
-                throw new DBException("Failed to add train to schedule");
+                logger.warn("Failed to connect to database for add train to schedule", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for add train to schedule");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб додати поїзд до розкладу");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -84,7 +96,11 @@ public class AddTrainToScheduleCommand implements Command {
             trainId = Integer.parseInt(request.getParameter("trainId"));
         } catch (NumberFormatException e) {
             logger.info("Train id is incorrect");
-            session.setAttribute("errorMessage", "Виберіть існуючий поїзд");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         return true;

@@ -39,10 +39,19 @@ public class DeleteStationFromTrainRouteCommand implements Command {
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 trainDAO.deleteStationFromTrainRoute(connection, trainId, stationId);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "Station is deleted from train route");
+                } else {
+                    session.setAttribute("successMessage", "Станцію видалено з маршруту поїзда");
+                }
                 return "controller?command=showRoute&trainId=" + trainId;
             } catch (SQLException e) {
-                logger.warn("Failed to delete station from train route", e);
-                throw new DBException("Failed to delete station from train route");
+                logger.warn("Failed to connect to database for delete station from train route", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for delete station from train route");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб видалити станцію з маршруту поїзда");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -55,7 +64,11 @@ public class DeleteStationFromTrainRouteCommand implements Command {
             stationId = Integer.parseInt(request.getParameter("stationId"));
         } catch (NumberFormatException e) {
             logger.info("Link data is incorrect", e);
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         return true;

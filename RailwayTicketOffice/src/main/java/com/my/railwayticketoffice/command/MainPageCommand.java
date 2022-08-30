@@ -49,8 +49,12 @@ public class MainPageCommand implements Command {
                 request.setAttribute("trainsForAdmin", trains);
             }
         } catch (SQLException e) {
-            logger.warn("Failed to get stations from database", e);
-            throw new DBException("Failed to get stations from database");
+            logger.warn("Failed to connect to database for get stations from database", e);
+            if ("en".equals(session.getAttribute("locale"))) {
+                throw new DBException("Failed to connect to database for get stations from database");
+            } else {
+                throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати станції");
+            }
         }
         return "main.jsp";
     }

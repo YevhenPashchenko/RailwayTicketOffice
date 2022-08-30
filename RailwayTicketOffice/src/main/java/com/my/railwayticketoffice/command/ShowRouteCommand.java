@@ -57,8 +57,12 @@ public class ShowRouteCommand implements Command {
                 request.setAttribute("toStationId", toStationId);
                 request.setAttribute("train", train);
             } catch (SQLException e) {
-                logger.warn("Failed to get route", e);
-                throw new DBException("Failed to get route");
+                logger.warn("Failed to connect to database for get train route", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for get train route");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати маршрут поїзда");
+                }
             }
         } else {
             return "controller?command=mainPage";
@@ -87,8 +91,11 @@ public class ShowRouteCommand implements Command {
                 toStationId = Integer.parseInt(request.getParameter("toStationId"));
             }
         } catch (NumberFormatException e) {
-            logger.info("Link data is incorrect", e);
-            session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
             return false;
         }
         return true;

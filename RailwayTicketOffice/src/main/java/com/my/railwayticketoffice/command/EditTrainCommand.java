@@ -48,10 +48,18 @@ public class EditTrainCommand implements Command {
                 train.setSeats(trainSeats);
                 train.setDepartureTime(LocalTime.parse(trainDepartureTime));
                 trainDAO.editTrain(connection, train);
-                session.setAttribute("successMessage", "Дані поїзда змінено успішно");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "Train data has been edited");
+                } else {
+                    session.setAttribute("successMessage", "Дані поїзда змінено");
+                }
             } catch (SQLException e) {
-                logger.info("Failed to edit train data in database");
-                throw new DBException("Failed to edit train data in database");
+                logger.info("Failed to connect to database for edit train data  in database");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for edit train data in database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати дані поїзда");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -62,7 +70,12 @@ public class EditTrainCommand implements Command {
         String stringTrainSeats = request.getParameter("trainSeats");
         trainDepartureTime = request.getParameter("trainDepartureTime");
         if (trainDepartureTime == null || trainDepartureTime.equals("")) {
-            session.setAttribute("errorMessage", "Час відправлення поїзда має існувати та не має бути пустим");
+            logger.info("Train departure time is not specified");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Train departure time is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
+            }
             return false;
         }
         try {
@@ -73,11 +86,21 @@ public class EditTrainCommand implements Command {
                 Integer.parseInt(time);
             }
         } catch (NumberFormatException e) {
-            session.setAttribute("errorMessage", "Помилковий id поїзда або помилкове число місць поїзда або помилковий час відправлення поїзда");
+            logger.info("Link data is incorrect", e);
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Request error, try again");
+            } else {
+                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
+            }
         }
         trainNumber = request.getParameter("trainNumber");
         if (trainNumber == null || trainNumber.equals("")) {
-            session.setAttribute("errorMessage", "Номер поїзда має існувати та не може бути пустим");
+            logger.info("Train number is not specified");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Train number is not specified");
+            } else {
+                session.setAttribute("errorMessage", "Номер поїзда не задано");
+            }
             return false;
         }
         return true;

@@ -38,10 +38,18 @@ public class AddStationCommand implements Command {
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 stationDAO.addStation(connection, stationName);
-                session.setAttribute("successMessage", "Нову станцію додано");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("successMessage", "New station has been added");
+                } else {
+                    session.setAttribute("successMessage", "Нову станцію додано");
+                }
             } catch (SQLException e) {
-                logger.warn("Failed to add station to database", e);
-                throw new DBException("Failed to add station to database");
+                logger.warn("Failed to connect to database for add station to database", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database for add station to database");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб додати станцію в базу даних");
+                }
             }
         }
         return "controller?command=mainPage";
@@ -52,7 +60,11 @@ public class AddStationCommand implements Command {
         stationName = request.getParameter("stationName");
         if ("".equals(stationName)) {
             logger.info("Station name is incorrect");
-            session.setAttribute("errorMessage", "Ім'я станції не може бути пустим");
+            if ("en".equals(session.getAttribute("locale"))) {
+                session.setAttribute("errorMessage", "Station name cannot be empty");
+            } else {
+                session.setAttribute("errorMessage", "Ім'я станції не може бути пустим");
+            }
             return false;
         }
         return true;

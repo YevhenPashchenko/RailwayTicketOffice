@@ -3,6 +3,7 @@ let totalCost = document.querySelector("#totalCost");
 let select = document.querySelector("#ticketCounter");
 let confirmButton = document.querySelector("#cancelModal").querySelector(".modal-footer").firstElementChild;
 let currentPassenger;
+let currentLocale = document.querySelector('input[type="image"]').getAttribute("alt");
 
 select.addEventListener("change", evt => {
     let select = evt.currentTarget;
@@ -13,7 +14,11 @@ select.addEventListener("change", evt => {
         for (let i = 0; i < difference; i++) {
             let passengerNumber = +passengers[passengers.length - 1].firstElementChild.innerHTML.split(" ")[1] + 1 + i;
             let clone = passengers[0].cloneNode(true);
-            clone.firstElementChild.innerHTML = "Пасажир " + (passengerNumber);
+            if (currentLocale === "en") {
+                clone.firstElementChild.innerHTML = "Passenger " + (passengerNumber);
+            } else {
+                clone.firstElementChild.innerHTML = "Пасажир " + (passengerNumber);
+            }
             clone.querySelector('label[for="passengerSurname"]').setAttribute("for", "passengerSurname" + passengerNumber);
             let passengerSurnameInput = clone.querySelector('input[id="passengerSurname"]');
             passengerSurnameInput.setAttribute("id", "passengerSurname" + passengerNumber);
@@ -22,7 +27,12 @@ select.addEventListener("change", evt => {
             let passengerNameInput = clone.querySelector('input[id="passengerName"]');
             passengerNameInput.setAttribute("id", "passengerName" + passengerNumber);
             passengerNameInput.setAttribute("value", "");
-            let html = "<div type=\"button\" class=\"col-1 offset-2 btn btn-sm btn-primary align-self-center\" data-bs-target=\"#cancelModal\" data-bs-toggle=\"modal\">Скасувати</div>";
+            let html;
+            if (currentLocale === "en") {
+                html = "<div type=\"button\" class=\"col-1 offset-2 btn btn-sm btn-primary align-self-center\" data-bs-target=\"#cancelModal\" data-bs-toggle=\"modal\">Cancel</div>";
+            } else {
+                html = "<div type=\"button\" class=\"col-1 offset-2 btn btn-sm btn-primary align-self-center\" data-bs-target=\"#cancelModal\" data-bs-toggle=\"modal\">Скасувати</div>";
+            }
             clone.lastElementChild.insertAdjacentHTML("beforeend", html);
             clone.lastElementChild.addEventListener("click", () => {
                 currentPassenger = clone;
@@ -34,12 +44,20 @@ select.addEventListener("change", evt => {
             passengers[i].remove();
         }
     }
-    totalCost.innerHTML = "Загальна вартість: " + (ticketCost.innerHTML.replace(",", ".") * count).toLocaleString("uk-UA", {minimumFractionDigits: 2}) + " грн.";
+    if (currentLocale === "en") {
+        totalCost.innerHTML = "Total cost: " + (ticketCost.innerHTML.replace(",", ".") * count).toLocaleString("en-EN", {minimumFractionDigits: 2}) + " UAH.";
+    } else {
+        totalCost.innerHTML = "Загальна вартість: " + (ticketCost.innerHTML.replace(",", ".") * count).toLocaleString("uk-UA", {minimumFractionDigits: 2}) + " грн.";
+    }
 });
 
 confirmButton.addEventListener("click", () => {
     confirmButton.nextElementSibling.click();
     currentPassenger.remove();
     select.value = --select.value;
-    totalCost.innerHTML = "Загальна вартість: " + (ticketCost.innerHTML.replace(",", ".") * select.value).toLocaleString("uk-UA", {minimumFractionDigits: 2}) + " грн.";
+    if (currentLocale === "en") {
+        totalCost.innerHTML = "Total cost: " + (ticketCost.innerHTML.replace(",", ".") * count).toLocaleString("en-EN", {minimumFractionDigits: 2}) + " UAH.";
+    } else {
+        totalCost.innerHTML = "Загальна вартість: " + (ticketCost.innerHTML.replace(",", ".") * count).toLocaleString("uk-UA", {minimumFractionDigits: 2}) + " грн.";
+    }
 });

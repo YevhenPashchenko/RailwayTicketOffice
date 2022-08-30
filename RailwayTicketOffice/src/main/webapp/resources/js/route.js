@@ -1,6 +1,6 @@
 let tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-let deleteStationFromTrainRouteButtons = document.querySelectorAll('button[data-bs-title="Видалити станцію з маршруту"]');
+let deleteStationFromTrainRouteButtons = document.querySelectorAll('button[name="deleteStationFromTrainRoute"]');
 let confirmDeleteStationFromTrainRouteModal = document.querySelector('#confirmDeleteStationFromTrainRouteModal');
 if (confirmDeleteStationFromTrainRouteModal != null) {
     confirmDeleteStationFromTrainRouteModal = new bootstrap.Modal(confirmDeleteStationFromTrainRouteModal, {
@@ -16,7 +16,7 @@ if (modalBody != null) {
         keyboard: false,
     });
 }
-let editIconButtons = document.querySelectorAll('button[data-bs-title="Редагувати дані станції на маршруті"]');
+let editIconButtons = document.querySelectorAll('button[name="editStationDataOnTrainRoute"]');
 let editStationDataOnTrainRouteForms = document.querySelectorAll('#editStationDataOnTrainRoute');
 let collapseList;
 if (editStationDataOnTrainRouteForms != null) {
@@ -26,6 +26,7 @@ if (editStationDataOnTrainRouteForms != null) {
 }
 let editStationDataOnTrainRouteCheckboxes = document.querySelectorAll('#editStationDataOnTrainRoute input[class="form-check-input"]');
 let editStationDataOnTrainRouteButtons = document.querySelectorAll('#editStationDataOnTrainRoute button');
+let currentLocale = document.querySelector('input[type="image"]').getAttribute("alt");
 
 if (deleteStationFromTrainRouteButtons != null) {
     for (let i = 0; i < deleteStationFromTrainRouteButtons.length; i++) {
@@ -60,27 +61,43 @@ if (addStationToTrainRouteButton != null) {
         let form = evt.currentTarget.parentElement;
         if (!form.querySelector('input[name="stationId"]').hasAttribute("value")) {
             evt.preventDefault();
-            modalBody.innerHTML = "Введіть існуючу станцію";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Enter an existing station";
+            } else {
+                modalBody.innerHTML = "Введіть існуючу станцію";
+            }
             errorModal.show();
             return;
         }
         let timeSinceStartValue = form.querySelector('#timeSinceStart').value;
         if (timeSinceStartValue === "" && timeSinceStartValue.split(":").length !== 2) {
             evt.preventDefault();
-            modalBody.innerHTML = "Введіть час з моменту відправлення поїзда з першої станції маршруту";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Enter the time since the departure of the train from the first station of the route";
+            } else {
+                modalBody.innerHTML = "Введіть час з моменту відправлення поїзда з першої станції маршруту";
+            }
             errorModal.show();
             return;
         }
         let stopTimeValue = form.querySelector('#stopTime').value;
         if (stopTimeValue === "" && stopTimeValue.split(":").length !== 2) {
             evt.preventDefault();
-            modalBody.innerHTML = "Введіть час зупинки поїзда на станції";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Enter the time the train stops at the station";
+            } else {
+                modalBody.innerHTML = "Введіть час зупинки поїзда на станції";
+            }
             errorModal.show();
             return;
         }
         if (form.querySelector('#distanceFromStart').value === "") {
             evt.preventDefault();
-            modalBody.innerHTML = "Введіть відстань до першої станції маршруту";
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Enter the distance to the first station of the route";
+            } else {
+                modalBody.innerHTML = "Введіть відстань до першої станції маршруту";
+            }
             errorModal.show();
         }
     });
@@ -141,20 +158,32 @@ if (editStationDataOnTrainRouteButtons != null) {
             let timeSinceStartValue = form.querySelector('#timeSinceStartForEdit').value;
             if (timeSinceStartValue === "" && timeSinceStartValue.split(":").length !== 2) {
                 evt.preventDefault();
-                modalBody.innerHTML = "Введіть час з моменту відправлення поїзда з першої станції маршруту";
+                if (currentLocale === "en") {
+                    modalBody.innerHTML = "Enter the time since the departure of the train from the first station of the route";
+                } else {
+                    modalBody.innerHTML = "Введіть час з моменту відправлення поїзда з першої станції маршруту";
+                }
                 errorModal.show();
                 return;
             }
             let stopTimeValue = form.querySelector('#stopTimeForEdit').value;
             if (stopTimeValue === "" && stopTimeValue.split(":").length !== 2) {
                 evt.preventDefault();
-                modalBody.innerHTML = "Введіть час зупинки поїзда на станції";
+                if (currentLocale === "en") {
+                    modalBody.innerHTML = "Enter the time the train stops at the station";
+                } else {
+                    modalBody.innerHTML = "Введіть час зупинки поїзда на станції";
+                }
                 errorModal.show();
                 return;
             }
             if (form.querySelector('#distanceFromStartForEdit').value === "") {
                 evt.preventDefault();
-                modalBody.innerHTML = "Введіть відстань до першої станції маршруту";
+                if (currentLocale === "en") {
+                    modalBody.innerHTML = "Enter the distance to the first station of the route";
+                } else {
+                    modalBody.innerHTML = "Введіть відстань до першої станції маршруту";
+                }
                 errorModal.show();
                 return;
             }

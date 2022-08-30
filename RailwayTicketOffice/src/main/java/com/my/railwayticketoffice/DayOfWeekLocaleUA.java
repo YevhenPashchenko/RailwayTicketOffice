@@ -1,13 +1,13 @@
 package com.my.railwayticketoffice;
 
 public enum DayOfWeekLocaleUA {
-    MONDAY("понеділок"),
-    TUESDAY("вівторок"),
-    WEDNESDAY("середа"),
-    THURSDAY("четвер"),
-    FRIDAY("п`ятниця"),
-    SATURDAY("субота"),
-    SUNDAY("неділя");
+    MONDAY("Понеділок"),
+    TUESDAY("Вівторок"),
+    WEDNESDAY("Середа"),
+    THURSDAY("Четвер"),
+    FRIDAY("П`ятниця"),
+    SATURDAY("Субота"),
+    SUNDAY("Неділя");
 
     private final String dayName;
 

@@ -602,8 +602,14 @@
                                 <div>${train.getRoute().getDestinationStationName()}</div>
                             </td>
                             <td class="text-start fs-6 fw-normal">
-                                <div class="d-flex justify-content-between mb-1 lh-sm"><span><fmt:message key="main_jsp.fourth_th.first_div"/></span> <span>${train.getRoute().getDepartureDateOfWeekAndDateAsString(requestScope.departureDate)}</span></div>
-                                <div class="d-flex justify-content-between"><span><fmt:message key="main_jsp.fourth_th.second_div"/></span> <span>${train.getRoute().getDestinationDateOfWeekAndDateAsString(requestScope.fromStationId, requestScope.toStationId, requestScope.departureDate)}</span></div>
+                                <div class="d-flex justify-content-between mb-1 lh-sm">
+                                    <span><fmt:message key="main_jsp.fourth_th.first_div"/></span>
+                                    <span>${train.getRoute().getDepartureDayOfWeekAndDateAsString(requestScope.departureDate, sessionScope.locale)}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span><fmt:message key="main_jsp.fourth_th.second_div"/></span>
+                                    <span>${train.getRoute().getDestinationDayOfWeekAndDateAsString(requestScope.fromStationId, requestScope.toStationId, requestScope.departureDate, sessionScope.locale)}</span>
+                                </div>
                             </td>
                             <td>
                                 <div class="lh-sm">${train.getRoute().getArrivalTime(requestScope.fromStationId)}</div>
