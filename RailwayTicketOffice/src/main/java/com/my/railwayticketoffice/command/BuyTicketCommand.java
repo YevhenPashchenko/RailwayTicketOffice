@@ -60,7 +60,7 @@ public class BuyTicketCommand implements Command {
                 return chooseLink(request);
             } catch (SQLException e) {
                 logger.info("Failed to connect to database for change train available seats on this date");
-                DBManager.getInstance().rollback(connection, e);
+                DBManager.getInstance().rollback(session, connection, e);
             } finally {
                 DBManager.getInstance().close(connection);
             }

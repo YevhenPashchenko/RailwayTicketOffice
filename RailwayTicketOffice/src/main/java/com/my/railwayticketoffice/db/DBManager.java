@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,19 +101,31 @@ public class DBManager {
      * @throws DBException if method executed successfully or new {@link SQLException} was catch in process or
      * Connection object is null.
      */
-    public void rollback(Connection connection, SQLException e) throws DBException {
+    public void rollback(HttpSession session, Connection connection, SQLException e) throws DBException {
         if (connection != null) {
             try {
                 connection.rollback();
-                logger.info("Transaction was rollback", e);
-                throw new DBException("Failed to change data, please try again");
+                logger.info("Failed to connect to database, transaction was canceled, data in database was not changed", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database, transaction was canceled, data in database was not changed");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, транзакцію було скасовано, дані в базі даних не змінилися");
+                }
             } catch (SQLException ex) {
                 logger.warn("Failed to rollback transaction", ex);
-                throw new DBException("Failed to change data, please try again");
+                if ("en".equals(session.getAttribute("locale"))) {
+                    throw new DBException("Failed to connect to database, transaction was canceled, changes in database could not be undone");
+                } else {
+                    throw new DBException("Не вийшло зв'язатися з базою даних, транзакцію було скасовано, зміни в базі даних скасувати не вдалося");
+                }
             }
         }
-        logger.warn("Failed to get connection when call rollback method", e);
-        throw new DBException("Failed to change data, please try again");
+        logger.warn("Failed to get connection to database", e);
+        if ("en".equals(session.getAttribute("locale"))) {
+            throw new DBException("Failed to get connection to database");
+        } else {
+            throw new DBException("Не вийшло зв'язатися з базою даних");
+        }
     }
 
     /**
@@ -130,7 +143,7 @@ public class DBManager {
                 logger.warn("Failed to close connection to database", e);
             }
         } else {
-            logger.warn("Failed to get connection when call close method");
+            logger.warn("Failed to get connection to database");
         }
     }
 }

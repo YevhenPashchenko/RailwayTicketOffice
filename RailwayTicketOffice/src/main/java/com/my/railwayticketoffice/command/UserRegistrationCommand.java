@@ -73,7 +73,7 @@ public class UserRegistrationCommand implements Command {
                 return chooseLink(request);
             } catch (SQLException e) {
                 logger.info("Failed to connect to database for register user in database");
-                DBManager.getInstance().rollback(connection, e);
+                DBManager.getInstance().rollback(session, connection, e);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 logger.info("Failed to encrypt password", e);
                 if ("en".equals(session.getAttribute("locale"))) {

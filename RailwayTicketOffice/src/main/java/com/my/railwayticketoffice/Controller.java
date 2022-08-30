@@ -1,7 +1,9 @@
 package com.my.railwayticketoffice;
 
+import com.my.railwayticketoffice.authentication.AuthenticationException;
 import com.my.railwayticketoffice.command.Command;
 import com.my.railwayticketoffice.command.CommandContainer;
+import com.my.railwayticketoffice.db.DBException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,15 +51,23 @@ public class Controller extends HttpServlet {
 
     private String handleRequest(HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException {
         req.setCharacterEncoding("UTF-8");
+        HttpSession session = req.getSession();
         String address = "error.jsp";
         Command command;
         String commandName = req.getParameter("command");
         try {
             command = CommandContainer.getCommand(commandName);
             address = command.execute(req, resp);
-        } catch (Exception e) {
+        } catch (DBException | AuthenticationException e) {
             logger.warn(e.getMessage(), e);
             req.setAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            if ("en".equals(session.getAttribute("locale"))) {
+                req.setAttribute("errorMessage", "Request data is incorrect");
+            } else {
+                req.setAttribute("errorMessage", "Некоректні дані в запиті");
+            }
         }
         return address;
     }
