@@ -103,7 +103,7 @@ public class MySQLTrainDAOTest {
     }
 
     /**
-     * Test for method getRoutesForTrains from {@link MySQLTrainDAO}.
+     * Test for method getRoutesForTrains from {@link MySQLTrainDAO} with locale equals null.
      *
      * @throws Exception if any {@link Exception} occurs.
      */
@@ -112,11 +112,99 @@ public class MySQLTrainDAOTest {
 
         LocalTime time = LocalTime.now();
 
-        Train train = new Train();
-        train.setId(1);
-        train.setNumber("number");
-        train.setSeats(300);
-        train.setDepartureTime(LocalTime.parse(time.format(formatter)));
+        Train train = getTrain(time);
+
+        Station station = new Station();
+        station.setId(1);
+        station.setName("Станція");
+
+        train.getRoute().addStation(station);
+        train.getRoute().addTimeSinceStart(station.getId(), time.format(formatter));
+        train.getRoute().addStopTime(station.getId(), LocalTime.parse(time.format(formatter)));
+        train.getRoute().addDistanceFromStart(station.getId(), 100);
+
+        List<Train> trains = new ArrayList<>();
+        Train train1 = getTrain(time);
+        trains.add(train1);
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getTrainDAO()).thenReturn(new MySQLTrainDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(MySQLTrainDAOQuery.GET_ROUTES_FOR_TRAINS + MySQLTrainDAOQuery.GET_STATION_NAME + "(?) " + MySQLTrainDAOQuery.ORDER_BY)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("train_id")).thenReturn(1);
+        when(rs.getInt("station_id")).thenReturn(1);
+        when(rs.getString("name")).thenReturn("Станція");
+        when(rs.getString("time_since_start")).thenReturn(time.format(formatter));
+        when(rs.getString("stop_time")).thenReturn(time.format(formatter));
+        when(rs.getInt("distance_from_start")).thenReturn(100);
+
+        DBManager.getInstance().getTrainDAO().getRoutesForTrains(connection, trains, null);
+
+        assertEquals(trains, Collections.singletonList(train));
+        DBManagerMocked.close();
+    }
+
+    /**
+     * Test for method getRoutesForTrains from {@link MySQLTrainDAO} with locale equals uk.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testGetRoutesForTrainsLocaleUA() throws Exception {
+
+        LocalTime time = LocalTime.now();
+        String locale = "uk";
+
+        Train train = getTrain(time);
+
+        Station station = new Station();
+        station.setId(1);
+        station.setName("Станція");
+
+        train.getRoute().addStation(station);
+        train.getRoute().addTimeSinceStart(station.getId(), time.format(formatter));
+        train.getRoute().addStopTime(station.getId(), LocalTime.parse(time.format(formatter)));
+        train.getRoute().addDistanceFromStart(station.getId(), 100);
+
+        List<Train> trains = new ArrayList<>();
+        Train train1 = getTrain(time);
+        trains.add(train1);
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getTrainDAO()).thenReturn(new MySQLTrainDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(MySQLTrainDAOQuery.GET_ROUTES_FOR_TRAINS + MySQLTrainDAOQuery.GET_STATION_NAME + "(?) " + MySQLTrainDAOQuery.ORDER_BY)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("train_id")).thenReturn(1);
+        when(rs.getInt("station_id")).thenReturn(1);
+        when(rs.getString("name")).thenReturn("Станція");
+        when(rs.getString("time_since_start")).thenReturn(time.format(formatter));
+        when(rs.getString("stop_time")).thenReturn(time.format(formatter));
+        when(rs.getInt("distance_from_start")).thenReturn(100);
+
+        DBManager.getInstance().getTrainDAO().getRoutesForTrains(connection, trains, locale);
+
+        assertEquals(trains, Collections.singletonList(train));
+        DBManagerMocked.close();
+    }
+
+    /**
+     * Test for method getRoutesForTrains from {@link MySQLTrainDAO} with locale equals en.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testGetRoutesForTrainsLocaleEN() throws Exception {
+
+        LocalTime time = LocalTime.now();
+        String locale = "en";
+
+        Train train = getTrain(time);
 
         Station station = new Station();
         station.setId(1);
@@ -128,18 +216,14 @@ public class MySQLTrainDAOTest {
         train.getRoute().addDistanceFromStart(station.getId(), 100);
 
         List<Train> trains = new ArrayList<>();
-        Train train1 = new Train();
-        train1.setId(1);
-        train1.setNumber("number");
-        train1.setSeats(300);
-        train1.setDepartureTime(LocalTime.parse(time.format(formatter)));
+        Train train1 = getTrain(time);
         trains.add(train1);
 
         MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManagerInstance.getTrainDAO()).thenReturn(new MySQLTrainDAO());
         when(DBManagerInstance.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(MySQLTrainDAOQuery.GET_ROUTES_FOR_TRAINS + "(?) " + MySQLTrainDAOQuery.ORDER_BY)).thenReturn(pstmt);
+        when(connection.prepareStatement(MySQLTrainDAOQuery.GET_ROUTES_FOR_TRAINS + MySQLTrainDAOQuery.GET_STATION_EN_NAME + "(?) " + MySQLTrainDAOQuery.ORDER_BY)).thenReturn(pstmt);
         when(pstmt.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true).thenReturn(false);
         when(rs.getInt("train_id")).thenReturn(1);
@@ -149,10 +233,19 @@ public class MySQLTrainDAOTest {
         when(rs.getString("stop_time")).thenReturn(time.format(formatter));
         when(rs.getInt("distance_from_start")).thenReturn(100);
 
-        DBManager.getInstance().getTrainDAO().getRoutesForTrains(connection, trains);
+        DBManager.getInstance().getTrainDAO().getRoutesForTrains(connection, trains, locale);
 
         assertEquals(trains, Collections.singletonList(train));
         DBManagerMocked.close();
+    }
+
+    private Train getTrain(LocalTime time) {
+        Train train = new Train();
+        train.setId(1);
+        train.setNumber("number");
+        train.setSeats(300);
+        train.setDepartureTime(LocalTime.parse(time.format(formatter)));
+        return train;
     }
 
     /**
@@ -185,56 +278,6 @@ public class MySQLTrainDAOTest {
         when(rs.getString("departure_time")).thenReturn(time.format(formatter));
 
         assertEquals(DBManager.getInstance().getTrainDAO().getTrainThatIsInSchedule(connection, trainId), train);
-        DBManagerMocked.close();
-    }
-
-    /**
-     * Test for method getRouteForTrain from {@link MySQLTrainDAO}.
-     *
-     * @throws Exception if any {@link Exception} occurs.
-     */
-    @Test
-    public void testGetRouteForTrain() throws Exception {
-
-        LocalTime time = LocalTime.now();
-
-        Train train = new Train();
-        train.setId(1);
-        train.setNumber("number");
-        train.setSeats(300);
-        train.setDepartureTime(LocalTime.parse(time.format(formatter)));
-
-        Station station = new Station();
-        station.setId(1);
-        station.setName("Station");
-
-        train.getRoute().addStation(station);
-        train.getRoute().addTimeSinceStart(station.getId(), time.format(formatter));
-        train.getRoute().addStopTime(station.getId(), LocalTime.parse(time.format(formatter)));
-        train.getRoute().addDistanceFromStart(station.getId(), 100);
-
-        Train train1 = new Train();
-        train1.setId(1);
-        train1.setNumber("number");
-        train1.setSeats(300);
-        train1.setDepartureTime(LocalTime.parse(time.format(formatter)));
-
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManagerInstance.getTrainDAO()).thenReturn(new MySQLTrainDAO());
-        when(DBManagerInstance.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(MySQLTrainDAOQuery.GET_ROUTE_FOR_TRAIN)).thenReturn(pstmt);
-        when(pstmt.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(true).thenReturn(false);
-        when(rs.getInt("station_id")).thenReturn(1);
-        when(rs.getString("name")).thenReturn("Station");
-        when(rs.getString("time_since_start")).thenReturn(time.format(formatter));
-        when(rs.getString("stop_time")).thenReturn(time.format(formatter));
-        when(rs.getInt("distance_from_start")).thenReturn(100);
-
-        DBManager.getInstance().getTrainDAO().getRouteForTrain(connection, train1);
-
-        assertEquals(train1, train);
         DBManagerMocked.close();
     }
 

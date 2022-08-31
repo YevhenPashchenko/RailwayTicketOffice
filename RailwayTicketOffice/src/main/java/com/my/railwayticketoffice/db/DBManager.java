@@ -107,17 +107,19 @@ public class DBManager {
                 connection.rollback();
                 logger.info("Failed to connect to database, transaction was canceled, data in database was not changed", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database, transaction was canceled, data in database was not changed");
+                    session.setAttribute("errorMessage", "Failed to connect to database, transaction was canceled, data in database was not changed");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, транзакцію було скасовано, дані в базі даних не змінилися");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, транзакцію було скасовано, дані в базі даних не змінилися");
                 }
+                throw new DBException("Failed to connect to database, transaction was canceled, data in database was not changed");
             } catch (SQLException ex) {
                 logger.warn("Failed to rollback transaction", ex);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database, transaction was canceled, changes in database could not be undone");
+                    session.setAttribute("errorMessage", "Failed to connect to database, transaction was canceled, changes in database could not be undone");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, транзакцію було скасовано, зміни в базі даних скасувати не вдалося");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, транзакцію було скасовано, зміни в базі даних скасувати не вдалося");
                 }
+                throw new DBException("Failed to connect to database, transaction was canceled, changes in database could not be undone");
             }
         }
         logger.warn("Failed to get connection to database", e);

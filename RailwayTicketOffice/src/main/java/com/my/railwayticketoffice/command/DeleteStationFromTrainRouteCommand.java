@@ -48,10 +48,11 @@ public class DeleteStationFromTrainRouteCommand implements Command {
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for delete station from train route", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for delete station from train route");
+                    session.setAttribute("errorMessage", "Failed to connect to database for delete station from train route");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб видалити станцію з маршруту поїзда");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб видалити станцію з маршруту поїзда");
                 }
+                throw new DBException("Failed to connect to database for delete station from train route");
             }
         }
         return "controller?command=mainPage";

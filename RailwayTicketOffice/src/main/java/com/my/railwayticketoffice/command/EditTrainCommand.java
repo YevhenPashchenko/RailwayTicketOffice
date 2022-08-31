@@ -56,10 +56,11 @@ public class EditTrainCommand implements Command {
             } catch (SQLException e) {
                 logger.info("Failed to connect to database for edit train data  in database");
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for edit train data in database");
+                    session.setAttribute("errorMessage", "Failed to connect to database for edit train data in database");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати дані поїзда");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб відредагувати дані поїзда");
                 }
+                throw new DBException("Failed to connect to database for edit train data in database");
             }
         }
         return "controller?command=mainPage";

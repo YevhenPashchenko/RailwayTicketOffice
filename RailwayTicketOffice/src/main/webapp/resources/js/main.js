@@ -430,7 +430,9 @@ if (inputTrainNumberForEditRoute !== null) {
 
 if (addStationButton != null) {
     addStationButton.addEventListener("click", evt => {
-        if (evt.currentTarget.previousElementSibling.value === "") {
+        let stationNameUA = evt.currentTarget.previousElementSibling.previousElementSibling.previousElementSibling.value;
+        let stationNameEN = evt.currentTarget.previousElementSibling.value;
+        if (stationNameEN === "" || stationNameUA === "") {
             evt.preventDefault();
             if (currentLocale === "en") {
                 modalBody.innerHTML = "Station name cannot be empty";

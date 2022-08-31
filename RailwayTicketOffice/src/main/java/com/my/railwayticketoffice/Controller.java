@@ -60,13 +60,12 @@ public class Controller extends HttpServlet {
             address = command.execute(req, resp);
         } catch (DBException | AuthenticationException e) {
             logger.warn(e.getMessage(), e);
-            req.setAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
             if ("en".equals(session.getAttribute("locale"))) {
-                req.setAttribute("errorMessage", "Request data is incorrect");
+                session.setAttribute("errorMessage", "Request data is incorrect");
             } else {
-                req.setAttribute("errorMessage", "Некоректні дані в запиті");
+                session.setAttribute("errorMessage", "Некоректні дані в запиті");
             }
         }
         return address;

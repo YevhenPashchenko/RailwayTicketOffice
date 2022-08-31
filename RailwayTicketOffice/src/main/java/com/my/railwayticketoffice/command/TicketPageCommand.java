@@ -43,10 +43,11 @@ public class TicketPageCommand implements Command {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
+        String locale = (String) session.getAttribute("locale");
         if (user != null && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 Train train = trainDAO.getTrainThatIsInSchedule(connection, trainId);
-                trainDAO.getRouteForTrain(connection, train);
+                trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), locale);
                 request.setAttribute("train", train);
                 request.setAttribute("fromStationId", fromStationId);
                 request.setAttribute("toStationId", toStationId);
@@ -55,11 +56,12 @@ public class TicketPageCommand implements Command {
                 return "ticket.jsp";
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for get train and its route", e);
-                if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for get train and its route");
+                if ("en".equals(locale)) {
+                    session.setAttribute("errorMessage", "Failed to connect to database for get train and its route");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати поїзд та його маршрут");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати поїзд та його маршрут");
                 }
+                throw new DBException("Failed to connect to database for get train and its route");
             }
         }
         return "controller?command=mainPage";
@@ -77,6 +79,7 @@ public class TicketPageCommand implements Command {
             return false;
         }
         try {
+            trainId = Integer.parseInt(request.getParameter("trainId"));
             fromStationId = Integer.parseInt(request.getParameter("from"));
             toStationId = Integer.parseInt(request.getParameter("to"));
             for (String d:

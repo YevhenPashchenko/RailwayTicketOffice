@@ -50,10 +50,11 @@ public class AddTrainCommand implements Command {
             } catch (SQLException e) {
                 logger.info("Failed to add new train in database");
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for create new train in database");
+                    session.setAttribute("errorMessage", "Failed to connect to database for create new train in database");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб створити новий поїзд в базі даних");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб створити новий поїзд в базі даних");
                 }
+                throw new DBException("Failed to connect to database for create new train in database");
             }
         }
         return "controller?command=mainPage";

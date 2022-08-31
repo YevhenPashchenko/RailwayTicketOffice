@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,6 +42,7 @@ public class ShowRouteCommand implements Command {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
         HttpSession session = request.getSession();
+        String locale = (String) session.getAttribute("locale");
         User user = (User) session.getAttribute("user");
         if (checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
@@ -49,20 +51,21 @@ public class ShowRouteCommand implements Command {
                     if (train.getId() == 0) {
                         train = trainDAO.getTrain(connection, trainId);
                     }
-                    List<Station> stations = stationDAO.getStations(connection);
+                    List<Station> stations = stationDAO.getStations(connection, locale);
                     request.setAttribute("stations", stations);
                 }
-                trainDAO.getRouteForTrain(connection, train);
+                trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), locale);
                 request.setAttribute("fromStationId", fromStationId);
                 request.setAttribute("toStationId", toStationId);
                 request.setAttribute("train", train);
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for get train route", e);
-                if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for get train route");
+                if ("en".equals(locale)) {
+                    session.setAttribute("errorMessage", "Failed to connect to database for get train route");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати маршрут поїзда");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати маршрут поїзда");
                 }
+                throw new DBException("Failed to connect to database for get train route");
             }
         } else {
             return "controller?command=mainPage";

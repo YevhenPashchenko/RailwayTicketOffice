@@ -434,8 +434,10 @@
                                                 <fmt:message key="main_jsp.a_for_addStation"/>
                                             </a>
                                             <form id="addStation" class="collapse ps-2" action="controller?command=addStation" method="post">
-                                                <label for="stationName" class="form-label"><fmt:message key="main_jsp.label_for_stationName"/></label>
-                                                <input id="stationName" class="form-control w-50 mb-2" type="text" name="stationName" autocomplete="off" required>
+                                                <label for="stationNameUA" class="form-label"><fmt:message key="main_jsp.label_for_stationNameUA"/></label>
+                                                <input id="stationNameUA" class="form-control w-50 mb-2" type="text" name="stationNameUA" autocomplete="off" required>
+                                                <label for="stationNameEN" class="form-label"><fmt:message key="main_jsp.label_for_stationNameEN"/></label>
+                                                <input id="stationNameEN" class="form-control w-50 mb-2" type="text" name="stationNameEN" autocomplete="off" required>
                                                 <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addStation"/></button>
                                             </form>
                                         </li>
@@ -444,7 +446,7 @@
                                                 <fmt:message key="main_jsp.a_for_deleteStation"/>
                                             </a>
                                             <form id="deleteStation" class="collapse ps-2" action="controller?command=deleteStation" method="post">
-                                                <label for="stationNameForDelete" class="form-label"><fmt:message key="main_jsp.label_for_stationName"/></label>
+                                                <label for="stationNameForDelete" class="form-label"><fmt:message key="main_jsp.label_for_stationNameForDelete"/></label>
                                                 <label>
                                                     <input type="number" name="stationId" hidden>
                                                 </label>
@@ -457,7 +459,7 @@
                                                 <fmt:message key="main_jsp.a_for_editStation"/>
                                             </a>
                                             <form id="editStation" class="collapse ps-2" action="controller?command=editStation" method="post">
-                                                <label for="oldStationNameForEdit" class="form-label"><fmt:message key="main_jsp.label_for_stationName"/></label>
+                                                <label for="oldStationNameForEdit" class="form-label"><fmt:message key="main_jsp.label_for_stationNameForDelete"/></label>
                                                 <label>
                                                     <input type="number" name="stationId" hidden>
                                                 </label>
@@ -522,7 +524,7 @@
                         <label>
                             <input type="number" name="from" hidden>
                         </label>
-                        <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="fromDatalist">
+                        <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="fromDatalist" autocomplete="off">
                     </div>
                     <img class="img-fluid w-auto position-absolute top-50 start-50 translate-middle-x reverseRoute" role="button" src="resources/images/two%20arrow.png" alt="">
                     <div class="col-6 ps-4">
@@ -530,7 +532,7 @@
                         <label>
                             <input type="number" name="to" hidden>
                         </label>
-                        <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="toDatalist">
+                        <input class="form-control fs-5 fw-semibold lh-1" list="stationsDatalistOptions" id="toDatalist" autocomplete="off">
                     </div>
                 </div>
                 <div class="row py-3">

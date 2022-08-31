@@ -46,10 +46,11 @@ public class DeleteTrainCommand implements Command {
             } catch (SQLException e) {
                 logger.info("Failed to connect to database for delete train from database", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for delete train from database");
+                    session.setAttribute("errorMessage", "Failed to connect to database for delete train from database");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб видалити поїзд з бази даних");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб видалити поїзд з бази даних");
                 }
+                throw new DBException("Failed to connect to database for delete train from database");
             }
         }
         return "controller?command=mainPage";

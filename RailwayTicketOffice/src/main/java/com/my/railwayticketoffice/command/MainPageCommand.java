@@ -40,9 +40,10 @@ public class MainPageCommand implements Command {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
+        String locale = (String) session.getAttribute("locale");
         List<Station> stations;
         try(Connection connection = DBManager.getInstance().getConnection()) {
-            stations = stationDAO.getStations(connection);
+            stations = stationDAO.getStations(connection, locale);
             request.setAttribute("stations", stations);
             if (user != null && "admin".equals(user.getRole())) {
                 List<Train> trains = trainDAO.getAllTrains(connection);
@@ -50,11 +51,12 @@ public class MainPageCommand implements Command {
             }
         } catch (SQLException e) {
             logger.warn("Failed to connect to database for get stations from database", e);
-            if ("en".equals(session.getAttribute("locale"))) {
-                throw new DBException("Failed to connect to database for get stations from database");
+            if ("en".equals(locale)) {
+                session.setAttribute("errorMessage", "Failed to connect to database for get stations from database");
             } else {
-                throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати станції");
+                session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати станції");
             }
+            throw new DBException("Failed to connect to database for get stations from database");
         }
         return "main.jsp";
     }

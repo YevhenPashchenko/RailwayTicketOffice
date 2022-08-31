@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="my" uri="http://com.my.railwayticketoffice.tag" %>
 
 <c:if test="${sessionScope.locale ne null}">
     <fmt:setLocale value="${sessionScope.locale}"/>
@@ -85,7 +86,7 @@
                                 <div><fmt:message key="route_jsp.thead.second_tr.first_th.second_div"/></div>
                             </th>
                             <th class="align-middle"><fmt:message key="route_jsp.thead.second_tr.second_th"/></th>
-                            <th class="align-middle"><fmt:message key="main_jsp.label_for_stationName"/></th>
+                            <th class="align-middle"><fmt:message key="main_jsp.label_for_stationNameForDelete"/></th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
@@ -139,7 +140,7 @@
                                                     <c:set var="isStationWillBeVisited" value="false" scope="page"/>
                                                     <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(13, 110, 253, 0.75)">
                                                         <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
-                                                        <div>${requestScope.train.getRoute().getTimeStopAtStationInMinutes(station.getId())} <fmt:message key="route_jsp.td.div_minutes"/>.</div>
+                                                        <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
                                                         <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-primary p-2">
                                                             <span class="visually-hidden"></span>
                                                         </span>
@@ -148,7 +149,7 @@
                                                 <c:otherwise>
                                                     <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(13, 110, 253, 0.75)">
                                                         <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
-                                                        <div>${requestScope.train.getRoute().getTimeStopAtStationInMinutes(station.getId())} <fmt:message key="route_jsp.td.div_minutes"/>.</div>
+                                                        <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
                                                         <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-light p-2">
                                                             <span class="visually-hidden"></span>
                                                         </span>
@@ -162,7 +163,7 @@
                                                     <c:set var="isStationWillBeVisited" value="true" scope="page"/>
                                                     <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(108, 117, 125, 0.75)">
                                                         <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
-                                                        <div>${requestScope.train.getRoute().getTimeStopAtStationInMinutes(station.getId())} <fmt:message key="route_jsp.td.div_minutes"/>.</div>
+                                                        <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
                                                         <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-primary p-2">
                                                             <span class="visually-hidden"></span>
                                                         </span>
@@ -171,7 +172,7 @@
                                                 <c:otherwise>
                                                     <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(108, 117, 125, 0.75)">
                                                         <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
-                                                        <div>${requestScope.train.getRoute().getTimeStopAtStationInMinutes(station.getId())} <fmt:message key="route_jsp.td.div_minutes"/>.</div>
+                                                        <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
                                                         <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-secondary border-opacity-75 bg-light p-2">
                                                             <span class="visually-hidden"></span>
                                                         </span>
@@ -271,7 +272,7 @@
                             <fmt:message key="route_jsp.button_data_bs_target_addStationToTrainRoute"/>
                         </button>
                         <form id="addStationToTrainRoute" class="collapse fw-semibold bg-secondary bg-opacity-50 p-1 rounded" action="controller?command=addStationToTrainRoute" method="post">
-                            <label for="stationName"><fmt:message key="main_jsp.label_for_stationName"/></label>
+                            <label for="stationName"><fmt:message key="main_jsp.label_for_stationNameForDelete"/></label>
                             <label>
                                 <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
                             </label>

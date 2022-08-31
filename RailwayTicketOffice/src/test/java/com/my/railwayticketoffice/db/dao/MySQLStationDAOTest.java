@@ -28,7 +28,7 @@ public class MySQLStationDAOTest {
     private final DBManager DBManagerInstance = mock(DBManager.class);
 
     /**
-     * Test for method getStations from {@link MySQLStationDAO}.
+     * Test for method getStations from {@link MySQLStationDAO} with locale equals null.
      *
      * @throws Exception if any {@link Exception} occurs.
      */
@@ -37,7 +37,7 @@ public class MySQLStationDAOTest {
 
         Station station = new Station();
         station.setId(1);
-        station.setName("Station");
+        station.setName("Станція");
 
         MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
@@ -47,9 +47,109 @@ public class MySQLStationDAOTest {
         when(stmt.executeQuery(MySQLStationDAOQuery.GET_STATIONS)).thenReturn(rs);
         when(rs.next()).thenReturn(true).thenReturn(false);
         when(rs.getInt("id")).thenReturn(1);
+        when(rs.getString("name")).thenReturn("Станція");
+
+        assertEquals(Collections.singletonList(station), DBManager.getInstance().getStationDAO().getStations(connection, null));
+        DBManagerMocked.close();
+    }
+
+    /**
+     * Test for method getStations from {@link MySQLStationDAO} with locale equals uk.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testGetStationsLocaleUA() throws Exception {
+
+        Station station = new Station();
+        station.setId(1);
+        station.setName("Станція");
+
+        String locale = "uk";
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getStationDAO()).thenReturn(new MySQLStationDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.createStatement()).thenReturn(stmt);
+        when(stmt.executeQuery(MySQLStationDAOQuery.GET_STATIONS)).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("id")).thenReturn(1);
+        when(rs.getString("name")).thenReturn("Станція");
+
+        assertEquals(Collections.singletonList(station), DBManager.getInstance().getStationDAO().getStations(connection, locale));
+        DBManagerMocked.close();
+    }
+
+    /**
+     * Test for method getStations from {@link MySQLStationDAO} with locale equals en.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testGetStationsLocaleEN() throws Exception {
+
+        Station station = new Station();
+        station.setId(1);
+        station.setName("Station");
+
+        String locale = "en";
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getStationDAO()).thenReturn(new MySQLStationDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.createStatement()).thenReturn(stmt);
+        when(stmt.executeQuery(MySQLStationDAOQuery.GET_EN_STATIONS)).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("id")).thenReturn(1);
         when(rs.getString("name")).thenReturn("Station");
 
-        assertEquals(DBManager.getInstance().getStationDAO().getStations(connection), Collections.singletonList(station));
+        assertEquals(Collections.singletonList(station), DBManager.getInstance().getStationDAO().getStations(connection, locale));
+        DBManagerMocked.close();
+    }
+
+    /**
+     * Test for method addStation from {@link MySQLStationDAO} when station not added to database.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testAddStationNotAdded() throws Exception {
+
+        String stationName = "Station";
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getStationDAO()).thenReturn(new MySQLStationDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION, PreparedStatement.RETURN_GENERATED_KEYS)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(0);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getStationDAO().addStation(connection, stationName));
+        DBManagerMocked.close();
+    }
+
+    /**
+     * Test for method addStation from {@link MySQLStationDAO} when not get generated keys.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testAddStationNotKeys() throws Exception {
+
+        String stationName = "Station";
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getStationDAO()).thenReturn(new MySQLStationDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION, PreparedStatement.RETURN_GENERATED_KEYS)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(1);
+        when(pstmt.getGeneratedKeys()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getStationDAO().addStation(connection, stationName));
         DBManagerMocked.close();
     }
 
@@ -67,10 +167,13 @@ public class MySQLStationDAOTest {
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManagerInstance.getStationDAO()).thenReturn(new MySQLStationDAO());
         when(DBManagerInstance.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION)).thenReturn(pstmt);
-        when(pstmt.executeUpdate()).thenReturn(0);
+        when(connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION, PreparedStatement.RETURN_GENERATED_KEYS)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(1);
+        when(pstmt.getGeneratedKeys()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt(1)).thenReturn(1);
 
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getStationDAO().addStation(connection, stationName));
+        assertEquals(1, DBManager.getInstance().getStationDAO().addStation(connection, stationName));
         DBManagerMocked.close();
     }
 
@@ -113,7 +216,7 @@ public class MySQLStationDAOTest {
         when(connection.prepareStatement(MySQLStationDAOQuery.EDIT_STATION)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(0);
 
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getStationDAO().editStation(connection, stationId, stationName));
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getStationDAO().editStation(connection, stationId, stationName, null));
         DBManagerMocked.close();
     }
 }

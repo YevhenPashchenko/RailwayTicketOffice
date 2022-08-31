@@ -77,10 +77,11 @@ public class UserRegistrationCommand implements Command {
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 logger.info("Failed to encrypt password", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new AuthenticationException("Failed to encrypt password");
+                    session.setAttribute("errorMessage", "Failed to encrypt password");
                 } else {
-                    throw new AuthenticationException("Не вдалося зашифрувати пароль");
+                    session.setAttribute("errorMessage", "Не вдалося зашифрувати пароль");
                 }
+                throw new AuthenticationException("Failed to encrypt password");
             } finally {
                 DBManager.getInstance().close(connection);
             }

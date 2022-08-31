@@ -34,10 +34,11 @@ public class EditStationCommand implements Command {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
+        String locale = (String) session.getAttribute("locale");
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
-                stationDAO.editStation(connection, stationId, stationName);
-                if ("en".equals(session.getAttribute("locale"))) {
+                stationDAO.editStation(connection, stationId, stationName, locale);
+                if ("en".equals(locale)) {
                     session.setAttribute("successMessage", "Station data has been edited");
                 } else {
                     session.setAttribute("successMessage", "Дані станції відредаговано");
@@ -45,11 +46,12 @@ public class EditStationCommand implements Command {
                 session.setAttribute("successMessage", "Дані станції відредаговано");
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for edit station data in database", e);
-                if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for edit station data in database");
+                if ("en".equals(locale)) {
+                    session.setAttribute("errorMessage", "Failed to connect to database for edit station data in database");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати станцію");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб відредагувати станцію");
                 }
+                throw new DBException("Failed to connect to database for edit station data in database");
             }
         }
         return "controller?command=mainPage";

@@ -51,10 +51,11 @@ public class EditStationDataOnTrainRouteCommand implements Command {
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for edit station data on train route in database", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for edit station data on train route in database");
+                    session.setAttribute("errorMessage", "Failed to connect to database for edit station data on train route in database");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати станцію на маршруті поїзда");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб відредагувати станцію на маршруті поїзда");
                 }
+                throw new DBException("Failed to connect to database for edit station data on train route in database");
             }
         }
         return "controller?command=mainPage";

@@ -61,7 +61,7 @@ public class Train implements Serializable {
         this.departureTime = departureTime;
     }
 
-    public class Route {
+    public class Route implements Serializable {
 
         private final List<Station> stations = new ArrayList<>();
         /**
@@ -185,8 +185,8 @@ public class Train implements Serializable {
             return distanceFromStartMap.get(stationId);
         }
 
-        public int getTimeStopAtStationInMinutes(int stationId) {
-            return stopTimeMap.get(stationId).getMinute();
+        public LocalTime getTimeStop(int stationId) {
+            return stopTimeMap.get(stationId);
         }
 
         public String getStationNameByStationId(int stationId) {

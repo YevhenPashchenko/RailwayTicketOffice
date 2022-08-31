@@ -40,9 +40,10 @@ public interface TrainDAO {
      * {@link com.my.railwayticketoffice.entity.Train} from the list that is passed as a method parameter.
      * @param connection - Connection object.
      * @param trains - list of {@link Train}.
+     * @param locale - current locale.
      * @throws SQLException – if a database access error occurs.
      */
-    void getRoutesForTrains(Connection connection, List<Train> trains) throws SQLException;
+    void getRoutesForTrains(Connection connection, List<Train> trains, String locale) throws SQLException;
 
     /**
      * When a class implementing interface {@link TrainDAO} call this method should be return {@link com.my.railwayticketoffice.entity.Train}
@@ -53,15 +54,6 @@ public interface TrainDAO {
      * @throws SQLException – if a database access error occurs.
      */
     Train getTrainThatIsInSchedule(Connection connection, int trainId) throws SQLException;
-
-    /**
-     * When a class implementing interface {@link TrainDAO} call this method should be added route to
-     * {@link com.my.railwayticketoffice.entity.Train} that is passed as a method parameter.
-     * @param connection - Connection object.
-     * @param train - {@link com.my.railwayticketoffice.entity.Train}.
-     * @throws SQLException – if a database access error occurs.
-     */
-    void getRouteForTrain(Connection connection, Train train) throws SQLException;
 
     /**
      * When a class implementing interface {@link TrainDAO} call this method should be added new {@link Train} to database.

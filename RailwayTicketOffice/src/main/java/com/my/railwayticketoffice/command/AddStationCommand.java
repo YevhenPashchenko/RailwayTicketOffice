@@ -22,7 +22,8 @@ public class AddStationCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(AddStationCommand.class);
     private final StationDAO stationDAO = DBManager.getInstance().getStationDAO();
-    private String stationName;
+    private String stationNameUA;
+    private String stationNameEN;
 
     /**
      * Add station to database.
@@ -36,8 +37,13 @@ public class AddStationCommand implements Command {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
-            try(Connection connection = DBManager.getInstance().getConnection()) {
-                stationDAO.addStation(connection, stationName);
+            Connection connection = null;
+            try {
+                connection = DBManager.getInstance().getConnection();
+                connection.setAutoCommit(false);
+                int id = stationDAO.addStation(connection, stationNameUA);
+                stationDAO.addStationEN(connection, id,stationNameEN);
+                connection.commit();
                 if ("en".equals(session.getAttribute("locale"))) {
                     session.setAttribute("successMessage", "New station has been added");
                 } else {
@@ -45,11 +51,9 @@ public class AddStationCommand implements Command {
                 }
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for add station to database", e);
-                if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for add station to database");
-                } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб додати станцію в базу даних");
-                }
+                DBManager.getInstance().rollback(session, connection, e);
+            } finally {
+                DBManager.getInstance().close(connection);
             }
         }
         return "controller?command=mainPage";
@@ -57,8 +61,9 @@ public class AddStationCommand implements Command {
 
     private boolean checkParametersForCorrectness(HttpServletRequest request) {
         HttpSession session = request.getSession();
-        stationName = request.getParameter("stationName");
-        if ("".equals(stationName)) {
+        stationNameUA = request.getParameter("stationNameUA");
+        stationNameEN = request.getParameter("stationNameEN");
+        if (stationNameUA == null || "".equals(stationNameUA) || stationNameEN == null || "".equals(stationNameEN)) {
             logger.info("Station name is incorrect");
             if ("en".equals(session.getAttribute("locale"))) {
                 session.setAttribute("errorMessage", "Station name cannot be empty");

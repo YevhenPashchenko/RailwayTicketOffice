@@ -65,17 +65,19 @@ public class UserEditCommand implements Command {
             } catch (SQLException e) {
                 logger.info("Failed to connect to database for edit user data in database", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for edit user data in database");
+                    session.setAttribute("errorMessage", "Failed to connect to database for edit user data in database");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб відредагувати дані користувача");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб відредагувати дані користувача");
                 }
+                throw new DBException("Failed to connect to database for edit user data in database");
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 logger.info("Failed to encrypt new password", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new AuthenticationException("Failed to encrypt new password");
+                    session.setAttribute("errorMessage", "Failed to encrypt new password");
                 } else {
-                    throw new AuthenticationException("Не вдалося зашифрувати новий пароль");
+                    session.setAttribute("errorMessage", "Не вдалося зашифрувати новий пароль");
                 }
+                throw new AuthenticationException("Failed to encrypt new password");
             }
         }
         return chooseLink(request);

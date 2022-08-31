@@ -46,10 +46,11 @@ public class DeleteStationCommand implements Command {
             } catch (SQLException e) {
                 logger.warn("Failed to delete station from database", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for delete station from database");
+                    session.setAttribute("errorMessage", "Failed to connect to database for delete station from database");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб видалити станцію з бази даних");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб видалити станцію з бази даних");
                 }
+                throw new DBException("Failed to connect to database for delete station from database");
             }
         }
         return "controller?command=mainPage";

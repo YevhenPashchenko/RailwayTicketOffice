@@ -16,18 +16,30 @@ public interface StationDAO {
     /**
      * When a class implementing interface {@link StationDAO} call this method should be return a list of stations.
      * @param connection - Connection object.
+     * @param locale - current locale.
      * @throws SQLException – if a database access error occurs.
      * @return a list of {@link Station}.
      */
-    List<Station> getStations(Connection connection) throws SQLException;
+    List<Station> getStations(Connection connection, String locale) throws SQLException;
 
     /**
-     * When a class implementing interface {@link StationDAO} call this method should be added station to database.
+     * When a class implementing interface {@link StationDAO} call this method should be added station in Ukrainian to database
+     * and return its id.
      * @param connection - Connection object.
-     * @param stationName - station name.
+     * @param stationName - station name in Ukrainian.
+     * @throws SQLException – if a database access error occurs.
+     * @return station id.
+     */
+    int addStation(Connection connection, String stationName) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link StationDAO} call this method should be added station in English.
+     * @param connection - Connection object.
+     * @param stationId - station id.
+     * @param stationNameEN - station name in English.
      * @throws SQLException – if a database access error occurs.
      */
-    void addStation(Connection connection, String stationName) throws SQLException;
+    void addStationEN(Connection connection, int stationId, String stationNameEN) throws SQLException;
 
     /**
      * When a class implementing interface {@link StationDAO} call this method should be deleted station from database.
@@ -42,7 +54,8 @@ public interface StationDAO {
      * @param connection - Connection object.
      * @param stationId - station id.
      * @param stationName - station name.
+     * @param locale - current locale.
      * @throws SQLException – if a database access error occurs.
      */
-    void editStation(Connection connection, int stationId, String stationName) throws SQLException;
+    void editStation(Connection connection, int stationId, String stationName, String locale) throws SQLException;
 }

@@ -81,10 +81,11 @@ public class AddTrainToScheduleCommand implements Command {
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for add train to schedule", e);
                 if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for add train to schedule");
+                    session.setAttribute("errorMessage", "Failed to connect to database for add train to schedule");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб додати поїзд до розкладу");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб додати поїзд до розкладу");
                 }
+                throw new DBException("Failed to connect to database for add train to schedule");
             }
         }
         return "controller?command=mainPage";

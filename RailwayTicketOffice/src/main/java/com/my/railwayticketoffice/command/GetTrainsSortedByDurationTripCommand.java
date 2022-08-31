@@ -52,11 +52,12 @@ public class GetTrainsSortedByDurationTripCommand implements Command {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
         HttpSession session = request.getSession();
+        String locale = (String) session.getAttribute("locale");
         if (checkParametersForCorrectness(request)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
                 if (trains.size() > 0) {
-                    trainDAO.getRoutesForTrains(connection, trains);
+                    trainDAO.getRoutesForTrains(connection, trains, locale);
                     List<Train> filteredTrains = trainFilter.filter(trains, fromStationId, toStationId, LocalDate.parse(formattedDate)).stream()
                             .sorted((train1, train2) -> {
                                 LocalTime durationTrip1 = LocalTime.parse(train1.getRoute().getDurationTrip(fromStationId, toStationId));
@@ -77,11 +78,12 @@ public class GetTrainsSortedByDurationTripCommand implements Command {
                 request.setAttribute("departureDate", LocalDate.parse(formattedDate));
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for get trains specified by stations and date", e);
-                if ("en".equals(session.getAttribute("locale"))) {
-                    throw new DBException("Failed to connect to database for get trains specified by stations and date");
+                if ("en".equals(locale)) {
+                    session.setAttribute("errorMessage", "Failed to connect to database for get trains specified by stations and date");
                 } else {
-                    throw new DBException("Не вийшло зв'язатися з базою даних, щоб отримати поїзди за заданими станціями та датою");
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати поїзди за заданими станціями та датою");
                 }
+                throw new DBException("Failed to connect to database for get trains specified by stations and date");
             }
         }
         return "controller?command=mainPage";

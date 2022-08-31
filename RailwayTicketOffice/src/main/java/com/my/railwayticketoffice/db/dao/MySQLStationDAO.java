@@ -14,10 +14,15 @@ import java.util.List;
 public class MySQLStationDAO implements StationDAO {
 
     @Override
-    public List<Station> getStations(Connection connection) throws SQLException {
+    public List<Station> getStations(Connection connection, String locale) throws SQLException {
         List<Station> stations = new ArrayList<>();
         Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(MySQLStationDAOQuery.GET_STATIONS);
+        ResultSet rs;
+        if ("en".equals(locale)) {
+            rs = stmt.executeQuery(MySQLStationDAOQuery.GET_EN_STATIONS);
+        } else {
+            rs = stmt.executeQuery(MySQLStationDAOQuery.GET_STATIONS);
+        }
         while (rs.next()) {
             Station station = new Station();
             station.setId(rs.getInt("id"));
@@ -28,9 +33,28 @@ public class MySQLStationDAO implements StationDAO {
     }
 
     @Override
-    public void addStation(Connection connection, String stationName) throws SQLException {
-        PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION);
+    public int addStation(Connection connection, String stationName) throws SQLException {
+        int id;
+        PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION, PreparedStatement.RETURN_GENERATED_KEYS);
         pstmt.setString(1, stationName);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to add station to database");
+        }
+        ResultSet rs = pstmt.getGeneratedKeys();
+        if (rs.next()) {
+            id = rs.getInt(1);
+        } else {
+            throw new SQLException("Failed to add station to database");
+        }
+        return id;
+    }
+
+    @Override
+    public void addStationEN(Connection connection, int stationId, String stationNameEN) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION_EN);
+        pstmt.setInt(1, stationId);
+        pstmt.setString(2, stationNameEN);
         int affectedRow = pstmt.executeUpdate();
         if (affectedRow == 0) {
             throw new SQLException("Failed to add station to database");
@@ -48,8 +72,13 @@ public class MySQLStationDAO implements StationDAO {
     }
 
     @Override
-    public void editStation(Connection connection, int stationId, String stationName) throws SQLException {
-        PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.EDIT_STATION);
+    public void editStation(Connection connection, int stationId, String stationName, String locale) throws SQLException {
+        PreparedStatement pstmt;
+        if ("en".equals(locale)) {
+            pstmt = connection.prepareStatement(MySQLStationDAOQuery.EDIT_EN_STATION);
+        } else {
+            pstmt = connection.prepareStatement(MySQLStationDAOQuery.EDIT_STATION);
+        }
         pstmt.setString(1, stationName);
         pstmt.setInt(2, stationId);
         int affectedRow = pstmt.executeUpdate();

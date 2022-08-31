@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+        version="2.1">
+
+    <tlib-version>1.0</tlib-version>
+    <short-name>mylib</short-name>
+    <uri>http://com.my.railwayticketoffice.tag</uri>
+
+    <tag>
+        <name>timeInMinutes</name>
+        <tag-class>com.my.railwayticketoffice.tag.TimeInMinutesTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>time</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+</taglib>

@@ -31,7 +31,7 @@
                 </div>
             </nav>
             <div class="row align-items-center">
-                <div class="col text-center text-danger fs-1 fw-bold">${requestScope.errorMessage}</div>
+                <div class="col text-center text-danger fs-1 fw-bold">${sessionScope.errorMessage}</div>
             </div>
         </main>
     </body>
