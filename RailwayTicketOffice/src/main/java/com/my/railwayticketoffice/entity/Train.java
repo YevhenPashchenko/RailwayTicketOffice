@@ -159,7 +159,7 @@ public class Train implements Serializable {
             return departureTime.plusHours(Long.parseLong(timeSinceStartMap.get(toStationId).split(":")[0]))
                     .plusMinutes(Long.parseLong(timeSinceStartMap.get(toStationId).split(":")[1]))
                     .minusNanos(departureTime.plusHours(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[0]))
-                            .plusMinutes(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[0])).toNanoOfDay()).toString();
+                            .plusMinutes(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[1])).toNanoOfDay()).toString();
         }
 
         /**

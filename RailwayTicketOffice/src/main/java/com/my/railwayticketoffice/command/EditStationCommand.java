@@ -71,7 +71,7 @@ public class EditStationCommand implements Command {
             }
             return false;
         }
-        if ("".equals(stationName)) {
+        if (stationName == null || "".equals(stationName)) {
             logger.info("Station name is incorrect");
             if ("en".equals(session.getAttribute("locale"))) {
                 session.setAttribute("errorMessage", "Station name cannot be empty");

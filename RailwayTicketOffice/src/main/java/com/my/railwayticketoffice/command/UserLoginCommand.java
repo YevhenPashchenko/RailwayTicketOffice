@@ -46,7 +46,7 @@ public class UserLoginCommand implements Command {
         String userEmail = request.getParameter("email");
         try(Connection connection = DBManager.getInstance().getConnection()) {
             User user = userDAO.getUser(connection, userEmail);
-            if (userEmail.equals(user.getEmail()) && PasswordAuthentication.check(request.getParameter("password"), user.getPassword())) {
+            if (userEmail != null && userEmail.equals(user.getEmail()) && PasswordAuthentication.check(request.getParameter("password"), user.getPassword())) {
                 user.setPassword("");
                 session.setAttribute("user", user);
                 return chooseLink(request);

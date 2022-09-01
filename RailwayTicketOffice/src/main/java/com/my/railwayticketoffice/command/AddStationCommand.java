@@ -42,7 +42,7 @@ public class AddStationCommand implements Command {
                 connection = DBManager.getInstance().getConnection();
                 connection.setAutoCommit(false);
                 int id = stationDAO.addStation(connection, stationNameUA);
-                stationDAO.addStationEN(connection, id,stationNameEN);
+                stationDAO.addStationEN(connection, id, stationNameEN);
                 connection.commit();
                 if ("en".equals(session.getAttribute("locale"))) {
                     session.setAttribute("successMessage", "New station has been added");

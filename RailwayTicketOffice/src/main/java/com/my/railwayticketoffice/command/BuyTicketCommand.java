@@ -46,7 +46,7 @@ public class BuyTicketCommand implements Command {
                 connection.setAutoCommit(false);
                 int availableSeats = scheduleDAO.getTrainAvailableSeatsOnThisDate(connection, trainId, date);
                 int availableSeatsNow = availableSeats - passengersData.get("passengerSurname").length;
-                if (availableSeatsNow > 0) {
+                if (availableSeatsNow >= 0) {
                     scheduleDAO.changeTrainAvailableSeatsOnThisDate(connection, trainId, date, availableSeatsNow);
                     connection.commit();
                     return "success.jsp";
@@ -140,20 +140,20 @@ public class BuyTicketCommand implements Command {
         String link = "controller?command=mainPage";
         int fromStationId;
         int toStationId;
-        List<String> formattedDate = Arrays.asList(date.split("-"));
+        List<String> departureDate = Arrays.asList(request.getParameter("departureDate").split("-"));
         try {
             fromStationId = Integer.parseInt(request.getParameter("fromStationId"));
             toStationId = Integer.parseInt(request.getParameter("toStationId"));
             for (String d:
-                    formattedDate) {
+                    departureDate) {
                 Integer.parseInt(d);
             }
         } catch (NumberFormatException e) {
             return "controller?command=mainPage";
         }
-        if (formattedDate.size() == 3) {
-            Collections.reverse(formattedDate);
-            link = "controller?command=getTrains&from=" + fromStationId + "&to=" + toStationId + "&datePicker=" + String.join(".", formattedDate);
+        if (departureDate.size() == 3) {
+            Collections.reverse(departureDate);
+            link = "controller?command=getTrains&from=" + fromStationId + "&to=" + toStationId + "&datePicker=" + String.join(".", departureDate);
         }
         return link;
     }
