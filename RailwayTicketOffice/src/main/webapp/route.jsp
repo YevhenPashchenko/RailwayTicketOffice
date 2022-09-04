@@ -34,7 +34,7 @@
                                     <c:forEach items="${applicationScope.locales}" var="locale">
                                         <c:if test="${locale.key ne 'uk'}">
                                             <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeRoutePageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&fromStationId=${requestScope.fromStationId}&toStationId=${requestScope.toStationId}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                <a class="dropdown-item p-0" href="controller?command=changeRoutePageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                             </li>
                                         </c:if>
                                     </c:forEach>
@@ -46,7 +46,7 @@
                                     <c:forEach items="${applicationScope.locales}" var="locale">
                                         <c:if test="${locale.key ne sessionScope.locale}">
                                             <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeRoutePageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&fromStationId=${requestScope.fromStationId}&toStationId=${requestScope.toStationId}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                <a class="dropdown-item p-0" href="controller?command=changeRoutePageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                             </li>
                                         </c:if>
                                     </c:forEach>
@@ -98,7 +98,7 @@
                                     <td class="position-relative align-bottom py-0" style="height: 70px;">
                                         ${requestScope.train.getRoute().getArrivalTime(station.getId())}
                                         <c:choose>
-                                            <c:when test="${station.getId() eq requestScope.fromStationId}">
+                                            <c:when test="${station.getId() eq requestScope.from}">
                                                 <c:set var="isStationWillBeVisited" value="true" scope="page"/>
                                                 <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-primary p-2">
                                                     <span class="visually-hidden"></span>
@@ -136,7 +136,7 @@
                                     <c:choose>
                                         <c:when test="${isStationWillBeVisited eq true}">
                                             <c:choose>
-                                                <c:when test="${station.getId() eq requestScope.toStationId}">
+                                                <c:when test="${station.getId() eq requestScope.to}">
                                                     <c:set var="isStationWillBeVisited" value="false" scope="page"/>
                                                     <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(13, 110, 253, 0.75)">
                                                         <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
@@ -159,7 +159,7 @@
                                         </c:when>
                                         <c:otherwise>
                                             <c:choose>
-                                                <c:when test="${station.getId() eq requestScope.fromStationId}">
+                                                <c:when test="${station.getId() eq requestScope.from}">
                                                     <c:set var="isStationWillBeVisited" value="true" scope="page"/>
                                                     <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(108, 117, 125, 0.75)">
                                                         <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
@@ -186,13 +186,13 @@
                             <td class="align-bottom py-0">${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}</td>
                             <td class="d-flex text-start align-bottom py-0 justify-content-between align-items-end" style="height: 70px;">
                                 <c:choose>
-                                    <c:when test="${station.getId() eq requestScope.fromStationId}">
+                                    <c:when test="${station.getId() eq requestScope.from}">
                                         <div>
                                             <div class="text-primary align-self-baseline"><fmt:message key="route_jsp.td.div_departureStation"/>:</div>
                                             ${station.getName()}
                                         </div>
                                     </c:when>
-                                    <c:when test="${station.getId() eq requestScope.toStationId}">
+                                    <c:when test="${station.getId() eq requestScope.to}">
                                         <div>
                                             <div class="text-primary align-self-baseline"><fmt:message key="route_jsp.td.div_destinationStation"/>:</div>
                                             ${station.getName()}
@@ -294,40 +294,38 @@
                             <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addStation"/></button>
                         </form>
                     </div>
+                    <div class="modal fade" id="confirmDeleteStationFromTrainRouteModal" tabindex="-1" aria-labelledby="confirmDeleteStationFromTrainRouteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-warning" id="confirmDeleteStationFromTrainRouteModalLabel"><fmt:message key="route_jsp.h5_confirmDeleteStationFromTrainRouteModalLabel"/></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="route_jsp.div_for_confirmDeleteStationFromTrainRouteModal"/></div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-danger" id="errorModalLabel"><fmt:message key="main_jsp.h5_errorModalLabel"/></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body fs-5 fw-semibold lh-2 errorModalBody"></div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_errorModal"/></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/javascript" src="resources/js/route.js"></script>
                 </c:if>
             </div>
-            <c:if test="${sessionScope.user.getRole() eq 'admin'}">
-                <div class="modal fade" id="confirmDeleteStationFromTrainRouteModal" tabindex="-1" aria-labelledby="confirmDeleteStationFromTrainRouteModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-warning" id="confirmDeleteStationFromTrainRouteModalLabel"><fmt:message key="route_jsp.h5_confirmDeleteStationFromTrainRouteModalLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="route_jsp.div_for_confirmDeleteStationFromTrainRouteModal"/></div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-danger" id="errorModalLabel"><fmt:message key="main_jsp.h5_errorModalLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body fs-5 fw-semibold lh-2 errorModalBody"></div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_errorModal"/></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </c:if>
         </main>
-        <script type="text/javascript" src="resources/js/route.js"></script>
     </body>
 </html>

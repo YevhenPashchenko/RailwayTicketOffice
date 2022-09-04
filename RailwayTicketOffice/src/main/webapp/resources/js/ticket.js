@@ -2,12 +2,14 @@ let ticketCost = document.querySelector("#ticketCost");
 let totalCost = document.querySelector("#totalCost");
 let select = document.querySelector("#ticketCounter");
 let confirmButton = document.querySelector("#cancelModal").querySelector(".modal-footer").firstElementChild;
+let count;
 let currentPassenger;
 let currentLocale = document.querySelector('input[type="image"]').getAttribute("alt");
 
+
 select.addEventListener("change", evt => {
     let select = evt.currentTarget;
-    let count = select.value;
+    count = select.value;
     let passengers = document.querySelectorAll('div[datatype="passenger"]');
     if (count > passengers.length) {
         let difference = count - passengers.length
@@ -38,11 +40,15 @@ select.addEventListener("change", evt => {
                 currentPassenger = clone;
             });
             totalCost.parentElement.insertBefore(clone, totalCost);
+            select.querySelector('option[selected]').removeAttribute("selected");
+            select.querySelector('option[value="' + count + '"]').setAttribute("selected", "");
         }
     } else {
         for (let i = passengers.length - 1; i >= count; i--) {
             passengers[i].remove();
         }
+        select.querySelector('option[selected]').removeAttribute("selected");
+        select.querySelector('option[value="' + count + '"]').setAttribute("selected", "");
     }
     if (currentLocale === "en") {
         totalCost.innerHTML = "Total cost: " + (ticketCost.innerHTML.replace(",", ".") * count).toLocaleString("en-EN", {minimumFractionDigits: 2}) + " UAH.";
@@ -54,7 +60,10 @@ select.addEventListener("change", evt => {
 confirmButton.addEventListener("click", () => {
     confirmButton.nextElementSibling.click();
     currentPassenger.remove();
-    select.value = --select.value;
+    count--;
+    select.querySelector('option[selected]').removeAttribute("selected");
+    select.querySelector('option[value="' + count + '"]').setAttribute("selected", "");
+    select.value = count;
     if (currentLocale === "en") {
         totalCost.innerHTML = "Total cost: " + (ticketCost.innerHTML.replace(",", ".") * count).toLocaleString("en-EN", {minimumFractionDigits: 2}) + " UAH.";
     } else {

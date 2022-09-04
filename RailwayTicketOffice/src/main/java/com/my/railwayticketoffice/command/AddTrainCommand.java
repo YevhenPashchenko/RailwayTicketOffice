@@ -4,6 +4,8 @@ import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.TrainParameterService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that built at command pattern. Add train to database.
@@ -24,9 +26,7 @@ public class AddTrainCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(AddTrainCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
-    private String trainNumber;
-    private int trainSeats;
-    private String trainDepartureTime;
+    private final ParameterService<String> trainService = new TrainParameterService();
 
     /**
      * Add train to database.
@@ -37,73 +37,32 @@ public class AddTrainCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
+        Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-        if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
-            try(Connection connection = DBManager.getInstance().getConnection()) {
-                trainDAO.addTrain(connection, trainNumber, trainSeats, trainDepartureTime);
-                if ("en".equals(session.getAttribute("locale"))) {
-                    session.setAttribute("successMessage", "New train has been created");
-                } else {
-                    session.setAttribute("successMessage", "Новий поїзд створено");
+        if (user != null && "admin".equals(user.getRole())) {
+            parameters.put("trainNumber", request.getParameter("trainNumber"));
+            parameters.put("trainSeats", request.getParameter("trainSeats"));
+            parameters.put("trainDepartureTime", request.getParameter("trainDepartureTime"));
+            if (trainService.check(parameters, session)) {
+                try(Connection connection = DBManager.getInstance().getConnection()) {
+                    trainDAO.addTrain(connection, parameters.get("trainNumber"), Integer.parseInt(parameters.get("trainSeats")), parameters.get("trainDepartureTime"));
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("successMessage", "New train has been created");
+                    } else {
+                        session.setAttribute("successMessage", "Новий поїзд створено");
+                    }
+                } catch (SQLException e) {
+                    logger.info("Failed to add new train in database");
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("errorMessage", "Failed to connect to database for create new train in database");
+                    } else {
+                        session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб створити новий поїзд в базі даних");
+                    }
+                    throw new DBException("Failed to connect to database for create new train in database");
                 }
-            } catch (SQLException e) {
-                logger.info("Failed to add new train in database");
-                if ("en".equals(session.getAttribute("locale"))) {
-                    session.setAttribute("errorMessage", "Failed to connect to database for create new train in database");
-                } else {
-                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб створити новий поїзд в базі даних");
-                }
-                throw new DBException("Failed to connect to database for create new train in database");
             }
         }
         return "controller?command=mainPage";
-    }
-
-    private boolean checkParametersForCorrectness(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        trainNumber = request.getParameter("trainNumber");
-        if ("".equals(trainNumber)) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Train number is not specified");
-            } else {
-                session.setAttribute("errorMessage", "Номер поїзда не задано");
-            }
-            return false;
-        }
-        try {
-            trainSeats = Integer.parseInt(request.getParameter("trainSeats"));
-        } catch (NumberFormatException e) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Train seats is not specified");
-            } else {
-                session.setAttribute("errorMessage", "Кількість місць в поїзді не задано");
-            }
-            return false;
-        }
-        trainDepartureTime = request.getParameter("trainDepartureTime");
-        List<String> minutesSeconds = Arrays.asList(trainDepartureTime.split(":"));
-        if (minutesSeconds.size() != 2) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Train departure time is not specified");
-            } else {
-                session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
-            }
-            return false;
-        }
-        try {
-            for (String time:
-                 minutesSeconds) {
-                Integer.parseInt(time);
-            }
-        } catch (NumberFormatException e) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Train departure time is not specified");
-            } else {
-                session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
-            }
-            return false;
-        }
-        return true;
     }
 }

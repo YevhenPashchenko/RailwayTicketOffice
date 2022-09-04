@@ -17,14 +17,6 @@
         <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     </head>
-    <c:choose>
-        <c:when test="${requestScope.trainsSortedCommand ne null}">
-            <c:set var="trainsSortedCommand" value="${requestScope.trainsSortedCommand}" scope="page"/>
-        </c:when>
-        <c:otherwise>
-            <c:set var="trainsSortedCommand" value="getTrains" scope="page"/>
-        </c:otherwise>
-    </c:choose>
     <body>
         <header class="container bg-secondary bg-opacity-25">
             <div class="row">
@@ -46,7 +38,7 @@
                                             <c:forEach items="${applicationScope.locales}" var="locale">
                                                 <c:if test="${locale.key ne 'uk'}">
                                                     <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&trainsSortedCommand=${pageScope.trainsSortedCommand}&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                                     </li>
                                                 </c:if>
                                             </c:forEach>
@@ -58,7 +50,7 @@
                                             <c:forEach items="${applicationScope.locales}" var="locale">
                                                 <c:if test="${locale.key ne sessionScope.locale}">
                                                     <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&trainsSortedCommand=${pageScope.trainsSortedCommand}&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                                     </li>
                                                 </c:if>
                                             </c:forEach>
@@ -79,7 +71,7 @@
                                             <c:forEach items="${applicationScope.locales}" var="locale">
                                                 <c:if test="${locale.key ne 'uk'}">
                                                     <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&trainsSortedCommand=${pageScope.trainsSortedCommand}&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                                     </li>
                                                 </c:if>
                                             </c:forEach>
@@ -91,7 +83,7 @@
                                             <c:forEach items="${applicationScope.locales}" var="locale">
                                                 <c:if test="${locale.key ne sessionScope.locale}">
                                                     <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&trainsSortedCommand=${pageScope.trainsSortedCommand}&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                                     </li>
                                                 </c:if>
                                             </c:forEach>
@@ -118,7 +110,7 @@
                                                 <input type="number" name="to" hidden>
                                             </label>
                                             <label>
-                                                <input name="datePicker" hidden>
+                                                <input name="departureDate" hidden>
                                             </label>
                                             <div class="container px-0">
                                                 <div class="row">
@@ -203,6 +195,7 @@
                                 </div>
                             </div>
                         </div>
+                        <script type="text/javascript" src="resources/js/mainEditUser.js"></script>
                     </c:otherwise>
                 </c:choose>
             </div>
@@ -223,7 +216,7 @@
                                         <input type="number" name="to" hidden>
                                     </label>
                                     <label>
-                                        <input name="datePicker" hidden>
+                                        <input name="departureDate" hidden>
                                     </label>
                                     <label for="emailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
                                     <div class="input-group mb-3">
@@ -263,7 +256,7 @@
                                         <input type="number" name="to" hidden>
                                     </label>
                                     <label>
-                                        <input name="datePicker" hidden>
+                                        <input name="departureDate" hidden>
                                     </label>
                                     <label for="registrationEmailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
                                     <div class="input-group mb-3">
@@ -309,6 +302,7 @@
                         </div>
                     </div>
                 </div>
+                <script type="text/javascript" src="resources/js/mainRegistration.js"></script>
             </c:if>
         </header>
         <c:if test="${sessionScope.user.getRole() eq 'admin'}">
@@ -509,6 +503,52 @@
                     </div>
                 </div>
             </nav>
+            <div class="modal fade" id="confirmDeleteTrainModal" tabindex="-1" aria-labelledby="confirmDeleteTrainModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-warning" id="confirmDeleteTrainModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteTrainModalLabel"/></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteTrainModal"/></div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" form="deleteTrain"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmDeleteStationModal" tabindex="-1" aria-labelledby="confirmDeleteStationModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-warning" id="confirmDeleteStationModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteStationModalLabel"/></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteStationModal"/></div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" form="deleteStation"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmDeleteTrainFromScheduleModal" tabindex="-1" aria-labelledby="confirmDeleteTrainFromScheduleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-warning" id="confirmDeleteTrainFromScheduleModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteTrainFromScheduleModalLabel"/></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteTrainFromScheduleModal"/></div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" form="deleteTrainFromSchedule"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript" src="resources/js/mainAdmin.js"></script>
         </c:if>
         <main class="container bg-secondary bg-gradient bg-opacity-25">
             <form action="controller" method="get">
@@ -537,8 +577,8 @@
                 </div>
                 <div class="row py-3">
                     <div class="col-2">
-                        <label for="datePicker" class="form-label text-primary fs-5 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_datePicker"/></label>
-                        <input class="form-control fs-5 fw-semibold lh-1 text-center" type="text" name="datePicker" id="datePicker">
+                        <label for="departureDate" class="form-label text-primary fs-5 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_departureDate"/></label>
+                        <input class="form-control fs-5 fw-semibold lh-1 text-center" type="text" name="departureDate" id="departureDate">
                     </div>
                 </div>
                 <div class="row pb-4 justify-content-center">
@@ -561,31 +601,31 @@
                             <th><fmt:message key="main_jsp.third_th"/></th>
                             <th class="text-start">
                                 <div><fmt:message key="main_jsp.fourth_th.first_div"/>
-                                    <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByDepartureTime'}">
-                                        <a href="controller?command=getTrainsSortedByDepartureTime&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                    <c:if test="${sessionScope.sort ne 'departureTime'}">
+                                        <a href="controller?command=getTrains&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&sort=departureTime">
                                             <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
                                         </a>
                                     </c:if>
                                 </div>
                                 <div><fmt:message key="main_jsp.fourth_th.second_div"/>
-                                    <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByDestinationTime'}">
-                                        <a href="controller?command=getTrainsSortedByDestinationTime&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                    <c:if test="${sessionScope.sort ne 'destinationTime'}">
+                                        <a href="controller?command=getTrains&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&sort=destinationTime">
                                             <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
                                         </a>
                                     </c:if>
                                 </div>
                             </th>
                             <th><fmt:message key="main_jsp.fifth_th"/>
-                                <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByDurationTrip'}">
-                                    <a href="controller?command=getTrainsSortedByDurationTrip&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                <c:if test="${sessionScope.sort ne 'durationTrip'}">
+                                    <a href="controller?command=getTrains&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&sort=durationTrip">
                                         <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
                                     </a>
                                 </c:if>
                             </th>
                             <th><fmt:message key="main_jsp.sixth_th"/></th>
                             <th><fmt:message key="main_jsp.seventh_th"/>
-                                <c:if test="${requestScope.trainsSortedCommand ne 'getTrainsSortedByAvailableSeats'}">
-                                    <a href="controller?command=getTrainsSortedByAvailableSeats&page=${requestScope.page}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">
+                                <c:if test="${sessionScope.sort ne 'availableSeats'}">
+                                    <a href="controller?command=getTrains&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&sort=availableSeats">
                                         <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
                                     </a>
                                 </c:if>
@@ -597,7 +637,7 @@
                         <tr>
                             <td>
                                 <div class="lh-sm">${train.getNumber()}</div>
-                                <a href="controller?command=showRoute&trainId=${train.getId()}&fromStationId=${requestScope.fromStationId}&toStationId=${requestScope.toStationId}" class="fs-6 fw-normal lh-1"><fmt:message key="main_jsp.first_td"/></a>
+                                <a href="controller?command=showRoute&trainId=${train.getId()}&from=${requestScope.from}&to=${requestScope.to}" class="fs-6 fw-normal lh-1"><fmt:message key="main_jsp.first_td"/></a>
                             </td>
                             <td class="text-start">
                                 <div class="lh-sm">${train.getRoute().getDepartureStationName()}</div>
@@ -610,17 +650,17 @@
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span><fmt:message key="main_jsp.fourth_th.second_div"/></span>
-                                    <span>${train.getRoute().getDestinationDayOfWeekAndDateAsString(requestScope.fromStationId, requestScope.toStationId, requestScope.departureDate, sessionScope.locale)}</span>
+                                    <span>${train.getRoute().getDestinationDayOfWeekAndDateAsString(requestScope.from, requestScope.to, requestScope.departureDate, sessionScope.locale)}</span>
                                 </div>
                             </td>
                             <td>
-                                <div class="lh-sm">${train.getRoute().getArrivalTime(requestScope.fromStationId)}</div>
-                                <div>${train.getRoute().getArrivalTime(requestScope.toStationId)}</div>
+                                <div class="lh-sm">${train.getRoute().getArrivalTime(requestScope.from)}</div>
+                                <div>${train.getRoute().getArrivalTime(requestScope.to)}</div>
                             </td>
                             <td>
-                                <div>${train.getRoute().getDurationTrip(requestScope.fromStationId, requestScope.toStationId)}</div>
+                                <div>${train.getRoute().getDurationTrip(requestScope.from, requestScope.to)}</div>
                             </td>
-                            <td>${train.getRoute().getCostOfTripAsString(requestScope.fromStationId, requestScope.toStationId)}</td>
+                            <td>${train.getRoute().getCostOfTripAsString(requestScope.from, requestScope.to)}</td>
                             <td>
                                 <div>${train.getSeats()}</div>
                                 <c:if test="${sessionScope.user ne null}">
@@ -640,7 +680,7 @@
                                                     <input type="number" name="to" hidden>
                                                 </label>
                                                 <label>
-                                                    <input name="datePicker" hidden>
+                                                    <input name="departureDate" hidden>
                                                 </label>
                                                 <button class="btn btn-primary fs-6 lh-1 mt-2"><fmt:message key="main_jsp.button_for_orderTicket"/></button>
                                             </form>
@@ -668,7 +708,7 @@
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item">
-                                        <a class="page-link" href="controller?command=${pageScope.trainsSortedCommand}&page=${requestScope.page - 1}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}" aria-label="Previous">
+                                        <a class="page-link" href="controller?command=getTrains&page=${requestScope.page - 1}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
@@ -683,7 +723,7 @@
                                     </c:when>
                                     <c:otherwise>
                                         <li class="page-item">
-                                            <a class="page-link" href="controller?command=${pageScope.trainsSortedCommand}&page=${loop.count}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}">${loop.count}</a>
+                                            <a class="page-link" href="controller?command=getTrains&page=${loop.count}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}">${loop.count}</a>
                                         </li>
                                     </c:otherwise>
                                 </c:choose>
@@ -698,7 +738,7 @@
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item">
-                                        <a class="page-link" href="controller?command=${pageScope.trainsSortedCommand}&page=${requestScope.page + 1}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.departureDateForSortingAndPagination}" aria-label="Next">
+                                        <a class="page-link" href="controller?command=getTrains&page=${requestScope.page + 1}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}" aria-label="Next">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
                                     </li>
@@ -709,21 +749,57 @@
                 </c:if>
             </c:if>
             <c:if test="${requestScope.trains.size() eq 0}">
-                <div class="row pb-4 justify-content-center">
-                    <div class="col-4 text-success fw-semibold"><fmt:message key="main_jsp.div_info"/></div>
+                <div class="row pb-4">
+                    <div class="col text-center text-success fs-4 fw-semibold"><fmt:message key="main_jsp.div_info"/></div>
                 </div>
             </c:if>
             <c:if test="${sessionScope.successMessage ne null}">
                 <div class="row pb-4 justify-content-center">
-                    <div class="col-4 text-success fs-4 fw-semibold">${sessionScope.successMessage}</div>
+                    <div class="col text-center text-success fs-4 fw-semibold">${sessionScope.successMessage}</div>
                 </div>
                 <c:remove var="successMessage" scope="session"/>
             </c:if>
             <c:if test="${sessionScope.errorMessage ne null}">
                 <div class="row pb-4 justify-content-center">
-                    <div class="col-4 text-danger fw-semibold">${sessionScope.errorMessage}</div>
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.errorMessage}</div>
                 </div>
                 <c:remove var="errorMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.passengerErrorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.passengerErrorMessage}</div>
+                </div>
+                <c:remove var="passengerErrorMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.routeErrorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.routeErrorMessage}</div>
+                </div>
+                <c:remove var="routeErrorMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.searchTrainErrorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.searchTrainErrorMessage}</div>
+                </div>
+                <c:remove var="searchTrainErrorMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.stationErrorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.stationErrorMessage}</div>
+                </div>
+                <c:remove var="stationErrorMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.trainErrorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.trainErrorMessage}</div>
+                </div>
+                <c:remove var="trainErrorMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.userErrorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.userErrorMessage}</div>
+                </div>
+                <c:remove var="userErrorMessage" scope="session"/>
             </c:if>
             <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -739,65 +815,18 @@
                     </div>
                 </div>
             </div>
-            <c:if test="${sessionScope.user.getRole() eq 'admin'}">
-                <div class="modal fade" id="confirmDeleteTrainModal" tabindex="-1" aria-labelledby="confirmDeleteTrainModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-warning" id="confirmDeleteTrainModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteTrainModalLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteTrainModal"/></div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary" form="deleteTrain"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade" id="confirmDeleteStationModal" tabindex="-1" aria-labelledby="confirmDeleteStationModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-warning" id="confirmDeleteStationModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteStationModalLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteStationModal"/></div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary" form="deleteStation"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade" id="confirmDeleteTrainFromScheduleModal" tabindex="-1" aria-labelledby="confirmDeleteTrainFromScheduleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-warning" id="confirmDeleteTrainFromScheduleModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteTrainFromScheduleModalLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteTrainFromScheduleModal"/></div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary" form="deleteTrainFromSchedule"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </c:if>
         </main>
         <script type="text/javascript" src="resources/js/main.js"></script>
         <c:if test="${requestScope.departureDate ne null}">
             <script>
                 for (let i = 0; i < inputsFrom.length; i++) {
-                    inputsFrom[i].setAttribute("value", ${requestScope.fromStationId});
+                    inputsFrom[i].setAttribute("value", ${requestScope.from});
                 }
-                inputFrom.setAttribute("value", document.querySelector('#stationsDatalistOptions option[id="' + ${requestScope.fromStationId} + '"]').value);
+                inputFrom.setAttribute("value", document.querySelector('#stationsDatalistOptions option[id="' + ${requestScope.from} + '"]').value);
                 for (let i = 0; i < inputsTo.length; i++) {
-                    inputsTo[i].setAttribute("value", ${requestScope.toStationId});
+                    inputsTo[i].setAttribute("value", ${requestScope.to});
                 }
-                inputTo.setAttribute("value", document.querySelector('#stationsDatalistOptions option[id="' + ${requestScope.toStationId} + '"]').value);
+                inputTo.setAttribute("value", document.querySelector('#stationsDatalistOptions option[id="' + ${requestScope.to} + '"]').value);
             </script>
             <span id="checkedDate" hidden>${requestScope.departureDate}</span>
         </c:if>

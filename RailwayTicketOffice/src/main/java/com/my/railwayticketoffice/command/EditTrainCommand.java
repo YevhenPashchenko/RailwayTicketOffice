@@ -5,6 +5,8 @@ import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.TrainParameterService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that built at command pattern. Edit train data in database.
@@ -24,10 +28,7 @@ public class EditTrainCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(EditTrainCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
-    private int trainId;
-    private String trainNumber;
-    private int trainSeats;
-    private String trainDepartureTime;
+    private final ParameterService<String> trainService = new TrainParameterService();
 
     /**
      * Edit train data in database.
@@ -38,72 +39,38 @@ public class EditTrainCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
+        Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-        Train train = new Train();
-        if (user != null && "admin".equals(user.getRole()) && checkParametersForCorrectness(request)) {
-            try(Connection connection = DBManager.getInstance().getConnection()) {
-                train.setId(trainId);
-                train.setNumber(trainNumber);
-                train.setSeats(trainSeats);
-                train.setDepartureTime(LocalTime.parse(trainDepartureTime));
-                trainDAO.editTrain(connection, train);
-                if ("en".equals(session.getAttribute("locale"))) {
-                    session.setAttribute("successMessage", "Train data has been edited");
-                } else {
-                    session.setAttribute("successMessage", "Дані поїзда змінено");
+        if (user != null && "admin".equals(user.getRole())) {
+            parameters.put("trainId", request.getParameter("trainId"));
+            parameters.put("trainNumber", request.getParameter("trainNumber"));
+            parameters.put("trainSeats", request.getParameter("trainSeats"));
+            parameters.put("trainDepartureTime", request.getParameter("trainDepartureTime"));
+            if (trainService.check(parameters, session)) {
+                Train train = new Train();
+                train.setId(Integer.parseInt(parameters.get("trainId")));
+                train.setNumber(parameters.get("trainNumber"));
+                train.setSeats(Integer.parseInt(parameters.get("trainSeats")));
+                train.setDepartureTime(LocalTime.parse(parameters.get("trainDepartureTime")));
+                try(Connection connection = DBManager.getInstance().getConnection()) {
+                    trainDAO.editTrain(connection, train);
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("successMessage", "Train data has been edited");
+                    } else {
+                        session.setAttribute("successMessage", "Дані поїзда змінено");
+                    }
+                } catch (SQLException e) {
+                    logger.info("Failed to connect to database for edit train data  in database");
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("errorMessage", "Failed to connect to database for edit train data in database");
+                    } else {
+                        session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб відредагувати дані поїзда");
+                    }
+                    throw new DBException("Failed to connect to database for edit train data in database");
                 }
-            } catch (SQLException e) {
-                logger.info("Failed to connect to database for edit train data  in database");
-                if ("en".equals(session.getAttribute("locale"))) {
-                    session.setAttribute("errorMessage", "Failed to connect to database for edit train data in database");
-                } else {
-                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб відредагувати дані поїзда");
-                }
-                throw new DBException("Failed to connect to database for edit train data in database");
             }
         }
         return "controller?command=mainPage";
-    }
-
-    private boolean checkParametersForCorrectness(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        String stringTrainSeats = request.getParameter("trainSeats");
-        trainDepartureTime = request.getParameter("trainDepartureTime");
-        if (trainDepartureTime == null || trainDepartureTime.equals("")) {
-            logger.info("Train departure time is not specified");
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Train departure time is not specified");
-            } else {
-                session.setAttribute("errorMessage", "Час відправлення поїзда не задано");
-            }
-            return false;
-        }
-        try {
-            trainId = Integer.parseInt(request.getParameter("trainId"));
-            trainSeats = Integer.parseInt(stringTrainSeats);
-            for (String time:
-                 trainDepartureTime.split(":")) {
-                Integer.parseInt(time);
-            }
-        } catch (NumberFormatException e) {
-            logger.info("Link data is incorrect", e);
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Request error, try again");
-            } else {
-                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
-            }
-        }
-        trainNumber = request.getParameter("trainNumber");
-        if (trainNumber == null || trainNumber.equals("")) {
-            logger.info("Train number is not specified");
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Train number is not specified");
-            } else {
-                session.setAttribute("errorMessage", "Номер поїзда не задано");
-            }
-            return false;
-        }
-        return true;
     }
 }

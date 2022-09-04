@@ -107,6 +107,30 @@ public class MySQLScheduleDAOTest {
     }
 
     /**
+     * Test for method addData from {@link MySQLScheduleDAO} when failed to get train available seats.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testFailedGetTrainAvailableSeatsOnThisDate() throws Exception {
+
+        int trainId = 1;
+        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH));
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getScheduleDAO()).thenReturn(new MySQLScheduleDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.GET_AVAILABLE_SEATS)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().getTrainAvailableSeatsOnThisDate(connection, trainId, currentDate));
+        DBManagerMocked.close();
+
+    }
+
+    /**
      * Test for method changeTrainAvailableSeatsOnThisDate from {@link MySQLScheduleDAO}.
      *
      * @throws Exception if any {@link Exception} occurs.
@@ -149,6 +173,28 @@ public class MySQLScheduleDAOTest {
         when(rs.getInt("exist")).thenReturn(1);
 
         assertTrue(DBManager.getInstance().getScheduleDAO().checkIfRecordExists(connection, trainId));
+        DBManagerMocked.close();
+    }
+
+    /**
+     * Test for method checkIfRecordExists from {@link MySQLScheduleDAO} when failed to check if record exist.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testFailedCheckIfRecordExists() throws Exception {
+
+        int trainId = 1;
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getScheduleDAO()).thenReturn(new MySQLScheduleDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_RECORD_EXISTS)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().checkIfRecordExists(connection, trainId));
         DBManagerMocked.close();
     }
 

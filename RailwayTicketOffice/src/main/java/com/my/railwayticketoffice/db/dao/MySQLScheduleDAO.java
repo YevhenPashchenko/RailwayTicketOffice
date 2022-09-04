@@ -56,13 +56,15 @@ public class MySQLScheduleDAO implements ScheduleDAO {
 
     @Override
     public int getTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate) throws SQLException {
-        int availableSeats = 0;
+        int availableSeats;
         PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.GET_AVAILABLE_SEATS);
         pstmt.setInt(1, trainId);
         pstmt.setString(2, selectedDate);
         ResultSet rs = pstmt.executeQuery();
-        while (rs.next()) {
+        if (rs.next()) {
             availableSeats = rs.getInt("available_seats");
+        } else {
+            throw new SQLException("Failed to get train available seats");
         }
         return availableSeats;
     }
@@ -81,12 +83,14 @@ public class MySQLScheduleDAO implements ScheduleDAO {
 
     @Override
     public boolean checkIfRecordExists(Connection connection, int trainId) throws SQLException {
-        int result = 0;
+        int result;
         PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_RECORD_EXISTS);
         pstmt.setInt(1, trainId);
         ResultSet rs = pstmt.executeQuery();
-        while (rs.next()) {
+        if (rs.next()) {
             result = rs.getInt("exist");
+        } else {
+            throw new SQLException("Failed to check if record exist");
         }
         return result > 0;
     }

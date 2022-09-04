@@ -10,6 +10,10 @@ import com.my.railwayticketoffice.filter.TrainFilter;
 import com.my.railwayticketoffice.filter.TrainFilterByDirectionAndDepartureTime;
 import com.my.railwayticketoffice.pagination.MainPagePagination;
 import com.my.railwayticketoffice.pagination.Pagination;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.sorting.TrainSorting;
+import com.my.railwayticketoffice.sorting.TrainSortingManger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,9 +23,7 @@ import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class that built at command pattern. Get from database list of {@link com.my.railwayticketoffice.entity.Train}
@@ -35,10 +37,7 @@ public class GetTrainsCommand implements Command {
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final TrainFilter trainFilter = new TrainFilterByDirectionAndDepartureTime();
     private final Pagination pagination = new MainPagePagination();
-    private int page;
-    private int fromStationId;
-    private int toStationId;
-    private String formattedDate;
+    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
 
     /**
      * Get from database list of {@link com.my.railwayticketoffice.entity.Train}
@@ -50,24 +49,40 @@ public class GetTrainsCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
+        Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
         String locale = (String) session.getAttribute("locale");
-        if (checkParametersForCorrectness(request)) {
+        parameters.put("page", request.getParameter("page"));
+        parameters.put("from", request.getParameter("from"));
+        parameters.put("to", request.getParameter("to"));
+        parameters.put("date", request.getParameter("departureDate"));
+        if (searchTrainService.check(parameters, session)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
-                List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, fromStationId, toStationId, formattedDate);
+                List<String> dateForDB = Arrays.asList(parameters.get("date").split("\\."));
+                Collections.reverse(dateForDB);
+                List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, Integer.parseInt(parameters.get("from")), Integer.parseInt(parameters.get("to")), String.join("-", dateForDB));
                 if (trains.size() > 0) {
                     trainDAO.getRoutesForTrains(connection, trains, locale);
-                    List<Train> filteredTrains = trainFilter.filter(trains, fromStationId, toStationId, LocalDate.parse(formattedDate));
-                    int numberOfPages = (int) Math.ceil((float) filteredTrains.size() / Util.getNumberTrainOnPage());
-                    List<Train> trainsPerPage = pagination.paginate(filteredTrains, page);
+                    List<Train> filteredTrains = trainFilter.filter(trains, Integer.parseInt(parameters.get("from")), Integer.parseInt(parameters.get("to")), LocalDate.parse(String.join("-", dateForDB)));
+                    if (request.getParameter("sort") != null) {
+                        session.setAttribute("sort", request.getParameter("sort"));
+                    }
+                    List<Train> sortedTrains;
+                    if (session.getAttribute("sort") != null) {
+                        TrainSorting trainSorting = TrainSortingManger.getStrategy((String) session.getAttribute("sort"));
+                        sortedTrains = trainSorting.sort(filteredTrains, parameters);
+                    } else {
+                        sortedTrains = filteredTrains;
+                    }
+                    int numberOfPages = (int) Math.ceil((float) sortedTrains.size() / Util.getNumberTrainOnPage());
+                    List<Train> trainsPerPage = pagination.paginate(sortedTrains, Integer.parseInt(parameters.get("page")));
                     request.setAttribute("trains", trainsPerPage);
                     request.setAttribute("numberOfPages", numberOfPages);
-                    request.setAttribute("departureDateForSortingAndPagination", request.getParameter("datePicker"));
                 }
-                request.setAttribute("page", page);
-                request.setAttribute("fromStationId", fromStationId);
-                request.setAttribute("toStationId", toStationId);
-                request.setAttribute("departureDate", LocalDate.parse(formattedDate));
+                request.setAttribute("page", Integer.parseInt(parameters.get("page")));
+                request.setAttribute("from", Integer.parseInt(parameters.get("from")));
+                request.setAttribute("to", Integer.parseInt(parameters.get("to")));
+                request.setAttribute("departureDate", parameters.get("date"));
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for get trains specified by stations and date", e);
                 if ("en".equals(locale)) {
@@ -79,49 +94,5 @@ public class GetTrainsCommand implements Command {
             }
         }
         return "controller?command=mainPage";
-    }
-
-    private boolean checkParametersForCorrectness(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        try {
-            page = Integer.parseInt(request.getParameter("page"));
-        } catch (NumberFormatException e) {
-            page = 1;
-        }
-        List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
-        if (date.size() != 3) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Departure date is incorrect");
-            } else {
-                session.setAttribute("errorMessage", "Дату відправлення задано не коректно");
-            }
-            return false;
-        }
-        try {
-            fromStationId = Integer.parseInt(request.getParameter("from"));
-            toStationId = Integer.parseInt(request.getParameter("to"));
-            for (String d:
-                    date) {
-                Integer.parseInt(d);
-            }
-        } catch (NumberFormatException e) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Request error, try again");
-            } else {
-                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
-            }
-            return false;
-        }
-        if (fromStationId == toStationId) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Departure and destination stations match");
-            } else {
-                session.setAttribute("errorMessage", "Станції відправлення та призначення співпадають");
-            }
-            return false;
-        }
-        Collections.reverse(date);
-        formattedDate = String.join("-", date);
-        return true;
     }
 }

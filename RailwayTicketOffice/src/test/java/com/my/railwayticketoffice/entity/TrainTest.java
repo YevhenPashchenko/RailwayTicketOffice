@@ -52,8 +52,8 @@ public class TrainTest {
         String dayOfWeekUA = DayOfWeekLocaleUA.of(date.getDayOfWeek().getValue());
         String dateAsString = date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
 
-        assertEquals(dayOfWeekEn + ", " + dateAsString, train.getRoute().getDepartureDayOfWeekAndDateAsString(date, "en"));
-        assertEquals(dayOfWeekUA + ", " + dateAsString, train.getRoute().getDepartureDayOfWeekAndDateAsString(date, "uk"));
+        assertEquals(dayOfWeekEn + ", " + dateAsString, train.getRoute().getDepartureDayOfWeekAndDateAsString(date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), "en"));
+        assertEquals(dayOfWeekUA + ", " + dateAsString, train.getRoute().getDepartureDayOfWeekAndDateAsString(date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), "uk"));
 
     }
 
@@ -85,8 +85,8 @@ public class TrainTest {
                 dayOfWeekUA = DayOfWeekLocaleUA.of(date.plusDays(i).getDayOfWeek().getValue());
                 dateAsString = date.plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
 
-                assertEquals(dayOfWeekEn + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, count + j, date, "en"));
-                assertEquals(dayOfWeekUA + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, count + j, date, "uk"));
+                assertEquals(dayOfWeekEn + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, count + j, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), "en"));
+                assertEquals(dayOfWeekUA + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, count + j, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), "uk"));
             }
             count = count + 2;
         }
@@ -95,8 +95,8 @@ public class TrainTest {
         dayOfWeekUA = DayOfWeekLocaleUA.of(date.plusDays(2).getDayOfWeek().getValue());
         dateAsString = date.plusDays(2).format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
 
-        assertEquals(dayOfWeekEn + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, 6, date, "en"));
-        assertEquals(dayOfWeekUA + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, 6, date, "uk"));
+        assertEquals(dayOfWeekEn + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, 6, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), "en"));
+        assertEquals(dayOfWeekUA + ", " + dateAsString, train.getRoute().getDestinationDayOfWeekAndDateAsString(1, 6, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), "uk"));
 
     }
 

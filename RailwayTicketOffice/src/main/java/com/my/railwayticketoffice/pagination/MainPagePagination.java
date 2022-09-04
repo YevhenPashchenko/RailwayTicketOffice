@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 /**
  * Class that do pagination for main.jsp.
+ *
+ * @author Yevhen Pashchenko
  */
 public class MainPagePagination implements Pagination {
 

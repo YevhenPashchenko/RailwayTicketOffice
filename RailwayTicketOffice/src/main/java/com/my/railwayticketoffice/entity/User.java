@@ -11,6 +11,7 @@ public class User implements Serializable {
     private String firstName;
     private String lastName;
     private String role;
+    private boolean registered;
 
     public int getId() {
         return id;
@@ -60,16 +61,24 @@ public class User implements Serializable {
         this.role = role;
     }
 
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(role, user.role);
+        return id == user.id && registered == user.registered && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(role, user.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password, firstName, lastName, role);
+        return Objects.hash(id, email, password, firstName, lastName, role, registered);
     }
 }

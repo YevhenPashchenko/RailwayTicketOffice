@@ -7,6 +7,9 @@ import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Station;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.service.TrainParameterService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +19,9 @@ import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class that built at command pattern. Get from database {@link com.my.railwayticketoffice.entity.Train} and his route.
@@ -28,9 +33,8 @@ public class ShowRouteCommand implements Command {
     private static final Logger logger = LogManager.getLogger(ShowRouteCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final StationDAO stationDAO = DBManager.getInstance().getStationDAO();
-    private int trainId;
-    private int fromStationId;
-    private int toStationId;
+    private final ParameterService<String> trainService = new TrainParameterService();
+    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
 
     /**
      * Get from database {@link com.my.railwayticketoffice.entity.Train} and his route.
@@ -41,22 +45,28 @@ public class ShowRouteCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException {
+        Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
         String locale = (String) session.getAttribute("locale");
         User user = (User) session.getAttribute("user");
-        if (checkParametersForCorrectness(request)) {
+        parameters.put("trainId", request.getParameter("trainId"));
+        parameters.put("from", request.getParameter("from"));
+        parameters.put("to", request.getParameter("to"));
+        if (trainService.check(parameters, session)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
-                Train train = trainDAO.getTrainThatIsInSchedule(connection, trainId);
+                Train train = trainDAO.getTrainThatIsInSchedule(connection, Integer.parseInt(parameters.get("trainId")));
                 if (user != null && "admin".equals(user.getRole())) {
                     if (train.getId() == 0) {
-                        train = trainDAO.getTrain(connection, trainId);
+                        train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
                     }
                     List<Station> stations = stationDAO.getStations(connection, locale);
                     request.setAttribute("stations", stations);
                 }
                 trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), locale);
-                request.setAttribute("fromStationId", fromStationId);
-                request.setAttribute("toStationId", toStationId);
+                if (searchTrainService.check(parameters, session)) {
+                    request.setAttribute("from", Integer.parseInt(parameters.get("from")));
+                    request.setAttribute("to", Integer.parseInt(parameters.get("to")));
+                }
                 request.setAttribute("train", train);
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for get train route", e);
@@ -71,36 +81,5 @@ public class ShowRouteCommand implements Command {
             return "controller?command=mainPage";
         }
         return "route.jsp";
-    }
-
-    private boolean checkParametersForCorrectness(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
-        try {
-            trainId = Integer.parseInt(request.getParameter("trainId"));
-            if (user != null && "admin".equals(user.getRole())) {
-                if (request.getParameter("fromStationId") != null) {
-                    fromStationId = Integer.parseInt(request.getParameter("fromStationId"));
-                } else {
-                    fromStationId = 0;
-                }
-                if (request.getParameter("toStationId") != null) {
-                    toStationId = Integer.parseInt(request.getParameter("toStationId"));
-                } else {
-                    toStationId = 0;
-                }
-            } else {
-                fromStationId = Integer.parseInt(request.getParameter("fromStationId"));
-                toStationId = Integer.parseInt(request.getParameter("toStationId"));
-            }
-        } catch (NumberFormatException e) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Request error, try again");
-            } else {
-                session.setAttribute("errorMessage", "Помилка при запиті, спробуйте ще раз");
-            }
-            return false;
-        }
-        return true;
     }
 }

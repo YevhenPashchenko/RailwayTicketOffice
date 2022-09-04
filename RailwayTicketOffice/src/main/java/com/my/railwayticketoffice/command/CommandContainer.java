@@ -12,39 +12,35 @@ import java.util.Map;
  */
 public class CommandContainer {
 
-    private static final Map<String, Command> commands;
+    private static final Map<String, Command> COMMANDS;
 
     static {
-        commands = new HashMap<>();
+        COMMANDS = new HashMap<>();
 
-        commands.put("mainPage", new MainPageCommand());
-        commands.put("getTrains", new GetTrainsCommand());
-        commands.put("showRoute", new ShowRouteCommand());
-        commands.put("userRegistration", new UserRegistrationCommand());
-        commands.put("userLogin", new UserLoginCommand());
-        commands.put("userLogout", new UserLogoutCommand());
-        commands.put("userEdit", new UserEditCommand());
-        commands.put("ticketPage", new TicketPageCommand());
-        commands.put("buyTicket", new BuyTicketCommand());
-        commands.put("addTrain", new AddTrainCommand());
-        commands.put("deleteTrain", new DeleteTrainCommand());
-        commands.put("editTrain", new EditTrainCommand());
-        commands.put("deleteStationFromTrainRoute", new DeleteStationFromTrainRouteCommand());
-        commands.put("addStationToTrainRoute", new AddStationToTrainRouteCommand());
-        commands.put("editStationDataOnTrainRoute", new EditStationDataOnTrainRouteCommand());
-        commands.put("addStation", new AddStationCommand());
-        commands.put("deleteStation", new DeleteStationCommand());
-        commands.put("editStation", new EditStationCommand());
-        commands.put("addTrainToSchedule", new AddTrainToScheduleCommand());
-        commands.put("deleteTrainFromSchedule", new DeleteTrainFromScheduleCommand());
-        commands.put("getTrainsSortedByDurationTrip", new GetTrainsSortedByDurationTripCommand());
-        commands.put("getTrainsSortedByDepartureTime", new GetTrainsSortedByDepartureTimeCommand());
-        commands.put("getTrainsSortedByDestinationTime", new GetTrainsSortedByDestinationTimeCommand());
-        commands.put("getTrainsSortedByAvailableSeats", new GetTrainsSortedByAvailableSeatsCommand());
-        commands.put("changeMainPageLocale", new ChangeMainPageLocaleCommand());
-        commands.put("changeRoutePageLocale", new ChangeRoutePageLocaleCommand());
-        commands.put("changeTicketPageLocale", new ChangeTicketPageLocaleCommand());
-        commands.put("changeSuccessPageLocale", new ChangeSuccessPageLocaleCommand());
+        COMMANDS.put("mainPage", new MainPageCommand());
+        COMMANDS.put("getTrains", new GetTrainsCommand());
+        COMMANDS.put("showRoute", new ShowRouteCommand());
+        COMMANDS.put("userRegistration", new UserRegistrationCommand());
+        COMMANDS.put("userLogin", new UserLoginCommand());
+        COMMANDS.put("userLogout", new UserLogoutCommand());
+        COMMANDS.put("userEdit", new UserEditCommand());
+        COMMANDS.put("ticketPage", new TicketPageCommand());
+        COMMANDS.put("buyTicket", new BuyTicketCommand());
+        COMMANDS.put("addTrain", new AddTrainCommand());
+        COMMANDS.put("deleteTrain", new DeleteTrainCommand());
+        COMMANDS.put("editTrain", new EditTrainCommand());
+        COMMANDS.put("deleteStationFromTrainRoute", new DeleteStationFromTrainRouteCommand());
+        COMMANDS.put("addStationToTrainRoute", new AddStationToTrainRouteCommand());
+        COMMANDS.put("editStationDataOnTrainRoute", new EditStationDataOnTrainRouteCommand());
+        COMMANDS.put("addStation", new AddStationCommand());
+        COMMANDS.put("deleteStation", new DeleteStationCommand());
+        COMMANDS.put("editStation", new EditStationCommand());
+        COMMANDS.put("addTrainToSchedule", new AddTrainToScheduleCommand());
+        COMMANDS.put("deleteTrainFromSchedule", new DeleteTrainFromScheduleCommand());
+        COMMANDS.put("changeMainPageLocale", new ChangeMainPageLocaleCommand());
+        COMMANDS.put("changeRoutePageLocale", new ChangeRoutePageLocaleCommand());
+        COMMANDS.put("changeTicketPageLocale", new ChangeTicketPageLocaleCommand());
+        COMMANDS.put("changeSuccessPageLocale", new ChangeSuccessPageLocaleCommand());
     }
 
     /**
@@ -53,6 +49,6 @@ public class CommandContainer {
      * @return object implements {@link Command} interface.
      */
     public static Command getCommand(String commandName) {
-        return commands.get(commandName);
+        return COMMANDS.get(commandName);
     }
 }

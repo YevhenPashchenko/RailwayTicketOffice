@@ -39,6 +39,7 @@ public class InternationalizationListener implements ServletContextListener {
             locales.load(fis);
         } catch (IOException e) {
             logger.error("Failed to load locale properties", e);
+            throw new IllegalStateException("Failed to load locale properties", e);
         }
 
         context.setAttribute("locales", locales);

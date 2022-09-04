@@ -35,7 +35,7 @@
                                     <c:forEach items="${applicationScope.locales}" var="locale">
                                         <c:if test="${locale.key ne 'uk'}">
                                             <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeTicketPageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.unformattedDepartureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                <a class="dropdown-item p-0" href="controller?command=changeTicketPageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                             </li>
                                         </c:if>
                                     </c:forEach>
@@ -47,7 +47,7 @@
                                     <c:forEach items="${applicationScope.locales}" var="locale">
                                         <c:if test="${locale.key ne sessionScope.locale}">
                                             <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeTicketPageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.fromStationId}&to=${requestScope.toStationId}&datePicker=${requestScope.unformattedDepartureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
+                                                <a class="dropdown-item p-0" href="controller?command=changeTicketPageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
                                             </li>
                                         </c:if>
                                     </c:forEach>
@@ -90,11 +90,11 @@
                     <tr>
                         <td>
                             <div class="lh-sm">${requestScope.train.getNumber()}</div>
-                            <a href="controller?command=showRoute&trainId=${requestScope.train.getId()}&fromStationId=${requestScope.fromStationId}&toStationId=${requestScope.toStationId}" class="fs-6 fw-normal lh-1"><fmt:message key="main_jsp.first_td"/></a>
+                            <a href="controller?command=showRoute&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}" class="fs-6 fw-normal lh-1"><fmt:message key="main_jsp.first_td"/></a>
                         </td>
                         <td class="text-start">
-                            <div class="lh-sm">${requestScope.train.getRoute().getStationNameByStationId(requestScope.fromStationId)}</div>
-                            <div>${requestScope.train.getRoute().getStationNameByStationId(requestScope.toStationId)}</div>
+                            <div class="lh-sm">${requestScope.train.getRoute().getStationNameByStationId(requestScope.from)}</div>
+                            <div>${requestScope.train.getRoute().getStationNameByStationId(requestScope.to)}</div>
                         </td>
                         <td class="text-start fs-6 fw-normal">
                             <div class="d-flex justify-content-between mb-1 lh-sm">
@@ -103,17 +103,17 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span><fmt:message key="main_jsp.fourth_th.second_div"/></span>
-                                <span>${requestScope.train.getRoute().getDestinationDayOfWeekAndDateAsString(requestScope.fromStationId, requestScope.toStationId, requestScope.departureDate, sessionScope.locale)}</span>
+                                <span>${requestScope.train.getRoute().getDestinationDayOfWeekAndDateAsString(requestScope.from, requestScope.to, requestScope.departureDate, sessionScope.locale)}</span>
                             </div>
                         </td>
                         <td>
-                            <div class="lh-sm">${requestScope.train.getRoute().getArrivalTime(requestScope.fromStationId)}</div>
-                            <div>${requestScope.train.getRoute().getArrivalTime(requestScope.toStationId)}</div>
+                            <div class="lh-sm">${requestScope.train.getRoute().getArrivalTime(requestScope.from)}</div>
+                            <div>${requestScope.train.getRoute().getArrivalTime(requestScope.to)}</div>
                         </td>
                         <td>
-                            <div>${requestScope.train.getRoute().getDurationTrip(requestScope.fromStationId, requestScope.toStationId)}</div>
+                            <div>${requestScope.train.getRoute().getDurationTrip(requestScope.from, requestScope.to)}</div>
                         </td>
-                        <td id="ticketCost">${requestScope.train.getRoute().getCostOfTripAsString(requestScope.fromStationId, requestScope.toStationId)}</td>
+                        <td id="ticketCost">${requestScope.train.getRoute().getCostOfTripAsString(requestScope.from, requestScope.to)}</td>
                         <td>
                             <div>${requestScope.train.getSeats()}</div>
                         </td>
@@ -144,10 +144,10 @@
                     <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
                 </label>
                 <label>
-                    <input type="number" name="fromStationId" value="${requestScope.fromStationId}" hidden>
+                    <input type="number" name="from" value="${requestScope.from}" hidden>
                 </label>
                 <label>
-                    <input type="number" name="toStationId" value="${requestScope.toStationId}" hidden>
+                    <input type="number" name="to" value="${requestScope.to}" hidden>
                 </label>
                 <label>
                     <input name="departureDate" value="${requestScope.departureDate}" hidden>
@@ -166,7 +166,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="totalCost" class="fs-5 text-end text-primary mb-2"><fmt:message key="ticket_jsp.div_totalCost"/>: ${requestScope.train.getRoute().getCostOfTripAsString(requestScope.fromStationId, requestScope.toStationId)} <fmt:message key="ticket_jsp.div_totalCost_UAH"/>.</div>
+                <div id="totalCost" class="fs-5 text-end text-primary mb-2"><fmt:message key="ticket_jsp.div_totalCost"/>: ${requestScope.train.getRoute().getCostOfTripAsString(requestScope.from, requestScope.to)} <fmt:message key="ticket_jsp.div_totalCost_UAH"/>.</div>
                 <div class="container">
                     <div class="row justify-content-end">
                         <button class="col-1 btn btn-lg btn-primary mb-3"><fmt:message key="ticket_jsp.button_for_buyTicket"/></button>

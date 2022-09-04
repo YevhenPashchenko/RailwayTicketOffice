@@ -1,7 +1,13 @@
 package com.my.railwayticketoffice.command;
 
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.SearchTrainParameterService;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that built at command pattern. Change locale on main.jsp.
@@ -9,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author Yevhen Pashchenko
  */
 public class ChangeMainPageLocaleCommand implements Command {
+
+    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
 
     /**
      * Change locale on main.jsp.
@@ -18,44 +26,21 @@ public class ChangeMainPageLocaleCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> parameters = new HashMap<>();
+        HttpSession session = request.getSession();
         String locale = request.getParameter("locale");
         if (locale != null && !"".equals(locale)) {
             request.getSession().setAttribute("locale", locale);
         }
-        return chooseLink(request);
-    }
-
-    private String chooseLink(HttpServletRequest request) {
-        boolean isAdditionalParameters = true;
-        String link;
-        String trainsSortedCommand = request.getParameter("trainsSortedCommand");
-        int page = 0;
-        int from = 0;
-        int to = 0;
-        String datePicker = request.getParameter("datePicker");
-        if (trainsSortedCommand == null || "".equals(trainsSortedCommand)) {
-            isAdditionalParameters = false;
-        }
-        try {
-            page = Integer.parseInt(request.getParameter("page"));
-            from = Integer.parseInt(request.getParameter("from"));
-            to = Integer.parseInt(request.getParameter("to"));
-            if (datePicker != null && datePicker.split("\\.").length == 3) {
-                for (String date:
-                     datePicker.split("\\.")) {
-                    Integer.parseInt(date);
-                }
-            } else {
-                isAdditionalParameters = false;
-            }
-        } catch (NumberFormatException e) {
-            isAdditionalParameters = false;
-        }
-        if (isAdditionalParameters) {
-            link = "controller?command=" + trainsSortedCommand + "&page=" + page + "&from=" + from + "&to=" + to + "&datePicker=" + datePicker;
+        parameters.put("page", request.getParameter("page"));
+        parameters.put("from", request.getParameter("from"));
+        parameters.put("to", request.getParameter("to"));
+        parameters.put("date", request.getParameter("departureDate"));
+        if (searchTrainService.check(parameters, session)) {
+            return "controller?command=getTrains&page=" + Integer.parseInt(parameters.get("page")) + "&from=" + Integer.parseInt(parameters.get("from")) + "&to=" + Integer.parseInt(parameters.get("to")) + "&departureDate=" + parameters.get("date");
         } else {
-            link = "controller?command=mainPage";
+            session.removeAttribute("searchTrainErrorMessage");
+            return "controller?command=mainPage";
         }
-        return link;
     }
 }

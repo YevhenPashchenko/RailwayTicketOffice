@@ -178,6 +178,28 @@ public class MySQLStationDAOTest {
     }
 
     /**
+     * Test for method addStationEN from {@link MySQLStationDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testAddStationEN() throws Exception {
+
+        int stationId = 1;
+        String stationNameEN = "Station";
+
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManagerInstance.getStationDAO()).thenReturn(new MySQLStationDAO());
+        when(DBManagerInstance.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION_EN)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(0);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getStationDAO().addStationEN(connection, stationId, stationNameEN));
+        DBManagerMocked.close();
+    }
+
+    /**
      * Test for method deleteStation from {@link MySQLStationDAO}.
      *
      * @throws Exception if any {@link Exception} occurs.

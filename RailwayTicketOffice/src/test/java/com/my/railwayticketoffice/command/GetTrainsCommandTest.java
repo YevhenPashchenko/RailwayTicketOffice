@@ -56,7 +56,7 @@ public class GetTrainsCommandTest {
         when(request.getParameter("page")).thenReturn("1");
         when(request.getParameter("from")).thenReturn("1");
         when(request.getParameter("to")).thenReturn("2");
-        when(request.getParameter("datePicker")).thenReturn(date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+        when(request.getParameter("departureDate")).thenReturn(date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
         MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManager.getInstance().getConnection()).thenReturn(connection);

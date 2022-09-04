@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * Interface that provides a method that filter trains.
+ *
+ * @author Yevhen Pashchenko
  */
 public interface TrainFilter {
 

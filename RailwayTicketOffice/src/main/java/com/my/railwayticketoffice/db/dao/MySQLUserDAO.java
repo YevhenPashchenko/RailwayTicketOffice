@@ -27,6 +27,7 @@ public class MySQLUserDAO implements UserDAO {
             user.setFirstName(rs.getString("first_name"));
             user.setLastName(rs.getString("last_name"));
             user.setRole(rs.getString("role"));
+            user.setRegistered(rs.getBoolean("registered"));
         }
         return user;
     }
@@ -45,24 +46,12 @@ public class MySQLUserDAO implements UserDAO {
     }
 
     @Override
-    public void updateUserWithPassword(Connection connection, User user) throws SQLException {
+    public void updateUser(Connection connection, User user) throws SQLException {
         PreparedStatement pstmt = connection.prepareStatement(MySQLUserDAOQuery.UPDATE_USER_WITH_PASSWORD);
         pstmt.setString(1, user.getPassword());
         pstmt.setString(2, user.getFirstName());
         pstmt.setString(3, user.getLastName());
         pstmt.setInt(4, user.getId());
-        int affectedRow = pstmt.executeUpdate();
-        if (affectedRow == 0) {
-            throw new SQLException("Failed to edit user data in database");
-        }
-    }
-
-    @Override
-    public void updateUser(Connection connection, User user) throws SQLException {
-        PreparedStatement pstmt = connection.prepareStatement(MySQLUserDAOQuery.UPDATE_USER);
-        pstmt.setString(1, user.getFirstName());
-        pstmt.setString(2, user.getLastName());
-        pstmt.setInt(3, user.getId());
         int affectedRow = pstmt.executeUpdate();
         if (affectedRow == 0) {
             throw new SQLException("Failed to edit user data in database");

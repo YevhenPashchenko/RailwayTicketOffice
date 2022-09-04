@@ -51,10 +51,10 @@ public class UserEditCommandTest {
         when(DBManager.getInstance().getConnection()).thenReturn(connection);
         when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
         when(request.getParameter("from")).thenReturn("1");
-        when(request.getParameter("to")).thenReturn("1");
-        when(request.getParameter("datePicker")).thenReturn("1.1.1");
+        when(request.getParameter("to")).thenReturn("2");
+        when(request.getParameter("departureDate")).thenReturn("1.1.1");
 
-        assertEquals("controller?command=getTrains&from=1&to=1&datePicker=1.1.1", new UserEditCommand().execute(request, response));
+        assertEquals("controller?command=getTrains&from=1&to=2&departureDate=1.1.1", new UserEditCommand().execute(request, response));
         DBManagerMocked.close();
     }
 
@@ -70,10 +70,10 @@ public class UserEditCommandTest {
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
         when(request.getParameter("from")).thenReturn("1");
-        when(request.getParameter("to")).thenReturn("1");
-        when(request.getParameter("datePicker")).thenReturn("1.1.1");
+        when(request.getParameter("to")).thenReturn("2");
+        when(request.getParameter("departureDate")).thenReturn("1.1.1");
 
-        assertEquals("controller?command=getTrains&from=1&to=1&datePicker=1.1.1", new UserEditCommand().execute(request, response));
+        assertEquals("controller?command=getTrains&from=1&to=2&departureDate=1.1.1", new UserEditCommand().execute(request, response));
         DBManagerMocked.close();
     }
 

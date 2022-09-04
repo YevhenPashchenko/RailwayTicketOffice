@@ -106,15 +106,16 @@ public class Train implements Serializable {
          * @param departureDate - departure {@link LocalDate}.
          * @return day of week and date when train departs from the departure station as string.
          */
-        public String getDepartureDayOfWeekAndDateAsString(LocalDate departureDate, String locale) {
+        public String getDepartureDayOfWeekAndDateAsString(String departureDate, String locale) {
+            LocalDate date = LocalDate.parse(departureDate, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             String dayOfWeek;
             if (locale != null && locale.equals("en")) {
-                dayOfWeek = departureDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                dayOfWeek = date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
             } else {
-                dayOfWeek = DayOfWeekLocaleUA.of(departureDate.getDayOfWeek().getValue());
+                dayOfWeek = DayOfWeekLocaleUA.of(date.getDayOfWeek().getValue());
             }
             return dayOfWeek +
-                    ", " + departureDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
+                    ", " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
         }
 
         /**
@@ -123,14 +124,15 @@ public class Train implements Serializable {
          * @param departureDate - departure {@link LocalDate}.
          * @return day of week and date when train arrive to destination station as string.
          */
-        public String getDestinationDayOfWeekAndDateAsString(int fromStationId, int toStationId, LocalDate departureDate, String locale) {
-            int daysOfTrip = Integer.parseInt(timeSinceStartMap.get(toStationId).split(":")[0]) / 24;
+        public String getDestinationDayOfWeekAndDateAsString(int fromStationId, int toStationId, String departureDate, String locale) {
+            LocalDate date = LocalDate.parse(departureDate, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            int daysOfTrip = (Integer.parseInt(timeSinceStartMap.get(toStationId).split(":")[0]) - Integer.parseInt(timeSinceStartMap.get(fromStationId).split(":")[0])) / 24;
             LocalDate destinationDate;
             String dayOfWeek;
             if (LocalTime.parse(getArrivalTime(fromStationId)).compareTo(LocalTime.parse(getArrivalTime(toStationId))) > 0) {
-                destinationDate = departureDate.plusDays(1 + daysOfTrip);
+                destinationDate = date.plusDays(1 + daysOfTrip);
             } else {
-                destinationDate = departureDate.plusDays(daysOfTrip);
+                destinationDate = date.plusDays(daysOfTrip);
             }
             if (locale != null && locale.equals("en")) {
                 dayOfWeek = destinationDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);

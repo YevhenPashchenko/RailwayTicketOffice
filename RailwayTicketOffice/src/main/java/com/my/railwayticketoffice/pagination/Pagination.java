@@ -6,6 +6,8 @@ import java.util.List;
 
 /**
  * Interface that provides a method that do pagination.
+ *
+ * @author Yevhen Pashchenko
  */
 public interface Pagination {
 

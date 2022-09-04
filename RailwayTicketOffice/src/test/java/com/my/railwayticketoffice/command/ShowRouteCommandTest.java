@@ -48,8 +48,8 @@ public class ShowRouteCommandTest {
         when(request.getSession()).thenReturn(session);
         when((User) session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("trainId")).thenReturn("1");
-        when(request.getParameter("fromStationId")).thenReturn("1");
-        when(request.getParameter("toStationId")).thenReturn("1");
+        when(request.getParameter("from")).thenReturn("1");
+        when(request.getParameter("to")).thenReturn("2");
         MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManager.getInstance().getConnection()).thenReturn(connection);

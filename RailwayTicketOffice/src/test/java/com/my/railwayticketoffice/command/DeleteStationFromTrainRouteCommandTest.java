@@ -70,4 +70,25 @@ public class DeleteStationFromTrainRouteCommandTest {
         assertEquals("controller?command=mainPage", new DeleteStationFromTrainRouteCommand().execute(request, response));
         DBManagerMocked.close();
     }
+
+    /**
+     * Test for method execute from {@link DeleteStationFromTrainRouteCommand} when not parameters.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testExecuteNotParameters() throws Exception {
+        User user = new User();
+        user.setRole("admin");
+
+        when(request.getSession()).thenReturn(session);
+        when((User) session.getAttribute("user")).thenReturn(user);
+        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+
+        assertEquals("controller?command=mainPage", new DeleteStationFromTrainRouteCommand().execute(request, response));
+        DBManagerMocked.close();
+    }
 }

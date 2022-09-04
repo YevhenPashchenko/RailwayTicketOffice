@@ -6,6 +6,9 @@ import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.UserDAO;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.service.UserParameterService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +19,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that built at command pattern. Authenticate user and save him in session on login.
@@ -28,9 +31,8 @@ public class UserLoginCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(UserLoginCommand.class);
     private final UserDAO userDAO = DBManager.getInstance().getUserDAO();
-    private int fromStationId;
-    private int toStationId;
-    private String formattedDate;
+    private final ParameterService<String> userService = new UserParameterService();
+    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
 
     /**
      * Authenticate user and save him in session on login.
@@ -42,73 +44,61 @@ public class UserLoginCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException, AuthenticationException {
+        Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
-        String userEmail = request.getParameter("email");
-        try(Connection connection = DBManager.getInstance().getConnection()) {
-            User user = userDAO.getUser(connection, userEmail);
-            if (userEmail != null && userEmail.equals(user.getEmail()) && PasswordAuthentication.check(request.getParameter("password"), user.getPassword())) {
-                user.setPassword("");
-                session.setAttribute("user", user);
-                return chooseLink(request);
+        parameters.put("email", request.getParameter("email"));
+        parameters.put("password", request.getParameter("password"));
+        parameters.put("from", request.getParameter("from"));
+        parameters.put("to", request.getParameter("to"));
+        parameters.put("date", request.getParameter("departureDate"));
+        if (userService.check(parameters, session)) {
+            try(Connection connection = DBManager.getInstance().getConnection()) {
+                User user = userDAO.getUser(connection, parameters.get("email"));
+                if (parameters.get("email").equals(user.getEmail()) && PasswordAuthentication.check(parameters.get("password"), user.getPassword())) {
+                    if (!user.isRegistered()) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "User has not finished registration");
+                        } else {
+                            session.setAttribute("errorMessage", "Користувач не закінчив реєстрацію");
+                        }
+                        return chooseLink(parameters, session);
+                    }
+                    user.setPassword("");
+                    session.setAttribute("user", user);
+                    return chooseLink(parameters, session);
+                }
+            } catch (SQLException e) {
+                logger.warn("Failed to connect to database for get user data in database", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("errorMessage", "Failed to connect to database for get user data in database");
+                } else {
+                    session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати дані користувача");
+                }
+                throw new DBException("Failed to connect to database for get user data in database");
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                logger.warn("Password decryption error", e);
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("errorMessage", "Password decryption error");
+                } else {
+                    session.setAttribute("errorMessage", "Помилка при розшифровці пароля");
+                }
+                throw new AuthenticationException("Password decryption error");
             }
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Email or password is wrong");
-            } else {
-                session.setAttribute("errorMessage", "Помилкова пошта або пароль");
-            }
-            return chooseLink(request);
-        } catch (SQLException e) {
-            logger.warn("Failed to connect to database for get user data in database", e);
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Failed to connect to database for get user data in database");
-            } else {
-                session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати дані користувача");
-            }
-            throw new DBException("Failed to connect to database for get user data in database");
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            logger.warn("Password decryption error", e);
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("errorMessage", "Password decryption error");
-            } else {
-                session.setAttribute("errorMessage", "Помилка при розшифровці пароля");
-            }
-            throw new AuthenticationException("Password decryption error");
         }
-    }
-
-    private String chooseLink(HttpServletRequest request) {
-        String link;
-        if (checkParametersForCorrectness(request)) {
-            link = "controller?command=getTrains&from=" + fromStationId + "&to=" + toStationId + "&datePicker=" + formattedDate;
+        if ("en".equals(session.getAttribute("locale"))) {
+            session.setAttribute("errorMessage", "Email or password is wrong");
         } else {
-            link = "controller?command=mainPage";
+            session.setAttribute("errorMessage", "Помилкова пошта або пароль");
         }
-        return link;
+        return chooseLink(parameters, session);
     }
 
-    private boolean checkParametersForCorrectness(HttpServletRequest request) {
-        try {
-            fromStationId = Integer.parseInt(request.getParameter("from"));
-            toStationId = Integer.parseInt(request.getParameter("to"));
-        } catch (NumberFormatException e) {
-            return false;
+    private String chooseLink(Map<String, String> parameters, HttpSession session) {
+        if (searchTrainService.check(parameters, session)) {
+            return "controller?command=getTrains&from=" + parameters.get("from") + "&to=" + parameters.get("to") + "&departureDate=" + parameters.get("date");
+        } else {
+            session.removeAttribute("searchTrainErrorMessage");
+            return "controller?command=mainPage";
         }
-        if (fromStationId == toStationId) {
-            return false;
-        }
-        List<String> date = Arrays.asList(request.getParameter("datePicker").split("\\."));
-        if (date.size() != 3) {
-            return false;
-        }
-        for (String d:
-                date) {
-            try {
-                Integer.parseInt(d);
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-        formattedDate = String.join(".", date);
-        return true;
     }
 }

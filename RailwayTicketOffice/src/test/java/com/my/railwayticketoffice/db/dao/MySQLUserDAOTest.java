@@ -96,7 +96,7 @@ public class MySQLUserDAOTest {
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
-    public void testUpdateUserWithPassword() throws Exception {
+    public void testUpdateUser() throws Exception {
 
         User user = new User();
         user.setId(1);
@@ -109,30 +109,6 @@ public class MySQLUserDAOTest {
         when(DBManagerInstance.getUserDAO()).thenReturn(new MySQLUserDAO());
         when(DBManagerInstance.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(MySQLUserDAOQuery.UPDATE_USER_WITH_PASSWORD)).thenReturn(pstmt);
-        when(pstmt.executeUpdate()).thenReturn(0);
-
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getUserDAO().updateUserWithPassword(connection, user));
-        DBManagerMocked.close();
-    }
-
-    /**
-     * Test for method updateUser from {@link MySQLUserDAO}.
-     *
-     * @throws Exception if any {@link Exception} occurs.
-     */
-    @Test
-    public void testUpdateUser() throws Exception {
-
-        User user = new User();
-        user.setId(1);
-        user.setFirstName("firstName");
-        user.setLastName("lastName");
-
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManagerInstance.getUserDAO()).thenReturn(new MySQLUserDAO());
-        when(DBManagerInstance.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(MySQLUserDAOQuery.UPDATE_USER)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(0);
 
         assertThrows(SQLException.class, () -> DBManager.getInstance().getUserDAO().updateUser(connection, user));
