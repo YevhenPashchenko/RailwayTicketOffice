@@ -125,7 +125,13 @@ public class TrainTest {
         train.getRoute().addTimeSinceStart(1, "01:20");
         train.getRoute().addTimeSinceStart(2, "02:50");
 
-        assertEquals("01:30", train.getRoute().getDurationTrip(1, 2));
+        assertEquals("01:30", train.getRoute().getDurationTrip(1, 2, null));
+
+        train.getRoute().addTimeSinceStart(1, "01:20");
+        train.getRoute().addTimeSinceStart(2, "25:50");
+
+        assertEquals("1 d. 00:30", train.getRoute().getDurationTrip(1, 2, "en"));
+        assertEquals("1 д. 00:30", train.getRoute().getDurationTrip(1, 2, "uk"));
 
     }
 

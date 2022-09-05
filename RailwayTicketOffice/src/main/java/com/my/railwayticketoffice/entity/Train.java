@@ -185,11 +185,23 @@ public class Train implements Serializable {
          * @param toStationId - id of destination station.
          * @return trip duration as string.
          */
-        public String getDurationTrip(int fromStationId, int toStationId) {
-            return departureTime.plusHours(Long.parseLong(timeSinceStartMap.get(toStationId).split(":")[0]))
+        public String getDurationTrip(int fromStationId, int toStationId, String locale) {
+            LocalDateTime startPoint = LocalDateTime.MIN;
+            LocalDateTime duration = startPoint.plusHours(Long.parseLong(timeSinceStartMap.get(toStationId).split(":")[0]))
                     .plusMinutes(Long.parseLong(timeSinceStartMap.get(toStationId).split(":")[1]))
-                    .minusNanos(departureTime.plusHours(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[0]))
-                            .plusMinutes(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[1])).toNanoOfDay()).toString();
+                    .minusHours(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[0]))
+                    .minusMinutes(Long.parseLong(timeSinceStartMap.get(fromStationId).split(":")[1]));
+            String result;
+            if (duration.getDayOfMonth() != startPoint.getDayOfMonth()) {
+                if ("en".equals(locale)) {
+                    result = duration.getDayOfMonth() - startPoint.getDayOfMonth() + " d. " + duration.toLocalTime();
+                } else {
+                    result = duration.getDayOfMonth() - startPoint.getDayOfMonth() + " д. " + duration.toLocalTime();
+                }
+            } else {
+                result = duration.toLocalTime().toString();
+            }
+            return result;
         }
 
         /**

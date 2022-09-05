@@ -111,7 +111,7 @@
                             <div>${requestScope.train.getRoute().getArrivalTime(requestScope.to)}</div>
                         </td>
                         <td>
-                            <div>${requestScope.train.getRoute().getDurationTrip(requestScope.from, requestScope.to)}</div>
+                            <div>${requestScope.train.getRoute().getDurationTrip(requestScope.from, requestScope.to, sessionScope.locale)}</div>
                         </td>
                         <td id="ticketCost">${requestScope.train.getRoute().getCostOfTripAsString(requestScope.from, requestScope.to)}</td>
                         <td>

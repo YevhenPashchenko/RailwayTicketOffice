@@ -8,7 +8,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.my.railwayticketoffice.entity.Ticket;
 import com.my.railwayticketoffice.entity.User;
 
-import javax.servlet.http.HttpSession;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
