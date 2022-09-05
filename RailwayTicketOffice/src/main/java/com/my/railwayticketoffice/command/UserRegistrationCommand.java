@@ -1,5 +1,6 @@
 package com.my.railwayticketoffice.command;
 
+import com.itextpdf.text.DocumentException;
 import com.my.railwayticketoffice.authentication.AuthenticationException;
 import com.my.railwayticketoffice.authentication.PasswordAuthentication;
 import com.my.railwayticketoffice.db.DBException;
@@ -7,6 +8,7 @@ import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.UserDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.mail.Mail;
+import com.my.railwayticketoffice.mail.MailException;
 import com.my.railwayticketoffice.mail.RegistrationMail;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.SearchTrainParameterService;
@@ -44,12 +46,12 @@ public class UserRegistrationCommand implements Command {
      * Registers user in database.
      * @param request - HttpServletRequest object.
      * @param response - HttpServletResponse object.
-     * @return - link to {@link MainPageCommand} or link to {@link GetTrainsCommand} if stations and date chosen.
+     * @return link to {@link MainPageCommand} or link to {@link GetTrainsCommand} if stations and date chosen.
      * @throws DBException if {@link SQLException} occurs.
      * @throws AuthenticationException if {@link NoSuchAlgorithmException} or {@link InvalidKeySpecException} occurs.
      */
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException, AuthenticationException {
+    public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException, AuthenticationException, MailException {
         Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
         String locale = (String) session.getAttribute("locale");
@@ -77,6 +79,14 @@ public class UserRegistrationCommand implements Command {
                 user.setPassword(PasswordAuthentication.getSaltedHash(parameters.get("password")));
                 user.setLastName(parameters.get("surname"));
                 user.setFirstName(parameters.get("name"));
+                mail.send(user, session);
+                userDAO.addUser(connection, user);
+                if ("en".equals(locale)) {
+                    session.setAttribute("successMessage", "To complete the registration, follow the link in the letter sent to the mail");
+                } else {
+                    session.setAttribute("successMessage", "Для завершення реєстрації перейдіть по ссилці, яка знаходиться в письмі, що вислано на пошту");
+                }
+                return chooseLink(parameters, session);
             } catch (SQLException e) {
                 logger.info("Failed to connect to database to verify the user data", e);
                 if ("en".equals(session.getAttribute("locale"))) {
@@ -84,7 +94,7 @@ public class UserRegistrationCommand implements Command {
                 } else {
                     session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб перевірити дані користувача");
                 }
-                throw new DBException("Failed to connect to database for edit user data in database");
+                throw new DBException("Failed to connect to database to verify the user data");
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 logger.info("Failed to encrypt password", e);
                 if ("en".equals(locale)) {
@@ -93,29 +103,15 @@ public class UserRegistrationCommand implements Command {
                     session.setAttribute("errorMessage", "Не вдалося зашифрувати пароль");
                 }
                 throw new AuthenticationException("Failed to encrypt password");
-            }
-            Connection connection = null;
-            try {
-                connection = DBManager.getInstance().getConnection();
-                connection.setAutoCommit(false);
-                userDAO.addUser(connection, user);
-                mail.send(user.getEmail(), locale);
-                connection.commit();
-                connection.setAutoCommit(true);
-                if ("en".equals(locale)) {
-                    session.setAttribute("successMessage", "To complete the registration, follow the link in the letter sent to the mail");
-                } else {
-                    session.setAttribute("successMessage", "Для завершення реєстрації перейдіть по ссилці, яка знаходиться в письмі, що вислано на пошту");
-                }
-                return chooseLink(parameters, session);
-            } catch (SQLException e) {
-                logger.info("Failed to connect to database for add user in database");
-                DBManager.getInstance().rollback(session, connection, e);
             } catch (IOException | MessagingException e) {
                 logger.info("Failed to send email to confirm registration");
-                DBManager.getInstance().rollback(session, connection, new SQLException(e));
-            } finally {
-                DBManager.getInstance().close(connection);
+                if ("en".equals(locale)) {
+                    session.setAttribute("errorMessage", "Failed to send email to confirm registration");
+                } else {
+                    session.setAttribute("errorMessage", "Не вдалося відправити письмо для підтвердження реєстрації");
+                }
+                throw new MailException("Failed to send email to confirm registration");
+            } catch (DocumentException ignored) {
             }
         }
         return chooseLink(parameters, session);

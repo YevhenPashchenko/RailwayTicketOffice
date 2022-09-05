@@ -2,7 +2,11 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.ScheduleDAO;
+import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.mail.Mail;
+import com.my.railwayticketoffice.service.TicketService;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -10,6 +14,7 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +37,9 @@ public class BuyTicketCommandTest {
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final ScheduleDAO scheduleDAO = mock(ScheduleDAO.class);
+    private final TrainDAO trainDAO = mock(TrainDAO.class);
+    private final TicketService ticketService = mock(TicketService.class);
+    private final Mail mail = mock(Mail.class);
 
     /**
      * Test for method execute from {@link BuyTicketCommand}.
@@ -48,6 +56,9 @@ public class BuyTicketCommandTest {
         List<String> dateForDB = Arrays.asList(date.split("\\."));
         Collections.reverse(dateForDB);
 
+        Train train = new Train();
+        train.setSeats(1);
+
         when(request.getSession()).thenReturn(session);
         when((User) session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("trainId")).thenReturn("1");
@@ -59,10 +70,22 @@ public class BuyTicketCommandTest {
         MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManager.getInstance().getConnection()).thenReturn(connection);
+        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(trainDAO.getTrainSpecifiedByDate(connection, 1, String.join("-", dateForDB))).thenReturn(train);
+        when(trainDAO.getTrain(connection, 1)).thenReturn(train);
         when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(scheduleDAO.getTrainAvailableSeatsOnThisDate(connection, 1, String.join("-", dateForDB))).thenReturn(1);
 
-        assertEquals("success.jsp", new BuyTicketCommand().execute(request, response));
+        Command buyTicketCommand = new BuyTicketCommand();
+        Field field = buyTicketCommand.getClass().getDeclaredField("ticketService");
+        field.setAccessible(true);
+        field.set(buyTicketCommand, ticketService);
+        field = buyTicketCommand.getClass().getDeclaredField("mail");
+        field.setAccessible(true);
+        field.set(buyTicketCommand, mail);
+
+
+        assertEquals("success.jsp", buyTicketCommand.execute(request, response));
         DBManagerMocked.close();
     }
 

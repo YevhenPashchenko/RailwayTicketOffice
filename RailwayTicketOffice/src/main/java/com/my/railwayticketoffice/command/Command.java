@@ -2,6 +2,8 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.authentication.AuthenticationException;
 import com.my.railwayticketoffice.db.DBException;
+import com.my.railwayticketoffice.mail.MailException;
+import com.my.railwayticketoffice.receipt.ReceiptException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,5 +21,5 @@ public interface Command {
      * @param response - HttpServletResponse object.
      * @return string that must be a link at JSP or new request.
      */
-    String execute(HttpServletRequest request, HttpServletResponse response) throws DBException, AuthenticationException;
+    String execute(HttpServletRequest request, HttpServletResponse response) throws DBException, AuthenticationException, MailException, ReceiptException;
 }

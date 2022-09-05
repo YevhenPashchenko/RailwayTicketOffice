@@ -1,9 +1,13 @@
 package com.my.railwayticketoffice.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class User implements Serializable {
+
+    private List<Ticket> tickets;
 
     private int id;
     private String email;
@@ -12,6 +16,14 @@ public class User implements Serializable {
     private String lastName;
     private String role;
     private boolean registered;
+
+    public List<Ticket> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(List<Ticket> tickets) {
+        this.tickets = tickets;
+    }
 
     public int getId() {
         return id;

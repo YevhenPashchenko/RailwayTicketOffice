@@ -47,13 +47,13 @@ public interface TrainDAO {
 
     /**
      * When a class implementing interface {@link TrainDAO} call this method should be return {@link com.my.railwayticketoffice.entity.Train}
-     * if it is in schedule.
+     * specified by date.
      * @param connection - Connection object.
      * @param trainId - {@link com.my.railwayticketoffice.entity.Train} id.
      * @return {@link com.my.railwayticketoffice.entity.Train}.
      * @throws SQLException – if a database access error occurs.
      */
-    Train getTrainThatIsInSchedule(Connection connection, int trainId) throws SQLException;
+    Train getTrainSpecifiedByDate(Connection connection, int trainId, String date) throws SQLException;
 
     /**
      * When a class implementing interface {@link TrainDAO} call this method should be added new {@link Train} to database.

@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -20,6 +21,10 @@ public class Train implements Serializable {
     private String number;
     private int seats;
     private LocalTime departureTime;
+
+    public int getSeatNumber(int maxTrainSeats) {
+        return maxTrainSeats - seats + 1;
+    }
 
     public Route getRoute() {
         return route;
@@ -79,8 +84,8 @@ public class Train implements Serializable {
 
         /**
          * Checks that the train goes in the needed direction.
-         * @param fromStationId - departure station id.
-         * @param toStationId - destination station id.
+         * @param fromStationId departure station id.
+         * @param toStationId destination station id.
          * @return true if difference between distance to destination station and distance to departure station
          * has positive value.
          */
@@ -103,7 +108,8 @@ public class Train implements Serializable {
         }
 
         /**
-         * @param departureDate - departure {@link LocalDate}.
+         * @param departureDate departure date.
+         * @param locale current locale.
          * @return day of week and date when train departs from the departure station as string.
          */
         public String getDepartureDayOfWeekAndDateAsString(String departureDate, String locale) {
@@ -119,9 +125,19 @@ public class Train implements Serializable {
         }
 
         /**
-         * @param fromStationId - departure  station id.
-         * @param toStationId - destination station id.
-         * @param departureDate - departure {@link LocalDate}.
+         * @param departureDate departure date.
+         * @param fromStationId departure station id.
+         * @return train departure date and time.
+         */
+        public LocalDateTime getDepartureDateTime(int fromStationId, String departureDate) {
+            String dateTime = departureDate + " " + getArrivalTime(fromStationId);
+            return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        }
+
+        /**
+         * @param fromStationId departure station id.
+         * @param toStationId destination station id.
+         * @param departureDate departure date.
          * @return day of week and date when train arrive to destination station as string.
          */
         public String getDestinationDayOfWeekAndDateAsString(int fromStationId, int toStationId, String departureDate, String locale) {
@@ -141,6 +157,18 @@ public class Train implements Serializable {
             }
             return dayOfWeek +
                     ", " + destinationDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH));
+        }
+
+        /**
+         * @param fromStationId departure station id.
+         * @param toStationId destination station id.
+         * @param departureDate departure date.
+         * @return train destination date and time.
+         */
+        public LocalDateTime getDestinationDateTime(int fromStationId, int toStationId, String departureDate) {
+            return getDepartureDateTime(fromStationId, departureDate)
+                    .plusHours(Integer.parseInt(timeSinceStartMap.get(toStationId).split(":")[0]) - Integer.parseInt(timeSinceStartMap.get(fromStationId).split(":")[0]))
+                    .plusMinutes(Integer.parseInt(timeSinceStartMap.get(toStationId).split(":")[1]));
         }
 
         /**

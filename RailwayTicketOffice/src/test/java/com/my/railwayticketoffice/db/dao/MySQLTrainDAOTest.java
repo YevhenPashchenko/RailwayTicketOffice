@@ -249,12 +249,12 @@ public class MySQLTrainDAOTest {
     }
 
     /**
-     * Test for method getTrainThatIsInSchedule from {@link MySQLTrainDAO}.
+     * Test for method getTrainSpecifiedByDate from {@link MySQLTrainDAO}.
      *
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
-    public void testGetTrainThatIsInSchedule() throws Exception {
+    public void testGetTrainSpecifiedByDate() throws Exception {
 
         int trainId = 1;
 
@@ -270,14 +270,14 @@ public class MySQLTrainDAOTest {
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManagerInstance.getTrainDAO()).thenReturn(new MySQLTrainDAO());
         when(DBManagerInstance.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN_THAT_IS_IN_SCHEDULE)).thenReturn(pstmt);
+        when(connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN_SPECIFIED_BY_DATE)).thenReturn(pstmt);
         when(pstmt.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true).thenReturn(false);
         when(rs.getString("number")).thenReturn("number");
         when(rs.getInt("available_seats")).thenReturn(300);
         when(rs.getString("departure_time")).thenReturn(time.format(formatter));
 
-        assertEquals(DBManager.getInstance().getTrainDAO().getTrainThatIsInSchedule(connection, trainId), train);
+        assertEquals(train, DBManager.getInstance().getTrainDAO().getTrainSpecifiedByDate(connection, trainId, time.format(formatter)));
         DBManagerMocked.close();
     }
 

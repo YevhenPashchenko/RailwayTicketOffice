@@ -57,5 +57,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.objenesis:objenesis:3.2" level="project" />
     <orderEntry type="library" name="Maven: com.sun.mail:jakarta.mail:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.sun.activation:jakarta.activation:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.itextpdf:itextpdf:5.5.13" level="project" />
   </component>
 </module>

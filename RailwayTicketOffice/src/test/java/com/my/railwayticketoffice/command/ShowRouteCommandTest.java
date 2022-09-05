@@ -54,7 +54,7 @@ public class ShowRouteCommandTest {
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManager.getInstance().getConnection()).thenReturn(connection);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
-        when(trainDAO.getTrainThatIsInSchedule(connection, 1)).thenReturn(train);
+        when(trainDAO.getTrain(connection, 1)).thenReturn(train);
         when(DBManager.getInstance().getStationDAO()).thenReturn(stationDAO);
 
         assertEquals("route.jsp", new ShowRouteCommand().execute(request, response));

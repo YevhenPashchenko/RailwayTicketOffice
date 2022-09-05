@@ -17,8 +17,8 @@ public class MySQLTrainDAOQuery {
     public static final String GET_STATION_EN_NAME = "(SELECT name FROM stations_en WHERE trains_stations.station_id = stations_en.station_id) AS name " +
             "FROM trains_stations WHERE trains_stations.train_id IN ";
     public static final String ORDER_BY = "ORDER BY distance_from_start";
-    public static final String GET_TRAIN_THAT_IS_IN_SCHEDULE = "SELECT DISTINCT number, departure_time, (SELECT available_seats) AS available_seats " +
-            "FROM trains, schedules WHERE trains.id = schedules.train_id AND trains.id = ?";
+    public static final String GET_TRAIN_SPECIFIED_BY_DATE = "SELECT number, departure_time, (SELECT available_seats) AS available_seats " +
+            "FROM trains, schedules WHERE trains.id = schedules.train_id AND trains.id = ? AND schedules.day = ?";
     public static final String ADD_TRAIN = "INSERT INTO trains VALUES (default, ?, ?, ?)";
     public static final String DELETE_TRAIN = "DELETE FROM trains WHERE id = ?";
     public static final String EDIT_TRAIN = "UPDATE trains SET number = ?, seats = ?, departure_time = ? WHERE id = ?";

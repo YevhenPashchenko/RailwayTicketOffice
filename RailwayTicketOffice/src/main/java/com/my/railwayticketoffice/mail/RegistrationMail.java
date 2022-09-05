@@ -1,19 +1,24 @@
 package com.my.railwayticketoffice.mail;
 
+import com.my.railwayticketoffice.entity.User;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * Class that send mail to user for finish registration
  *
+ * @author Yevhen Pashchenko
  */
 public class RegistrationMail implements Mail {
 
     @Override
-    public void send(String userEmail, String locale) throws IOException, MessagingException {
+    public void send(User user, HttpSession httpSession) throws IOException, MessagingException {
+        String locale = (String) httpSession.getAttribute("locale");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream("mail.properties");
         Properties properties = new Properties();
@@ -26,17 +31,19 @@ public class RegistrationMail implements Mail {
         });
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(properties.getProperty("mail.smtp.bot")));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
         if ("en".equals(locale)) {
-            message.setSubject("Confirm user registration");
+            message.setSubject("Confirm registration");
         } else {
-            message.setSubject("Підтвердження реєстрації користувача");
+            message.setSubject("Підтвердження реєстрації");
         }
         String msg;
         if ("en".equals(locale)) {
-            msg = "Follow the link to confirm registration <a href='http://localhost:8080/RailwayTicketOffice/controller?command=mainPage'>confirm</a>";
+            msg = "<h3>Hello, " + user.getFirstName() + " " + user.getLastName()
+                    + ".</h3> Follow the link to confirm registration. <a href='" + properties.getProperty("address") + "controller?command=confirmRegistration&email=" + user.getEmail() + "'>Confirm</a>";
         } else {
-            msg = "Для підтвердження реєстрації перейдіть по ссилці <a href='http://localhost:8080/RailwayTicketOffice/controller?command=mainPage'>підтвердити</a>";
+            msg = "<h3>Привіт, " + user.getFirstName() + " " + user.getLastName()
+                    + ".</h3> Для підтвердження реєстрації перейдіть по ссилці. <a href='" + properties.getProperty("address") + "controller?command=confirmRegistration&email=" + user.getEmail() + "'>Підтвердити</a>";
         }
         MimeBodyPart mimeBodyPart = new MimeBodyPart();
         mimeBodyPart.setContent(msg, "text/html; charset=utf-8");

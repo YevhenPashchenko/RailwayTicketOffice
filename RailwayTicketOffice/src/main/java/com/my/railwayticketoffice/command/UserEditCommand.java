@@ -55,13 +55,16 @@ public class UserEditCommand implements Command {
             parameters.put("name", request.getParameter("userName"));
             if (userService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    user.setLastName(parameters.get("surname"));
-                    user.setFirstName(parameters.get("name"));
+                    User userNewData = new User();
+                    userNewData.setId(user.getId());
+                    userNewData.setLastName(parameters.get("surname"));
+                    userNewData.setFirstName(parameters.get("name"));
+                    userNewData.setRegistered(user.isRegistered());
                     parameters.put("password", request.getParameter("password"));
                     parameters.put("confirmPassword", request.getParameter("confirmPassword"));
                     if (userService.check(parameters, session)) {
-                        user.setPassword(PasswordAuthentication.getSaltedHash(parameters.get("password")));
-                        userDAO.updateUser(connection, user);
+                        userNewData.setPassword(PasswordAuthentication.getSaltedHash(parameters.get("password")));
+                        userDAO.updateUser(connection, userNewData);
                     } else {
                         if (parameters.get("password") != null && !"".equals(parameters.get("password")) ||
                                 parameters.get("confirmPassword") != null && !"".equals(parameters.get("confirmPassword"))) {
@@ -69,9 +72,9 @@ public class UserEditCommand implements Command {
                         }
                         session.removeAttribute("userErrorMessage");
                         User userDataFromDB = userDAO.getUser(connection, user.getEmail());
-                        userDataFromDB.setLastName(parameters.get("surname"));
-                        userDataFromDB.setLastName(parameters.get("name"));
-                        userDAO.updateUser(connection, userDataFromDB);
+                        userNewData.setPassword(userDataFromDB.getPassword());
+                        userDAO.updateUser(connection, userNewData);
+                        session.setAttribute("user", userNewData);
                     }
                     if ("en".equals(session.getAttribute("locale"))) {
                         session.setAttribute("successMessage", "User data has been edited");

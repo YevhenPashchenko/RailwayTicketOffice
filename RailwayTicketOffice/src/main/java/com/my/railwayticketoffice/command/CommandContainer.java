@@ -41,6 +41,7 @@ public class CommandContainer {
         COMMANDS.put("changeRoutePageLocale", new ChangeRoutePageLocaleCommand());
         COMMANDS.put("changeTicketPageLocale", new ChangeTicketPageLocaleCommand());
         COMMANDS.put("changeSuccessPageLocale", new ChangeSuccessPageLocaleCommand());
+        COMMANDS.put("confirmRegistration", new ConfirmRegistrationCommand());
     }
 
     /**

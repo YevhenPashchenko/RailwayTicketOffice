@@ -50,7 +50,9 @@ public class TicketPageCommand implements Command {
             parameters.put("date", request.getParameter("departureDate"));
             if (trainService.check(parameters, session) && searchTrainService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    Train train = trainDAO.getTrainThatIsInSchedule(connection, Integer.parseInt(parameters.get("trainId")));
+                    List<String> dateForDB = Arrays.asList(parameters.get("date").split("\\."));
+                    Collections.reverse(dateForDB);
+                    Train train = trainDAO.getTrainSpecifiedByDate(connection, Integer.parseInt(parameters.get("trainId")), String.join("-", dateForDB));
                     trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), locale);
                     request.setAttribute("train", train);
                     request.setAttribute("from", Integer.parseInt(parameters.get("from")));

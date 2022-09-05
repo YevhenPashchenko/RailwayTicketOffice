@@ -54,11 +54,8 @@ public class ShowRouteCommand implements Command {
         parameters.put("to", request.getParameter("to"));
         if (trainService.check(parameters, session)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
-                Train train = trainDAO.getTrainThatIsInSchedule(connection, Integer.parseInt(parameters.get("trainId")));
+                Train train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
                 if (user != null && "admin".equals(user.getRole())) {
-                    if (train.getId() == 0) {
-                        train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
-                    }
                     List<Station> stations = stationDAO.getStations(connection, locale);
                     request.setAttribute("stations", stations);
                 }

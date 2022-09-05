@@ -50,7 +50,7 @@ public class MySQLUserDAOTest {
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManagerInstance.getUserDAO()).thenReturn(new MySQLUserDAO());
         when(DBManagerInstance.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(MySQLUserDAOQuery.GET_USER_BY_EMAIL)).thenReturn(pstmt);
+        when(connection.prepareStatement(MySQLUserDAOQuery.GET_USER)).thenReturn(pstmt);
         when(pstmt.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true).thenReturn(false);
         when(rs.getInt("id")).thenReturn(1);
@@ -108,7 +108,7 @@ public class MySQLUserDAOTest {
         DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
         when(DBManagerInstance.getUserDAO()).thenReturn(new MySQLUserDAO());
         when(DBManagerInstance.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(MySQLUserDAOQuery.UPDATE_USER_WITH_PASSWORD)).thenReturn(pstmt);
+        when(connection.prepareStatement(MySQLUserDAOQuery.UPDATE_USER)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(0);
 
         assertThrows(SQLException.class, () -> DBManager.getInstance().getUserDAO().updateUser(connection, user));

@@ -97,10 +97,11 @@ public class MySQLTrainDAO implements TrainDAO {
     }
 
     @Override
-    public Train getTrainThatIsInSchedule(Connection connection, int trainId) throws SQLException {
+    public Train getTrainSpecifiedByDate(Connection connection, int trainId, String date) throws SQLException {
         Train train = new Train();
-        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN_THAT_IS_IN_SCHEDULE);
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.GET_TRAIN_SPECIFIED_BY_DATE);
         pstmt.setInt(1, trainId);
+        pstmt.setString(2, date);
         ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
             train.setId(trainId);

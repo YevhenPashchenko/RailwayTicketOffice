@@ -4,6 +4,8 @@ import com.my.railwayticketoffice.authentication.AuthenticationException;
 import com.my.railwayticketoffice.command.Command;
 import com.my.railwayticketoffice.command.CommandContainer;
 import com.my.railwayticketoffice.db.DBException;
+import com.my.railwayticketoffice.mail.MailException;
+import com.my.railwayticketoffice.receipt.ReceiptException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,7 +60,7 @@ public class Controller extends HttpServlet {
         try {
             command = CommandContainer.getCommand(commandName);
             address = command.execute(req, resp);
-        } catch (DBException | AuthenticationException e) {
+        } catch (DBException | AuthenticationException | MailException | ReceiptException e) {
             logger.warn(e.getMessage(), e);
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
