@@ -79,6 +79,18 @@ public class TrainParameterService implements ParameterService<String> {
                 return false;
             }
         }
+        if (parameters.containsKey("carriageId")) {
+            try {
+                Integer.parseInt(parameters.get("carriageId"));
+            } catch (NumberFormatException e) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("trainErrorMessage", "Carriage number is not specified");
+                } else {
+                    session.setAttribute("trainErrorMessage", "Номер вагона не задано");
+                }
+                return false;
+            }
+        }
         if (parameters.containsKey("carriageNumber")) {
             try {
                 Integer.parseInt(parameters.get("carriageNumber"));
@@ -87,6 +99,18 @@ public class TrainParameterService implements ParameterService<String> {
                     session.setAttribute("trainErrorMessage", "Carriage number is not specified");
                 } else {
                     session.setAttribute("trainErrorMessage", "Номер вагона не задано");
+                }
+                return false;
+            }
+        }
+        if (parameters.containsKey("newCarriageNumber")) {
+            try {
+                Integer.parseInt(parameters.get("newCarriageNumber"));
+            } catch (NumberFormatException e) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("trainErrorMessage", "New carriage number is not specified");
+                } else {
+                    session.setAttribute("trainErrorMessage", "Новий номер вагона не задано");
                 }
                 return false;
             }

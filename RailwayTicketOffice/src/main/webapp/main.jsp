@@ -27,283 +27,243 @@
                     <p class="fs-2 fw-bolder lh-sm"><fmt:message key="main_jsp.body.header.div.div.first_p"/></p>
                     <p class="fs-4 fw-semibold lh-1"><fmt:message key="main_jsp.body.header.div.div.second_p"/></p>
                 </div>
-                <c:choose>
-                    <c:when test="${sessionScope.user eq null}">
-                        <div class="col-2">
-                            <div class="dropdown mt-1 mb-5 offset-5">
-                                <c:choose>
-                                    <c:when test="${sessionScope.locale eq null}">
-                                        <input type="image" src="resources/images/uk-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="uk">
-                                        <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                            <c:forEach items="${applicationScope.locales}" var="locale">
-                                                <c:if test="${locale.key ne 'uk'}">
-                                                    <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                                    </li>
-                                                </c:if>
-                                            </c:forEach>
-                                        </ul>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="image" src="resources/images/${sessionScope.locale}-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="${sessionScope.locale}">
-                                        <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                            <c:forEach items="${applicationScope.locales}" var="locale">
-                                                <c:if test="${locale.key ne sessionScope.locale}">
-                                                    <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                                    </li>
-                                                </c:if>
-                                            </c:forEach>
-                                        </ul>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
+                <div class="col-2">
+                    <div class="dropdown mt-1 mb-5 offset-5">
+                        <c:choose>
+                            <c:when test="${sessionScope.locale eq null}">
+                                <c:set var="locale" value="uk" scope="page"/>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="locale" value="${sessionScope.locale}" scope="page"/>
+                            </c:otherwise>
+                        </c:choose>
+                        <input type="image" src="resources/images/${pageScope.locale}-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="${pageScope.locale}">
+                        <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
+                            <c:forEach items="${applicationScope.locales}" var="appLocale">
+                                <c:if test="${appLocale.key ne pageScope.locale}">
+                                    <li>
+                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${appLocale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${appLocale.key}-icon.png" alt="${appLocale.key}"></a>
+                                    </li>
+                                </c:if>
+                            </c:forEach>
+                        </ul>
+                    </div>
+                    <c:choose>
+                        <c:when test="${sessionScope.user eq null}">
                             <button class="btn btn-primary fs-5 fw-semibold lh-1" data-bs-target="#authenticationWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.body.header.div.div.button"/></button>
-                        </div>
-                    </c:when>
-                    <c:otherwise>
-                        <div class="col-2">
-                            <div class="dropdown mt-1 mb-5 offset-5">
-                                <c:choose>
-                                    <c:when test="${sessionScope.locale eq null}">
-                                        <input type="image" src="resources/images/uk-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="uk">
-                                        <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                            <c:forEach items="${applicationScope.locales}" var="locale">
-                                                <c:if test="${locale.key ne 'uk'}">
-                                                    <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                                    </li>
-                                                </c:if>
-                                            </c:forEach>
-                                        </ul>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="image" src="resources/images/${sessionScope.locale}-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="${sessionScope.locale}">
-                                        <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                            <c:forEach items="${applicationScope.locales}" var="locale">
-                                                <c:if test="${locale.key ne sessionScope.locale}">
-                                                    <li>
-                                                        <a class="dropdown-item p-0" href="controller?command=changeMainPageLocale&locale=${locale.key}&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                                    </li>
-                                                </c:if>
-                                            </c:forEach>
-                                        </ul>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                            <a href="controller?command=userLogout" class="d-block mb-2 btn btn-primary fs-5 fw-semibold lh-1"><fmt:message key="main_jsp.body.header.div.div.first_a"/></a>
-                            <a class="text-primary fw-semibold" role="button" data-bs-target="#editUserDataWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.body.header.div.div.second_a"/></a>
-                        </div>
-                        <div class="modal fade" id="editUserDataWindow" aria-hidden="true" aria-labelledby="editUserDataWindowLabel" tabindex="-1">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content w-75">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editUserDataWindowLabel"><fmt:message key="main_jsp.body.header.div.div.second_a"/></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form id="editUserForm" action="controller?command=userEdit" method="post">
-                                            <label>
-                                                <input type="number" name="from" hidden>
-                                            </label>
-                                            <label>
-                                                <input type="number" name="to" hidden>
-                                            </label>
-                                            <label>
-                                                <input name="departureDate" hidden>
-                                            </label>
-                                            <div class="container px-0">
-                                                <div class="row">
-                                                    <div class="col-10">
-                                                        <label for="editUserEmailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
-                                                        <div class="input-group mb-3">
-                                                            <span class="input-group-text">
-                                                                <img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail">
-                                                            </span>
-                                                            <input id="editUserEmailField" type="email" class="form-control" aria-label="E-mail" value="${sessionScope.user.getEmail()}" required disabled>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-10">
-                                                        <label for="editUserPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserPasswordField"/></label>
-                                                        <div class="input-group mb-3">
-                                                            <span class="input-group-text">
-                                                                <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
-                                                                <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
-                                                            </span>
-                                                            <input id="editUserPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserPasswordField"/> name="password" required disabled>
-                                                        </div>
-                                                        <label for="editUserConfirmPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/></label>
-                                                        <div class="input-group mb-3">
-                                                            <span class="input-group-text">
-                                                                <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
-                                                                <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
-                                                            </span>
-                                                            <input id="editUserConfirmPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/> name="confirmPassword" required disabled>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-1 form-check form-switch form-check-reverse align-self-center">
-                                                        <label>
-                                                            <input class="form-check-input" role="switch" type="checkbox">
-                                                        </label>
-                                                    </div>
+                            <div class="modal fade" id="authenticationWindow" aria-hidden="true" aria-labelledby="authenticationWindowLabel" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered justify-content-center">
+                                    <div class="modal-content w-75">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title text-primary fs-4 fw-semibold lh-1" id="authenticationWindowLabel"><fmt:message key="main_jsp.h5_authenticationWindowLabel"/></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="authenticationForm" action="controller?command=userLogin" method="post">
+                                                <label>
+                                                    <input type="number" name="from" hidden>
+                                                </label>
+                                                <label>
+                                                    <input type="number" name="to" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="departureDate" hidden>
+                                                </label>
+                                                <label for="emailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text"><img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail"></span>
+                                                    <input id="emailField" type="email" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserEmailField"/> aria-label="E-mail" name="email" required>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-10">
-                                                        <label for="editUserSurnameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserSurnameField"/></label>
-                                                        <div class="input-group mb-3">
-                                                            <span class="input-group-text">
-                                                                <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
-                                                            </span>
-                                                            <label>
-                                                                <input value="${sessionScope.user.getLastName()}" hidden>
-                                                            </label>
-                                                            <input id="editUserSurnameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserSurnameField"/> name="userSurname" value="${sessionScope.user.getLastName()}" required disabled>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-1 form-check form-switch form-check-reverse align-self-center">
-                                                        <label>
-                                                            <input class="form-check-input" role="switch" type="checkbox">
-                                                        </label>
-                                                    </div>
+                                                <label for="passwordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserPasswordField"/></label>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text">
+                                                        <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                                        <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                                    </span>
+                                                    <input id="passwordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserPasswordField"/> name="password" required>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-10">
-                                                        <label for="editUserNameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserNameField"/></label>
-                                                        <div class="input-group mb-3">
-                                                            <span class="input-group-text">
-                                                                <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
-                                                            </span>
-                                                            <label>
-                                                                <input value="${sessionScope.user.getFirstName()}" hidden>
-                                                            </label>
-                                                            <input id="editUserNameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserNameField"/> name="userName" value="${sessionScope.user.getFirstName()}" required disabled>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-1 form-check form-switch form-check-reverse align-self-center">
-                                                        <label>
-                                                            <input class="form-check-input" role="switch" type="checkbox">
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-primary" form="editUserForm" disabled><fmt:message key="main_jsp.button_for_editUserForm"/></button>
-                                        <button class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close"><fmt:message key="main_jsp.button_for_editUserForm_back"/></button>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-primary w-100" form="authenticationForm"><fmt:message key="main_jsp.body.header.div.div.button"/></button>
+                                            <a class="text-primary" role="button" data-bs-target="#registrationWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.a_for_registrationWindow"/></a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <script type="text/javascript" src="resources/js/mainEditUser.js"></script>
-                    </c:otherwise>
-                </c:choose>
+                            <div class="modal fade" id="registrationWindow" aria-hidden="true" aria-labelledby="registrationWindowLabel" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content w-75">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="registrationWindowLabel"><fmt:message key="main_jsp.h5_registrationWindowLabel"/></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="registrationForm" action="controller?command=userRegistration" method="post">
+                                                <label>
+                                                    <input type="number" name="from" hidden>
+                                                </label>
+                                                <label>
+                                                    <input type="number" name="to" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="departureDate" hidden>
+                                                </label>
+                                                <label for="registrationEmailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text"><img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail"></span>
+                                                    <input id="registrationEmailField" type="email" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserEmailField"/> aria-label="E-mail" name="email" required>
+                                                </div>
+                                                <label for="registrationPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserPasswordField"/></label>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text">
+                                                        <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                                        <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                                    </span>
+                                                    <input id="registrationPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserPasswordField"/> name="password" required>
+                                                </div>
+                                                <label for="registrationConfirmPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/></label>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text">
+                                                        <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                                        <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                                    </span>
+                                                    <input id="registrationConfirmPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/> name="confirmPassword" required>
+                                                </div>
+                                                <label for="userSurnameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserSurnameField"/></label>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text">
+                                                        <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                                    </span>
+                                                    <input id="userSurnameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserSurnameField"/> name="userSurname" required>
+                                                </div>
+                                                <label for="userNameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserNameField"/></label>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text">
+                                                        <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                                    </span>
+                                                    <input id="userNameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserNameField"/> name="userName" required>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-primary w-100" form="registrationForm"><fmt:message key="main_jsp.a_for_registrationWindow"/></button>
+                                            <a class="text-primary" role="button" data-bs-target="#authenticationWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.button_for_editUserForm_back"/></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script type="text/javascript" src="resources/js/mainRegistration.js"></script>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="controller?command=userLogout" class="d-block mb-2 btn btn-primary fs-5 fw-semibold lh-1"><fmt:message key="main_jsp.body.header.div.div.first_a"/></a>
+                            <a class="text-primary fw-semibold" role="button" data-bs-target="#editUserDataWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.body.header.div.div.second_a"/></a>
+                            <div class="modal fade" id="editUserDataWindow" aria-hidden="true" aria-labelledby="editUserDataWindowLabel" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content w-75">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editUserDataWindowLabel"><fmt:message key="main_jsp.body.header.div.div.second_a"/></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="editUserForm" action="controller?command=userEdit" method="post">
+                                                <label>
+                                                    <input type="number" name="from" hidden>
+                                                </label>
+                                                <label>
+                                                    <input type="number" name="to" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="departureDate" hidden>
+                                                </label>
+                                                <div class="container px-0">
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <label for="editUserEmailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
+                                                            <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail">
+                                                            </span>
+                                                                <input id="editUserEmailField" type="email" class="form-control" aria-label="E-mail" value="${sessionScope.user.getEmail()}" required disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-10">
+                                                            <label for="editUserPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserPasswordField"/></label>
+                                                            <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                                                <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                                            </span>
+                                                                <input id="editUserPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserPasswordField"/> name="password" required disabled>
+                                                            </div>
+                                                            <label for="editUserConfirmPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/></label>
+                                                            <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
+                                                                <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
+                                                            </span>
+                                                                <input id="editUserConfirmPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/> name="confirmPassword" required disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 form-check form-switch form-check-reverse align-self-center">
+                                                            <label>
+                                                                <input class="form-check-input" role="switch" type="checkbox">
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <label for="editUserSurnameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserSurnameField"/></label>
+                                                            <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                                            </span>
+                                                                <label>
+                                                                    <input value="${sessionScope.user.getLastName()}" hidden>
+                                                                </label>
+                                                                <input id="editUserSurnameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserSurnameField"/> name="userSurname" value="${sessionScope.user.getLastName()}" required disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 form-check form-switch form-check-reverse align-self-center">
+                                                            <label>
+                                                                <input class="form-check-input" role="switch" type="checkbox">
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <label for="editUserNameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserNameField"/></label>
+                                                            <div class="input-group mb-3">
+                                                            <span class="input-group-text">
+                                                                <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
+                                                            </span>
+                                                                <label>
+                                                                    <input value="${sessionScope.user.getFirstName()}" hidden>
+                                                                </label>
+                                                                <input id="editUserNameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserNameField"/> name="userName" value="${sessionScope.user.getFirstName()}" required disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 form-check form-switch form-check-reverse align-self-center">
+                                                            <label>
+                                                                <input class="form-check-input" role="switch" type="checkbox">
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-primary" form="editUserForm" disabled><fmt:message key="main_jsp.button_for_editUserForm"/></button>
+                                            <button class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close"><fmt:message key="main_jsp.button_for_editUserForm_back"/></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script type="text/javascript" src="resources/js/mainEditUser.js"></script>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
             </div>
-            <c:if test="${sessionScope.user eq null}">
-                <div class="modal fade" id="authenticationWindow" aria-hidden="true" aria-labelledby="authenticationWindowLabel" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered justify-content-center">
-                        <div class="modal-content w-75">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-primary fs-4 fw-semibold lh-1" id="authenticationWindowLabel"><fmt:message key="main_jsp.h5_authenticationWindowLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="authenticationForm" action="controller?command=userLogin" method="post">
-                                    <label>
-                                        <input type="number" name="from" hidden>
-                                    </label>
-                                    <label>
-                                        <input type="number" name="to" hidden>
-                                    </label>
-                                    <label>
-                                        <input name="departureDate" hidden>
-                                    </label>
-                                    <label for="emailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text"><img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail"></span>
-                                        <input id="emailField" type="email" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserEmailField"/> aria-label="E-mail" name="email" required>
-                                    </div>
-                                    <label for="passwordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserPasswordField"/></label>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text">
-                                            <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
-                                            <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
-                                        </span>
-                                        <input id="passwordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserPasswordField"/> name="password" required>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary w-100" form="authenticationForm"><fmt:message key="main_jsp.body.header.div.div.button"/></button>
-                                <a class="text-primary" role="button" data-bs-target="#registrationWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.a_for_registrationWindow"/></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade" id="registrationWindow" aria-hidden="true" aria-labelledby="registrationWindowLabel" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content w-75">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="registrationWindowLabel"><fmt:message key="main_jsp.h5_registrationWindowLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="registrationForm" action="controller?command=userRegistration" method="post">
-                                    <label>
-                                        <input type="number" name="from" hidden>
-                                    </label>
-                                    <label>
-                                        <input type="number" name="to" hidden>
-                                    </label>
-                                    <label>
-                                        <input name="departureDate" hidden>
-                                    </label>
-                                    <label for="registrationEmailField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserEmailField"/></label>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text"><img class="img-fluid" src="resources/images/email-icon.png" alt="E-mail"></span>
-                                        <input id="registrationEmailField" type="email" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserEmailField"/> aria-label="E-mail" name="email" required>
-                                    </div>
-                                    <label for="registrationPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserPasswordField"/></label>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text">
-                                            <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
-                                            <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
-                                        </span>
-                                        <input id="registrationPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserPasswordField"/> name="password" required>
-                                    </div>
-                                    <label for="registrationConfirmPasswordField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/></label>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text">
-                                            <img class="img-fluid changePasswordVisible" src="resources/images/show-password-icon.png" role="button" alt="Show password">
-                                            <img class="img-fluid changePasswordVisible visually-hidden" src="resources/images/hide-password-icon.png" role="button" alt="Hide password">
-                                        </span>
-                                        <input id="registrationConfirmPasswordField" type="password" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserConfirmPasswordField"/> name="confirmPassword" required>
-                                    </div>
-                                    <label for="userSurnameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserSurnameField"/></label>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text">
-                                            <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
-                                        </span>
-                                        <input id="userSurnameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserSurnameField"/> name="userSurname" required>
-                                    </div>
-                                    <label for="userNameField" class="form-label d-block text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserNameField"/></label>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text">
-                                            <img class="img-fluid" src="resources/images/user-icon.png" alt="User icon">
-                                        </span>
-                                        <input id="userNameField" type="text" class="form-control" placeholder=<fmt:message key="main_jsp.label_for_editUserNameField"/> name="userName" required>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary w-100" form="registrationForm"><fmt:message key="main_jsp.a_for_registrationWindow"/></button>
-                                <a class="text-primary" role="button" data-bs-target="#authenticationWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.button_for_editUserForm_back"/></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <script type="text/javascript" src="resources/js/mainRegistration.js"></script>
-            </c:if>
         </header>
         <c:if test="${sessionScope.user.getRole() eq 'admin'}">
             <nav class="navbar bg-primary container px-0">
@@ -332,7 +292,7 @@
                                                 <label for="trainNumber" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
                                                 <input id="trainNumber" class="form-control w-50 mb-2" type="text" name="trainNumber" autocomplete="off" required>
                                                 <label for="trainDepartureTime" class="form-label"><fmt:message key="main_jsp.label_for_trainDepartureTime"/></label>
-                                                <input id="trainDepartureTime" class="form-control w-50 mb-2" type="time" name="trainDepartureTime" required>
+                                                <input id="trainDepartureTime" class="form-control w-50 mb-2 time" type="text" name="trainDepartureTime" required>
                                                 <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addTrain"/></button>
                                             </form>
                                         </li>
@@ -367,7 +327,7 @@
                                                     </label>
                                                 </div>
                                                 <label for="trainDepartureTimeForEdit" class="d-block form-label"><fmt:message key="main_jsp.label_for_trainDepartureTime"/></label>
-                                                <input id="trainDepartureTimeForEdit" class="d-inline-block form-control w-50 mb-2" type="time" name="trainDepartureTime" required disabled>
+                                                <input id="trainDepartureTimeForEdit" class="d-inline-block form-control w-50 mb-2 time" type="text" name="trainDepartureTime" required disabled>
                                                 <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
                                                         <input class="form-check-input" role="switch" type="checkbox" hidden>
@@ -401,14 +361,14 @@
                                                 <label>
                                                     <input type="number" name="trainId" hidden>
                                                 </label>
-                                                <input id="trainNumberForAddCarriageToTrain" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <input id="trainNumberForAddCarriageToTrain" class="form-control w-50 mb-2" name="trainNumber" list="trainNumberDatalist" type="text" autocomplete="off" required>
                                                 <label for="carriageNumberForAddCarriageToTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageNumberForAddCarriageToTrain"/></label>
-                                                <input id="carriageNumberForAddCarriageToTrain" class="form-control w-50 mb-2" name="carriageNumber" type="number" autocomplete="off" required>
+                                                <input id="carriageNumberForAddCarriageToTrain" class="form-control w-50 mb-2" name="carriageNumber" value="" type="number" min="1" autocomplete="off" required disabled>
                                                 <label for="carriageTypeForAddCarriageToTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
                                                 <label>
                                                     <input type="number" name="typeId" hidden>
                                                 </label>
-                                                <input id="carriageTypeForAddCarriageToTrain" class="form-control w-50 mb-2" list="carriagesTypesDatalist" type="text" autocomplete="off" required>
+                                                <input id="carriageTypeForAddCarriageToTrain" class="form-control w-50 mb-2" name="carriageType" list="carriagesTypesDatalist" type="text" autocomplete="off" required disabled>
                                                 <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addCarriageToTrain"/></button>
                                             </form>
                                         </li>
@@ -421,15 +381,43 @@
                                                 <label>
                                                     <input type="number" name="trainId" hidden>
                                                 </label>
-                                                <input id="trainNumberForDeleteCarriageFromTrain" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <input id="trainNumberForDeleteCarriageFromTrain" class="form-control w-50 mb-2" name="trainNumber" list="trainNumberDatalist" type="text" autocomplete="off" required>
                                                 <label for="carriageNumberForDeleteCarriageFromTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageNumberForAddCarriageToTrain"/></label>
-                                                <input id="carriageNumberForDeleteCarriageFromTrain" class="form-control w-50 mb-2" type="number" name="carriageNumber" autocomplete="off" required disabled>
+                                                <label>
+                                                    <input type="number" name="carriageId" hidden>
+                                                </label>
+                                                <input id="carriageNumberForDeleteCarriageFromTrain" class="form-control w-50 mb-2" name="carriageNumber" value="" type="number" min="1" autocomplete="off" required disabled>
                                                 <label for="carriageTypeForDeleteCarriageFromTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
                                                 <label>
                                                     <input type="number" name="typeId" hidden>
                                                 </label>
-                                                <input id="carriageTypeForDeleteCarriageFromTrain" class="form-control w-50 mb-2" list="carriagesTypesDatalist" type="text" autocomplete="off" disabled>
+                                                <input id="carriageTypeForDeleteCarriageFromTrain" class="form-control w-50 mb-2" name="carriageType" list="carriagesTypesDatalist" type="text" autocomplete="off" disabled>
                                                 <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_deleteCarriageFromTrain"/></button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#editCarriageNumberInTrain" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                <fmt:message key="main_jsp.a_for_editCarriageNumberInTrain"/>
+                                            </a>
+                                            <form id="editCarriageNumberInTrain" class="collapse ps-2" action="controller?command=editCarriageNumberInTrain" method="post">
+                                                <label for="trainNumberForEditCarriageNumberInTrain" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
+                                                <label>
+                                                    <input type="number" name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForEditCarriageNumberInTrain" class="form-control w-50 mb-2" name="trainNumber" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <label for="carriageNumberForEditCarriageNumberInTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageNumberForAddCarriageToTrain"/></label>
+                                                <label>
+                                                    <input type="number" name="carriageId" hidden>
+                                                </label>
+                                                <input id="carriageNumberForEditCarriageNumberInTrain" class="form-control w-50 mb-2" type="number" name="carriageNumber" value="" min="1" autocomplete="off" required disabled>
+                                                <label for="newCarriageNumberForEditCarriageNumberInTrain" class="form-label"><fmt:message key="main_jsp.label_for_newCarriageNumberForEditCarriageNumberInTrain"/></label>
+                                                <input id="newCarriageNumberForEditCarriageNumberInTrain" class="form-control w-50 mb-2" type="number" name="newCarriageNumber" value="" min="1" autocomplete="off" required disabled>
+                                                <label for="carriageTypeForEditCarriageNumberInTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
+                                                <label>
+                                                    <input type="number" name="typeId" hidden>
+                                                </label>
+                                                <input id="carriageTypeForEditCarriageNumberInTrain" class="form-control w-50 mb-2" name="carriageType" list="carriagesTypesDatalist" type="text" autocomplete="off" disabled>
+                                                <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_editCarriageNumberInTrain"/></button>
                                             </form>
                                         </li>
                                         <li class="nav-item">
@@ -658,6 +646,8 @@
                     </div>
                 </div>
             </div>
+            <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/dmuy/MDTimePicker@2.0.0/dist/mdtimepicker.min.css">
+            <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/dmuy/MDTimePicker@2.0.0/dist/mdtimepicker.min.js"></script>
             <script type="text/javascript" src="resources/js/mainAdmin.js"></script>
         </c:if>
         <main class="container bg-secondary bg-gradient bg-opacity-25">
@@ -786,51 +776,46 @@
                     <nav class="d-flex justify-content-center">
                         <ul class="pagination">
                             <c:choose>
-                                <c:when test="${requestScope.page eq 1}">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
+                                <c:when test="${requestScope.page ne 1}">
+                                    <c:set var="previousHref" value="href=controller?command=getTrains&page=${requestScope.page - 1}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}" scope="page"/>
                                 </c:when>
                                 <c:otherwise>
-                                    <li class="page-item">
-                                        <a class="page-link" href="controller?command=getTrains&page=${requestScope.page - 1}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
+                                    <c:set var="previousDisabled" value="disabled" scope="page"/>
                                 </c:otherwise>
                             </c:choose>
+                            <li class="page-item ${pageScope.previousDisabled}">
+                                <a class="page-link" ${pageScope.previousHref} aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
                             <c:forEach begin="1" end="${requestScope.numberOfPages}" varStatus="loop">
                                 <c:choose>
-                                    <c:when test="${requestScope.page eq loop.count}">
-                                        <li class="page-item active">
-                                            <a class="page-link">${loop.count}</a>
-                                        </li>
+                                    <c:when test="${requestScope.page ne loop.count}">
+                                        <c:set var="pageHref" value="href=controller?command=getTrains&page=${loop.count}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}" scope="page"/>
                                     </c:when>
                                     <c:otherwise>
-                                        <li class="page-item">
-                                            <a class="page-link" href="controller?command=getTrains&page=${loop.count}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}">${loop.count}</a>
-                                        </li>
+                                        <c:set var="activePage" value="active" scope="page"/>
                                     </c:otherwise>
                                 </c:choose>
+                                <li class="page-item ${pageScope.activePage}">
+                                    <a class="page-link" ${pageScope.pageHref}>${loop.count}</a>
+                                </li>
+                                <c:remove var="pageHref"/>
+                                <c:remove var="activePage"/>
                             </c:forEach>
                             <c:choose>
-                                <c:when test="${requestScope.page eq requestScope.numberOfPages}">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
+                                <c:when test="${requestScope.page ne requestScope.numberOfPages}">
+                                    <c:set var="nextHref" value="href=controller?command=getTrains&page=${requestScope.page + 1}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}" scope="page"/>
                                 </c:when>
                                 <c:otherwise>
-                                    <li class="page-item">
-                                        <a class="page-link" href="controller?command=getTrains&page=${requestScope.page + 1}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
+                                    <c:set var="nextDisabled" value="disabled" scope="page"/>
                                 </c:otherwise>
                             </c:choose>
+                            <li class="page-item ${pageScope.nextDisabled}">
+                                <a class="page-link" ${pageScope.nextHref} aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
                         </ul>
                     </nav>
                 </c:if>

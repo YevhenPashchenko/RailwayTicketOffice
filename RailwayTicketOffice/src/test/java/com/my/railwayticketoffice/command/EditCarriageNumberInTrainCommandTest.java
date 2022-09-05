@@ -15,7 +15,6 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.HashMap;
@@ -26,11 +25,11 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 /**
- * Tests for methods from {@link DeleteCarriageFromTrainCommand}
+ * Tests for methods from {@link EditCarriageNumberInTrainCommand}
  *
  * @author Yevhen Pashchenko
  */
-public class DeleteCarriageFromTrainCommandTest {
+public class EditCarriageNumberInTrainCommandTest {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -55,7 +54,7 @@ public class DeleteCarriageFromTrainCommandTest {
     }
 
     /**
-     * Test for method execute from {@link DeleteCarriageFromTrainCommand}.
+     * Test for method execute from {@link EditCarriageNumberInTrainCommand}.
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
@@ -66,6 +65,7 @@ public class DeleteCarriageFromTrainCommandTest {
         String trainNumber = "Номер";
         String carriageId = "1";
         String carriageNumber = "1";
+        String newCarriageNumber = "2";
         String typeId = "1";
         String carriageType = "Тип";
 
@@ -77,22 +77,23 @@ public class DeleteCarriageFromTrainCommandTest {
         when(request.getParameter("trainNumber")).thenReturn(trainNumber);
         when(request.getParameter("carriageId")).thenReturn(carriageId);
         when(request.getParameter("carriageNumber")).thenReturn(carriageNumber);
+        when(request.getParameter("newCarriageNumber")).thenReturn(newCarriageNumber);
         when(request.getParameter("typeId")).thenReturn(typeId);
         when(request.getParameter("carriageType")).thenReturn(carriageType);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
         when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(Integer.parseInt(trainId));
-        when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(Integer.parseInt(carriageId));
         when(trainDAO.getCarriagesTypes(connection)).thenReturn(carriagesTypes);
         when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(Integer.parseInt(carriageId));
+        when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(newCarriageNumber))).thenReturn(0);
         when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(true);
 
-        assertEquals("controller?command=mainPage", new DeleteCarriageFromTrainCommand().execute(request, response));
-        verify(scheduleDAO, times(1)).deleteCarriageFromSchedule(connection, Integer.parseInt(trainId), 1);
+        assertEquals("controller?command=mainPage", new EditCarriageNumberInTrainCommand().execute(request, response));
+        verify(scheduleDAO, times(1)).editCarriageData(connection, Integer.parseInt(trainId), 0);
     }
 
     /**
-     * Test for method execute from {@link DeleteCarriageFromTrainCommand} when train is not in schedule.
+     * Test for method execute from {@link EditCarriageNumberInTrainCommand} when train is not in schedule.
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
@@ -103,6 +104,7 @@ public class DeleteCarriageFromTrainCommandTest {
         String trainNumber = "Номер";
         String carriageId = "1";
         String carriageNumber = "1";
+        String newCarriageNumber = "2";
         String typeId = "1";
         String carriageType = "Тип";
 
@@ -114,39 +116,40 @@ public class DeleteCarriageFromTrainCommandTest {
         when(request.getParameter("trainNumber")).thenReturn(trainNumber);
         when(request.getParameter("carriageId")).thenReturn(carriageId);
         when(request.getParameter("carriageNumber")).thenReturn(carriageNumber);
+        when(request.getParameter("newCarriageNumber")).thenReturn(newCarriageNumber);
         when(request.getParameter("typeId")).thenReturn(typeId);
         when(request.getParameter("carriageType")).thenReturn(carriageType);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
         when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(Integer.parseInt(trainId));
-        when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(1);
         when(trainDAO.getCarriagesTypes(connection)).thenReturn(carriagesTypes);
         when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(Integer.parseInt(carriageId));
+        when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(newCarriageNumber))).thenReturn(0);
         when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(false);
 
-        assertEquals("controller?command=mainPage", new DeleteCarriageFromTrainCommand().execute(request, response));
-        verify(scheduleDAO, times(0)).deleteCarriageFromSchedule(connection, Integer.parseInt(trainId), 1);
+        assertEquals("controller?command=mainPage", new EditCarriageNumberInTrainCommand().execute(request, response));
+        verify(scheduleDAO, times(0)).editCarriageData(connection, Integer.parseInt(trainId), 0);
     }
 
     /**
-     * Test for method execute from {@link DeleteCarriageFromTrainCommand} when user is not in session.
+     * Test for method execute from {@link EditCarriageNumberInTrainCommand} when user is not in session.
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
     void testExecuteNotUserInSession() throws Exception {
 
-        DeleteCarriageFromTrainCommand deleteCarriageFromTrainCommand = new DeleteCarriageFromTrainCommand();
+        EditCarriageNumberInTrainCommand editCarriageNumberInTrainCommand = new EditCarriageNumberInTrainCommand();
 
-        Field field = deleteCarriageFromTrainCommand.getClass().getDeclaredField("trainService");
+        Field field = editCarriageNumberInTrainCommand.getClass().getDeclaredField("trainService");
         field.setAccessible(true);
-        field.set(deleteCarriageFromTrainCommand, trainParameterService);
+        field.set(editCarriageNumberInTrainCommand, trainParameterService);
 
-        assertEquals("controller?command=mainPage", deleteCarriageFromTrainCommand.execute(request, response));
+        assertEquals("controller?command=mainPage", editCarriageNumberInTrainCommand.execute(request, response));
         verifyNoInteractions(trainParameterService);
     }
 
     /**
-     * Test for method execute from {@link DeleteCarriageFromTrainCommand} when incorrect parameters in request.
+     * Test for method execute from {@link EditCarriageNumberInTrainCommand} when incorrect parameters in request.
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
@@ -156,7 +159,7 @@ public class DeleteCarriageFromTrainCommandTest {
 
         when((User) session.getAttribute("user")).thenReturn(user);
 
-        assertEquals("controller?command=mainPage", new DeleteCarriageFromTrainCommand().execute(request, response));
+        assertEquals("controller?command=mainPage", new EditCarriageNumberInTrainCommand().execute(request, response));
         verifyNoInteractions(connection);
     }
 }

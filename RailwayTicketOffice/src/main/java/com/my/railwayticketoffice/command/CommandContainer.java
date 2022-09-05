@@ -17,38 +17,39 @@ public class CommandContainer {
     static {
         COMMANDS = new HashMap<>();
 
-        COMMANDS.put("mainPage", new MainPageCommand());
-        COMMANDS.put("getTrains", new GetTrainsCommand());
-        COMMANDS.put("showRoute", new ShowRouteCommand());
-        COMMANDS.put("userRegistration", new UserRegistrationCommand());
-        COMMANDS.put("userLogin", new UserLoginCommand());
-        COMMANDS.put("userLogout", new UserLogoutCommand());
-        COMMANDS.put("userEdit", new UserEditCommand());
-        COMMANDS.put("ticketPage", new TicketPageCommand());
-        COMMANDS.put("buyTicket", new BuyTicketCommand());
-        COMMANDS.put("addTrain", new AddTrainCommand());
-        COMMANDS.put("deleteTrain", new DeleteTrainCommand());
-        COMMANDS.put("editTrain", new EditTrainCommand());
         COMMANDS.put("addCarriageToTrain", new AddCarriageToTrainCommand());
         COMMANDS.put("addCarriageType", new AddCarriageTypeCommand());
-        COMMANDS.put("deleteCarriageFromTrain", new DeleteCarriageFromTrainCommand());
-        COMMANDS.put("deleteCarriageType", new DeleteCarriageTypeCommand());
-        COMMANDS.put("editCarriageType", new EditCarriageTypeCommand());
-        COMMANDS.put("deleteStationFromTrainRoute", new DeleteStationFromTrainRouteCommand());
-        COMMANDS.put("addStationToTrainRoute", new AddStationToTrainRouteCommand());
-        COMMANDS.put("editStationDataOnTrainRoute", new EditStationDataOnTrainRouteCommand());
         COMMANDS.put("addStation", new AddStationCommand());
-        COMMANDS.put("deleteStation", new DeleteStationCommand());
-        COMMANDS.put("editStation", new EditStationCommand());
+        COMMANDS.put("addStationToTrainRoute", new AddStationToTrainRouteCommand());
+        COMMANDS.put("addTrain", new AddTrainCommand());
         COMMANDS.put("addTrainToSchedule", new AddTrainToScheduleCommand());
-        COMMANDS.put("deleteTrainFromSchedule", new DeleteTrainFromScheduleCommand());
-        COMMANDS.put("chooseSeatsPage", new ChooseSeatsPageCommand());
+        COMMANDS.put("buyTicket", new BuyTicketCommand());
         COMMANDS.put("changeMainPageLocale", new ChangeMainPageLocaleCommand());
         COMMANDS.put("changeRoutePageLocale", new ChangeRoutePageLocaleCommand());
         COMMANDS.put("changeSeatsPageLocale", new ChangeSeatsPageLocaleCommand());
-        COMMANDS.put("changeTicketPageLocale", new ChangeTicketPageLocaleCommand());
         COMMANDS.put("changeSuccessPageLocale", new ChangeSuccessPageLocaleCommand());
+        COMMANDS.put("changeTicketPageLocale", new ChangeTicketPageLocaleCommand());
+        COMMANDS.put("chooseSeatsPage", new ChooseSeatsPageCommand());
         COMMANDS.put("confirmRegistration", new ConfirmRegistrationCommand());
+        COMMANDS.put("deleteCarriageFromTrain", new DeleteCarriageFromTrainCommand());
+        COMMANDS.put("deleteCarriageType", new DeleteCarriageTypeCommand());
+        COMMANDS.put("deleteStation", new DeleteStationCommand());
+        COMMANDS.put("deleteStationFromTrainRoute", new DeleteStationFromTrainRouteCommand());
+        COMMANDS.put("deleteTrain", new DeleteTrainCommand());
+        COMMANDS.put("deleteTrainFromSchedule", new DeleteTrainFromScheduleCommand());
+        COMMANDS.put("editCarriageNumberInTrain", new EditCarriageNumberInTrainCommand());
+        COMMANDS.put("editCarriageType", new EditCarriageTypeCommand());
+        COMMANDS.put("editStation", new EditStationCommand());
+        COMMANDS.put("editStationDataOnTrainRoute", new EditStationDataOnTrainRouteCommand());
+        COMMANDS.put("editTrain", new EditTrainCommand());
+        COMMANDS.put("getTrains", new GetTrainsCommand());
+        COMMANDS.put("mainPage", new MainPageCommand());
+        COMMANDS.put("showRoute", new ShowRouteCommand());
+        COMMANDS.put("ticketPage", new TicketPageCommand());
+        COMMANDS.put("userEdit", new UserEditCommand());
+        COMMANDS.put("userLogin", new UserLoginCommand());
+        COMMANDS.put("userLogout", new UserLogoutCommand());
+        COMMANDS.put("userRegistration", new UserRegistrationCommand());
     }
 
     /**

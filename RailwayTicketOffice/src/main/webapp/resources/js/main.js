@@ -135,20 +135,16 @@ $(function() {
 
 });
 
-inputFrom.addEventListener("change", e => {
-    let input = e.currentTarget;
-    let datalist = input.getAttribute('list');
-    for (let i = 0; i < inputsFrom.length; i++) {
-        changeAttribute(input.value, inputsFrom[i], datalist);
-    }
-});
+let inputs = [inputFrom, inputTo];
 
-inputTo.addEventListener("change", e => {
-    let input = e.currentTarget;
-    let datalist = input.getAttribute('list');
-    for (let i = 0; i < inputsTo.length; i++) {
-        changeAttribute(input.value, inputsTo[i], datalist);
-    }
+inputs.map(input => {
+    input.addEventListener("change", e => {
+        let input = e.currentTarget;
+        let datalist = input.getAttribute('list');
+        for (let i = 0; i < inputsFrom.length; i++) {
+            changeAttribute(input.value, inputsFrom[i], datalist);
+        }
+    });
 });
 
 searchTrainsButton.addEventListener("click", ev => {

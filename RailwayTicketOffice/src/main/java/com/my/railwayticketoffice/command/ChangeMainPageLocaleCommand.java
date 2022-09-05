@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class ChangeMainPageLocaleCommand implements Command {
 
-    private final ParameterService<String> searchTrainService = new TrainSearchParameterService();
+    private final ParameterService<String> trainSearchService = new TrainSearchParameterService();
 
     /**
      * Change locale on main.jsp.
@@ -36,7 +36,7 @@ public class ChangeMainPageLocaleCommand implements Command {
         parameters.put("from", request.getParameter("from"));
         parameters.put("to", request.getParameter("to"));
         parameters.put("date", request.getParameter("departureDate"));
-        if (searchTrainService.check(parameters, session)) {
+        if (trainSearchService.check(parameters, session)) {
             return "controller?command=getTrains&page=" + Integer.parseInt(parameters.get("page")) + "&from=" + Integer.parseInt(parameters.get("from")) + "&to=" + Integer.parseInt(parameters.get("to")) + "&departureDate=" + parameters.get("date");
         } else {
             session.removeAttribute("searchTrainErrorMessage");

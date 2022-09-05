@@ -19,17 +19,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class that built at command pattern. Delete carriage from train.
+ * Class that built at command pattern. Edit carriage number in train.
+ *
+ * @author Yevhen Pashchenko
  */
-public class DeleteCarriageFromTrainCommand implements Command {
+public class EditCarriageNumberInTrainCommand implements Command {
 
-    private static final Logger logger = LogManager.getLogger(DeleteCarriageFromTrainCommand.class);
+    private static final Logger logger = LogManager.getLogger(EditCarriageNumberInTrainCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
 
     /**
-     * Delete carriage from train.
+     * Edit carriage number in train.
      * @param request HttpServletRequest object.
      * @param response HttpServletResponse object.
      * @return link to {@link MainPageCommand}.
@@ -45,10 +47,11 @@ public class DeleteCarriageFromTrainCommand implements Command {
             parameters.put("trainNumber", request.getParameter("trainNumber"));
             parameters.put("carriageId", request.getParameter("carriageId"));
             parameters.put("carriageNumber", request.getParameter("carriageNumber"));
+            parameters.put("newCarriageNumber", request.getParameter("newCarriageNumber"));
             parameters.put("typeId", request.getParameter("typeId"));
             parameters.put("carriageType", request.getParameter("carriageType"));
             if (trainService.check(parameters, session)) {
-                int isTrainHasCarriageWithThisNumber;
+                int carriageId;
                 try(Connection connection = DBManager.getInstance().getConnection()) {
                     int isTrainExist = trainDAO.checkIfTrainExists(connection, parameters.get("trainNumber"));
                     if (isTrainExist == 0 || isTrainExist != Integer.parseInt(parameters.get("trainId"))) {
@@ -70,19 +73,8 @@ public class DeleteCarriageFromTrainCommand implements Command {
                         }
                         return "controller?command=mainPage";
                     }
-                    isTrainHasCarriageWithThisNumber = trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(parameters.get("trainId")), Integer.parseInt(parameters.get("carriageNumber")));
-                    if (isTrainHasCarriageWithThisNumber > 0 && isTrainHasCarriageWithThisNumber == Integer.parseInt(parameters.get("carriageId"))) {
-                        boolean isTrainInSchedule = scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(parameters.get("trainId")));
-                        if (!isTrainInSchedule) {
-                            trainDAO.deleteCarriageFromTrain(connection, Integer.parseInt(parameters.get("trainId")), isTrainHasCarriageWithThisNumber);
-                            if ("en".equals(session.getAttribute("locale"))) {
-                                session.setAttribute("successMessage", "Carriage has been deleted from train");
-                            } else {
-                                session.setAttribute("successMessage", "Вагон видалено з поїзда");
-                            }
-                            return "controller?command=mainPage";
-                        }
-                    } else {
+                    int isTrainHasCarriageWithThisNumber = trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(parameters.get("trainId")), Integer.parseInt(parameters.get("carriageNumber")));
+                    if (isTrainHasCarriageWithThisNumber == 0 || isTrainHasCarriageWithThisNumber != Integer.parseInt(parameters.get("carriageId"))) {
                         if ("en".equals(session.getAttribute("locale"))) {
                             session.setAttribute("errorMessage", "There is no carriage with this number in the train");
                         } else {
@@ -90,29 +82,55 @@ public class DeleteCarriageFromTrainCommand implements Command {
                         }
                         return "controller?command=mainPage";
                     }
-                } catch (SQLException e) {
-                    logger.info("Failed to connect to database to delete carriage from train");
-                    if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("errorMessage", "Failed to connect to database to delete carriage from train");
+                    int isTrainAlreadyHasCarriageWithNewNumber = trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(parameters.get("trainId")), Integer.parseInt(parameters.get("newCarriageNumber")));
+                    if (isTrainAlreadyHasCarriageWithNewNumber == 0) {
+                        int isCarriageExists = trainDAO.checkIfCarriageExists(connection, Integer.parseInt(parameters.get("newCarriageNumber")), typeId);
+                        if (isCarriageExists == 0) {
+                            carriageId = trainDAO.createCarriage(connection, Integer.parseInt(parameters.get("newCarriageNumber")), typeId);
+                        } else {
+                            carriageId = isCarriageExists;
+                        }
                     } else {
-                        session.setAttribute("errorMessage", "Не вдалося зв'язатися з базою даних, щоб видалити вагон з поїзда");
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "The train already has a carriage with this number");
+                        } else {
+                            session.setAttribute("errorMessage", "В поїзді вже є вагон з таким номером");
+                        }
+                        return "controller?command=mainPage";
                     }
-                    throw new DBException("Failed to connect to database to delete carriage from train");
+                    boolean isTrainInSchedule = scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(parameters.get("trainId")));
+                    if (!isTrainInSchedule) {
+                        trainDAO.editCarriageNumberInTrain(connection, carriageId, Integer.parseInt(parameters.get("trainId")), Integer.parseInt(parameters.get("carriageId")));
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("successMessage", "Carriage number in train has been edited");
+                        } else {
+                            session.setAttribute("successMessage", "Номер вагона в поїзді змінено");
+                        }
+                        return "controller?command=mainPage";
+                    }
+                } catch (SQLException e) {
+                    logger.info("Failed to connect to database for edit carriage number in train");
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("errorMessage", "Failed to connect to database for edit carriage number in train");
+                    } else {
+                        session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб редагувати номер вагона в поїзді");
+                    }
+                    throw new DBException("Failed to connect to database for edit carriage number in train");
                 }
                 Connection connection = null;
                 try {
                     connection = DBManager.getInstance().getConnection();
                     connection.setAutoCommit(false);
-                    trainDAO.deleteCarriageFromTrain(connection, Integer.parseInt(parameters.get("trainId")), isTrainHasCarriageWithThisNumber);
-                    scheduleDAO.deleteCarriageFromSchedule(connection, Integer.parseInt(parameters.get("trainId")), isTrainHasCarriageWithThisNumber);
+                    trainDAO.editCarriageNumberInTrain(connection, carriageId, Integer.parseInt(parameters.get("trainId")), Integer.parseInt(parameters.get("carriageId")));
+                    scheduleDAO.editCarriageData(connection, Integer.parseInt(parameters.get("trainId")), carriageId);
                     connection.setAutoCommit(true);
                     if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("successMessage", "Carriage has been deleted from train");
+                        session.setAttribute("successMessage", "Carriage number in train has been edited");
                     } else {
-                        session.setAttribute("successMessage", "Вагон видалено з поїзда");
+                        session.setAttribute("successMessage", "Номер вагона в поїзді змінено");
                     }
                 } catch (SQLException e) {
-                    logger.info("Failed to connect to database to delete carriage from train");
+                    logger.info("Failed to connect to database for edit carriage number in train");
                     DBManager.getInstance().rollback(session, connection, e);
                 } finally {
                     DBManager.getInstance().close(connection);

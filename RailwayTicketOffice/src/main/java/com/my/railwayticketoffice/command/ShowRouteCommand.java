@@ -57,12 +57,14 @@ public class ShowRouteCommand implements Command {
                 Train train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
                 trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), locale);
                 if (train.getRoute().getStations().size() == 0) {
-                    if ("en".equals(locale)) {
-                        session.setAttribute("errorMessage", "Failed to get route for this train from database");
-                    } else {
-                        session.setAttribute("errorMessage", "Не вийшло отримати маршрут цього поїзда з бази даних");
+                    if (user == null || !"admin".equals(user.getRole())) {
+                        if ("en".equals(locale)) {
+                            session.setAttribute("errorMessage", "Failed to get route for this train from database");
+                        } else {
+                            session.setAttribute("errorMessage", "Не вийшло отримати маршрут цього поїзда з бази даних");
+                        }
+                        return "controller?command=mainPage";
                     }
-                    return "controller?command=mainPage";
                 }
                 request.setAttribute("train", train);
                 if (searchTrainService.check(parameters, session)) {

@@ -87,4 +87,14 @@ public interface ScheduleDAO {
      * @throws SQLException if a database access error occurs.
      */
     void changeTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate, int carriageId, List<Integer> seatsNumbers) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should be changed {@link com.my.railwayticketoffice.entity.Train.Carriage} id
+     * where is this {@link Train} id.
+     * @param connection Connection object.
+     * @param trainId {@link Train} id.
+     * @param carriageId {@link com.my.railwayticketoffice.entity.Train.Carriage} id.
+     * @throws SQLException if a database access error occurs.
+     */
+    void editCarriageData(Connection connection, int trainId, int carriageId) throws SQLException;
 }

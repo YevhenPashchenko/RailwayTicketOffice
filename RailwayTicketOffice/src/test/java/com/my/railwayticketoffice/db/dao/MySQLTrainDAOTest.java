@@ -661,6 +661,41 @@ public class MySQLTrainDAOTest {
     }
 
     /**
+     * Test for method editCarriageNumberInTrain from {@link MySQLTrainDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testEditCarriageNumberInTrain() throws Exception {
+        int newCarriageId = 2;
+        int trainId = 1;
+        int carriageId = 1;
+
+        when(connection.prepareStatement(MySQLTrainDAOQuery.EDIT_CARRIAGE_NUMBER_IN_TRAIN)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(1);
+
+        DBManager.getInstance().getTrainDAO().editCarriageNumberInTrain(connection, newCarriageId, trainId, carriageId);
+        verify(pstmt, times(1)).executeUpdate();
+    }
+
+    /**
+     * Test for method editCarriageNumberInTrain from {@link MySQLTrainDAO} failed.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testFailedEditCarriageNumberInTrain() throws Exception {
+        int newCarriageId = 2;
+        int trainId = 1;
+        int carriageId = 1;
+
+        when(connection.prepareStatement(MySQLTrainDAOQuery.EDIT_CARRIAGE_NUMBER_IN_TRAIN)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(0);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getTrainDAO().editCarriageNumberInTrain(connection, newCarriageId, trainId, carriageId));
+    }
+
+    /**
      * Test for method addCarriageType from {@link MySQLTrainDAO}.
      *
      * @throws Exception if any {@link Exception} occurs.

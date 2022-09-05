@@ -180,6 +180,17 @@ public interface TrainDAO {
     int checkIfCarriageTypeExists(Connection connection, String carriageType) throws SQLException;
 
     /**
+     * When a class implementing interface {@link TrainDAO} call this method should edit {@link com.my.railwayticketoffice.entity.Train.Carriage}
+     * number in {@link Train}.
+     * @param connection Connection object.
+     * @param newCarriageId {@link Train.Carriage} id.
+     * @param trainId {@link Train} id.
+     * @param carriageId {@link Train.Carriage} id.
+     * @throws SQLException if a database access error occurs.
+     */
+    void editCarriageNumberInTrain(Connection connection, int newCarriageId, int trainId, int carriageId) throws SQLException;
+
+    /**
      * When a class implementing interface {@link TrainDAO} call this method should add new {@link com.my.railwayticketoffice.entity.Train.Carriage}
      * type to database.
      * @param connection Connection object.

@@ -143,4 +143,15 @@ public class MySQLScheduleDAO implements ScheduleDAO {
             throw new SQLException("Failed to change train available seats on this date");
         }
     }
+
+    @Override
+    public void editCarriageData(Connection connection, int trainId, int carriageId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.EDIT_CARRIAGE_DATA);
+        pstmt.setInt(1, carriageId);
+        pstmt.setInt(2, trainId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to delete train from schedule");
+        }
+    }
 }

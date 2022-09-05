@@ -7,9 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,12 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class TrainScheduleServiceTest {
 
+    ScheduleService trainScheduleService = new TrainScheduleService();
+
     /**
      * Test for method create from {@link TrainScheduleService}.
      */
     @Test
     void testCreate() {
-        ScheduleService trainScheduleService = new TrainScheduleService();
         List<String> scheduleDates = new ArrayList<>();
         LocalTime time = LocalTime.now();
         LocalDate date = LocalDate.now();
@@ -51,7 +50,18 @@ public class TrainScheduleServiceTest {
             Train.Carriage carriage = train.new Carriage();
             carriage.setId(i + 1);
             carriage.setNumber(i + 1);
-
+            carriage.addSeat(i + 1);
+            train.addCarriage(carriage.getId(), carriage);
         }
+        Map<String, String[]> ticketParameters = new HashMap<>();
+        ticketParameters.put("carriage", new String[] {"1", "2", "2", "3", "3", "3"});
+        ticketParameters.put("seat", new String[]{"1", "1", "2", "1", "2", "3"});
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        List<Integer> seats = new ArrayList<>();
+        for (int i = 1; i < 4; i++) {
+            seats.add(i);
+            result.put(i, new ArrayList<>(seats));
+        }
+        assertEquals(result, trainScheduleService.collect(train, ticketParameters));
     }
 }

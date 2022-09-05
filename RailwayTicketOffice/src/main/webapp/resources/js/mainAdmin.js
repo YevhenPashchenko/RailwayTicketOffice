@@ -1,3 +1,8 @@
+mdtimepicker(document.querySelectorAll('.time'), {
+    format: 'hh:mm',
+    is24hour: true,
+});
+
 let trainNumberForDeleteInput = document.querySelector('#trainNumberForDelete');
 let deleteTrainButton = document.querySelector('#deleteTrainButton');
 let confirmDeleteTrainModal = document.querySelector('#confirmDeleteTrainModal');
@@ -13,17 +18,29 @@ let editTrainButton = editTrainForm.querySelector('button');
 let trainNumberForEditRouteInput = document.querySelector('#trainNumberForEditRoute');
 
 let trainNumberForAddCarriageToTrainInput = document.querySelector('#trainNumberForAddCarriageToTrain');
+let carriageNumberForAddCarriageToTrainInput = document.querySelector('#carriageNumberForAddCarriageToTrain');
+let carriageNumberForAddCarriageToTrainInputValue;
 let carriageTypeForAddCarriageToTrainInput = document.querySelector('#carriageTypeForAddCarriageToTrain');
 let addCarriageToTrainButton = document.querySelector('#addCarriageToTrain button');
 
 let trainNumberForDeleteCarriageFromTrainInput = document.querySelector('#trainNumberForDeleteCarriageFromTrain');
 let carriageNumberForDeleteCarriageFromTrainInput = document.querySelector('#carriageNumberForDeleteCarriageFromTrain');
+let carriageNumberForDeleteCarriageFromTrainInputValue;
 let carriageTypeForDeleteCarriageFromTrainInput = document.querySelector('#carriageTypeForDeleteCarriageFromTrain');
 let deleteCarriageFromTrainButton= document.querySelector('#deleteCarriageFromTrain button');
 let confirmDeleteCarriageFromTrainModal = document.querySelector('#confirmDeleteCarriageFromTrainModal');
+let confirmDeleteCarriageFromTrainModalConfirmButton = confirmDeleteCarriageFromTrainModal.querySelector('button[type="submit"]');
 confirmDeleteCarriageFromTrainModal = new bootstrap.Modal(confirmDeleteCarriageFromTrainModal, {
     keyboard: false,
 });
+
+let trainNumberForEditCarriageNumberInTrainInput = document.querySelector('#trainNumberForEditCarriageNumberInTrain');
+let carriageNumberForEditCarriageNumberInTrainInput = document.querySelector('#carriageNumberForEditCarriageNumberInTrain');
+let carriageNumberForEditCarriageNumberInTrainInputValue;
+let newCarriageNumberForEditCarriageNumberInTrainInput = document.querySelector('#newCarriageNumberForEditCarriageNumberInTrain');
+let newCarriageNumberForEditCarriageNumberInTrainInputValue;
+let carriageTypeForEditCarriageNumberInTrainInput = document.querySelector('#carriageTypeForEditCarriageNumberInTrain');
+let editCarriageNumberInTrainButton = document.querySelector('#editCarriageNumberInTrain button');
 
 let addCarriageTypeButton = document.querySelector('#addCarriageType button');
 
@@ -60,10 +77,151 @@ confirmDeleteTrainFromScheduleModal = new bootstrap.Modal(confirmDeleteTrainFrom
     keyboard: false,
 });
 
-trainNumberForDeleteInput.addEventListener("change", e => {
-    let input = e.currentTarget;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, input.previousElementSibling.firstElementChild, datalist);
+let adminInputs = [
+    trainNumberForDeleteInput,
+    trainNumberForEditRouteInput,
+    carriageTypeForAddCarriageToTrainInput,
+    carriageTypeForDeleteCarriageFromTrainInput,
+    carriageTypeForEditCarriageNumberInTrainInput,
+    carriageTypeForDeleteInput,
+    carriageTypeForEditInput,
+    stationNameForDeleteInput
+];
+
+adminInputs.map(input => {
+    input.addEventListener("change", evt => {
+        let input = evt.currentTarget;
+        let idInput = input.previousElementSibling.firstElementChild;
+        let datalist = input.getAttribute('list');
+        changeAttribute(input.value, idInput, datalist);
+    });
+});
+
+let carriageNumberIsInTrainInputs = {
+    carriageNumberForDeleteCarriageFromTrainInput: [carriageNumberForDeleteCarriageFromTrainInput, carriageNumberForDeleteCarriageFromTrainInputValue, carriageTypeForDeleteCarriageFromTrainInput],
+    oldCarriageNumberForEditCarriageNumberInTrainInput: [carriageNumberForEditCarriageNumberInTrainInput, carriageNumberForEditCarriageNumberInTrainInputValue, carriageTypeForEditCarriageNumberInTrainInput],
+};
+
+for (const carriageNumberIsInTrainInputsKey in carriageNumberIsInTrainInputs) {
+    carriageNumberIsInTrainInputs[carriageNumberIsInTrainInputsKey][0].addEventListener("change", evt => {
+        let input = evt.currentTarget;
+        let idInput = input.previousElementSibling.firstElementChild;
+        if (!input.hasAttribute("disabled")) {
+            let datalist = document.querySelector('datalist[id="' + input.getAttribute("list") + '"]');
+            let options = datalist.querySelectorAll('option');
+            let values = [];
+            for (let i = 0; i < options.length; i++) {
+                values[i] = options[i].value;
+            }
+            if (input.getAttribute("value") !== "" || input.value !== "") {
+                if (!values.includes(input.value)) {
+                    if (Math.min.apply(null, values) > input.value) {
+                        input.setAttribute("value", Math.min.apply(null, values));
+                        input.value = input.getAttribute("value");
+                    } else if (Math.max.apply(null, values) < input.value) {
+                        input.setAttribute("value", Math.max.apply(null, values));
+                        input.value = input.getAttribute("value");
+                    } else {
+                        if (carriageNumberIsInTrainInputs[carriageNumberIsInTrainInputsKey][1] < input.value) {
+                            while (!values.includes(input.value)) {
+                                input.value = +input.value + 1;
+                            }
+                            input.setAttribute("value", input.value);
+                        } else {
+                            while (!values.includes(input.value)) {
+                                input.value = input.value - 1;
+                            }
+                            input.setAttribute("value", input.value);
+                        }
+                    }
+                } else {
+                    input.setAttribute("value", input.value);
+                }
+            } else {
+                input.setAttribute("value", Math.min.apply(null, values));
+                input.value = input.getAttribute("value");
+            }
+            carriageNumberIsInTrainInputs[carriageNumberIsInTrainInputsKey][1] = input.getAttribute("value");
+            options.forEach(option => {
+                if (option.value === input.value) {
+                    carriageNumberIsInTrainInputs[carriageNumberIsInTrainInputsKey][2].setAttribute("value", option.getAttribute("data-type"));
+                }
+            });
+            idInput.setAttribute("value", datalist.querySelector('option[value="' + input.value + '"]').id);
+        } else {
+            input.setAttribute("value", "");
+            input.value = "";
+            carriageNumberIsInTrainInputs[carriageNumberIsInTrainInputsKey][2].removeAttribute("value");
+            idInput.removeAttribute("value");
+        }
+        carriageNumberIsInTrainInputs[carriageNumberIsInTrainInputsKey][2].dispatchEvent(new Event("change"));
+    });
+}
+
+let carriageNumberIsNotInTrainInputs = {
+    carriageNumberForAddCarriageToTrainInput: [carriageNumberForAddCarriageToTrainInput, carriageNumberForAddCarriageToTrainInputValue],
+    carriageNumberForEditCarriageNumberInTrainInput: [newCarriageNumberForEditCarriageNumberInTrainInput, newCarriageNumberForEditCarriageNumberInTrainInputValue],
+};
+
+for (const carriageNumberIsNotInTrainInputsKey in carriageNumberIsNotInTrainInputs) {
+    carriageNumberIsNotInTrainInputs[carriageNumberIsNotInTrainInputsKey][0].addEventListener("change", evt => {
+        let input = evt.currentTarget;
+        if (!input.hasAttribute("disabled")) {
+            let form = input.parentElement;
+            let trainId = form.querySelector('input[name="trainId"]');
+            let options = document.querySelectorAll('datalist[id="train' + trainId.value + 'Carriages"] option');
+            let values = [];
+            for (let i = 0; i < options.length; i++) {
+                values[i] = options[i].value;
+            }
+            if (input.getAttribute("value") !== "" || input.value !== "") {
+                if (carriageNumberIsNotInTrainInputs[carriageNumberIsNotInTrainInputsKey][1] < input.value) {
+                    while (values.includes(input.value)) {
+                        input.value = +input.value + 1;
+                    }
+                    input.setAttribute("value", input.value);
+                } else {
+                    while (values.includes(input.value)) {
+                        input.value = input.value - 1;
+                    }
+                    if (input.value < 1) {
+                        input.setAttribute("value", carriageNumberIsNotInTrainInputs[carriageNumberIsNotInTrainInputsKey][1]);
+                        input.value = carriageNumberIsNotInTrainInputs[carriageNumberIsNotInTrainInputsKey][1];
+                    } else {
+                        input.setAttribute("value", input.value);
+                    }
+                }
+                carriageNumberIsNotInTrainInputs[carriageNumberIsNotInTrainInputsKey][1] = input.getAttribute("value");
+            } else {
+                input.setAttribute("value", "1");
+                while (values.includes(input.getAttribute("value"))) {
+                    input.setAttribute("value", +input.getAttribute("value") + 1);
+                }
+                input.value = input.getAttribute("value");
+                carriageNumberIsNotInTrainInputs[carriageNumberIsNotInTrainInputsKey][1] = input.getAttribute("value");
+            }
+        } else {
+            input.setAttribute("value", "");
+            input.value = "";
+        }
+    });
+}
+
+let scheduleInputs = [trainNumberForAddToScheduleInput, trainNumberForDeleteFromScheduleInput];
+
+scheduleInputs.map(input => {
+    input.addEventListener("change", evt => {
+        let input = evt.currentTarget;
+        let idInput = input.previousElementSibling.firstElementChild;
+        let datalist = input.getAttribute('list');
+        let button = input.parentElement.querySelector('button');
+        changeAttribute(input.value, idInput, datalist);
+        if (idInput.value !== "") {
+            button.removeAttribute("disabled");
+        } else {
+            button.setAttribute("disabled", "");
+        }
+    });
 });
 
 deleteTrainButton.addEventListener("click", e => {
@@ -94,10 +252,6 @@ oldTrainNumberForEditInput.addEventListener("change", evt => {
         departureTimeInput.setAttribute("disabled", "");
         for (let i = 0; i < editTrainCheckboxes.length; i++) {
             editTrainCheckboxes[i].removeAttribute("hidden");
-            if (i === 0 && editTrainCheckboxes[i].hasAttribute("checked")) {
-                editTrainCheckboxes[i].click();
-                editTrainForm.querySelector('button').setAttribute("disabled", "");
-            }
         }
     } else {
         trainNumberForEditInput.value = "";
@@ -106,7 +260,7 @@ oldTrainNumberForEditInput.addEventListener("change", evt => {
         departureTimeInput.setAttribute("disabled", "");
         for (let i = 0; i < editTrainCheckboxes.length; i++) {
             editTrainCheckboxes[i].setAttribute("hidden", "");
-            if (i === 0 && editTrainCheckboxes[i].hasAttribute("checked")) {
+            if (editTrainCheckboxes[i].hasAttribute("checked")) {
                 editTrainCheckboxes[i].click();
                 editTrainForm.querySelector('button').setAttribute("disabled", "");
             }
@@ -196,24 +350,20 @@ editTrainButton.addEventListener("click", evt => {
     }
 });
 
-trainNumberForEditRouteInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, input.previousElementSibling.firstElementChild, datalist);
-});
-
 trainNumberForAddCarriageToTrainInput.addEventListener("change", evt => {
     let input = evt.currentTarget;
-    let trainIdInput = input.previousElementSibling.firstElementChild;
+    let idInput = input.previousElementSibling.firstElementChild;
     let datalist = input.getAttribute('list');
-    changeAttribute(input.value, trainIdInput, datalist);
-});
-
-carriageTypeForAddCarriageToTrainInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let typeIdInput = input.previousElementSibling.firstElementChild;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, typeIdInput, datalist);
+    changeAttribute(input.value, idInput, datalist);
+    if (idInput.value !== "") {
+        carriageNumberForAddCarriageToTrainInput.removeAttribute("disabled");
+        carriageTypeForAddCarriageToTrainInput.removeAttribute("disabled");
+    } else {
+        carriageNumberForAddCarriageToTrainInput.setAttribute("disabled", "");
+        carriageTypeForAddCarriageToTrainInput.value = "";
+        carriageTypeForAddCarriageToTrainInput.setAttribute("disabled", "");
+    }
+    carriageNumberForAddCarriageToTrainInput.dispatchEvent(new Event("change"));
 });
 
 addCarriageToTrainButton.addEventListener("click", evt => {
@@ -262,42 +412,21 @@ trainNumberForDeleteCarriageFromTrainInput.addEventListener("change", evt => {
         carriageNumberForDeleteCarriageFromTrainInput.setAttribute("list", "train" + trainIdInput.value + "Carriages");
     } else {
         carriageNumberForDeleteCarriageFromTrainInput.removeAttribute("list");
-        carriageNumberForDeleteCarriageFromTrainInput.value = "";
         carriageNumberForDeleteCarriageFromTrainInput.setAttribute("disabled", "");
-        carriageNumberForDeleteCarriageFromTrainInput.dispatchEvent(new Event("change"));
     }
-});
-
-carriageNumberForDeleteCarriageFromTrainInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    if (input.value === "") {
-        carriageTypeForDeleteCarriageFromTrainInput.removeAttribute("value");
-    } else {
-        let datalist = input.getAttribute('list');
-        let option = document.querySelector('datalist[id="' + datalist +'"]').querySelector('option[value="' + input.value + '"]');
-        if (option === null) {
-            carriageTypeForDeleteCarriageFromTrainInput.removeAttribute("value");
-        } else {
-            carriageTypeForDeleteCarriageFromTrainInput.setAttribute("value", option.getAttribute('data-type'));
-        }
-    }
-    carriageTypeForDeleteCarriageFromTrainInput.dispatchEvent(new Event("change"));
-});
-
-carriageTypeForDeleteCarriageFromTrainInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let typeIdInput = input.previousElementSibling.firstElementChild;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, typeIdInput, datalist);
+    carriageNumberForDeleteCarriageFromTrainInput.dispatchEvent(new Event("change"));
 });
 
 deleteCarriageFromTrainButton.addEventListener("click", evt => {
     evt.preventDefault();
     let form = evt.currentTarget.parentElement;
     let trainIdInput = form.querySelector('input[name="trainId"]');
+    let trainNumberInput = form.querySelector('input[name="trainNumber"]');
+    let carriageIdInput = form.querySelector('input[name="carriageId"]');
     let carriageNumberInput = form.querySelector('input[name="carriageNumber"]');
     let typeIdInput = form.querySelector('input[name="typeId"]');
-    if (trainIdInput.value === "") {
+    let carriageTypeInput = form.querySelector('input[name="carriageType"]');
+    if (trainIdInput.value === "" || trainNumberInput.value === "") {
         if (currentLocale === "en") {
             modalBody.innerHTML = "Train number is not specified";
         } else {
@@ -306,7 +435,7 @@ deleteCarriageFromTrainButton.addEventListener("click", evt => {
         errorModal.show();
         return;
     }
-    if (carriageNumberInput.value === "") {
+    if (carriageIdInput.value === "" || carriageNumberInput.value === "") {
         if (currentLocale === "en") {
             modalBody.innerHTML = "Carriage number is not specified";
         } else {
@@ -315,7 +444,7 @@ deleteCarriageFromTrainButton.addEventListener("click", evt => {
         errorModal.show();
         return;
     }
-    if (typeIdInput.value === "") {
+    if (typeIdInput.value === "" || carriageTypeInput.value === "") {
         if (currentLocale === "en") {
             modalBody.innerHTML = "Carriage type is not specified";
         } else {
@@ -325,6 +454,79 @@ deleteCarriageFromTrainButton.addEventListener("click", evt => {
         return;
     }
     confirmDeleteCarriageFromTrainModal.show();
+});
+
+confirmDeleteCarriageFromTrainModalConfirmButton.addEventListener("click", () => {
+    carriageTypeForDeleteCarriageFromTrainInput.removeAttribute("disabled");
+});
+
+trainNumberForEditCarriageNumberInTrainInput.addEventListener("change", evt => {
+    let input = evt.currentTarget;
+    let trainIdInput = input.previousElementSibling.firstElementChild;
+    let datalist = input.getAttribute('list');
+    changeAttribute(input.value, trainIdInput, datalist);
+    if (trainIdInput.value !== "") {
+        carriageNumberForEditCarriageNumberInTrainInput.removeAttribute("disabled");
+        carriageNumberForEditCarriageNumberInTrainInput.setAttribute("list", "train" + trainIdInput.value + "Carriages");
+        newCarriageNumberForEditCarriageNumberInTrainInput.removeAttribute("disabled");
+    } else {
+        carriageNumberForEditCarriageNumberInTrainInput.removeAttribute("list");
+        carriageNumberForEditCarriageNumberInTrainInput.setAttribute("disabled", "");
+        newCarriageNumberForEditCarriageNumberInTrainInput.setAttribute("disabled", "");
+    }
+    carriageNumberForEditCarriageNumberInTrainInput.dispatchEvent(new Event("change"));
+    newCarriageNumberForEditCarriageNumberInTrainInput.dispatchEvent(new Event("change"));
+});
+
+editCarriageNumberInTrainButton.addEventListener("click", evt => {
+    let form = evt.currentTarget.parentElement;
+    let trainIdInput = form.querySelector('input[name="trainId"]');
+    let trainNumberInput = form.querySelector('input[name="trainNumber"]');
+    let carriageIdInput = form.querySelector('input[name="carriageId"]');
+    let carriageNumberInput = form.querySelector('input[name="carriageNumber"]');
+    let newCarriageNumberInput = form.querySelector('input[name="newCarriageNumber"]');
+    let typeIdInput = form.querySelector('input[name="typeId"]');
+    let carriageTypeInput = form.querySelector('input[name="carriageType"]');
+    if (trainIdInput.value === "" || trainNumberInput.value === "") {
+        if (currentLocale === "en") {
+            modalBody.innerHTML = "Train number is not specified";
+        } else {
+            modalBody.innerHTML = "Номер поїзда не задано";
+        }
+        errorModal.show();
+        return;
+    }
+    if (carriageIdInput.value === "" || carriageNumberInput.value === "") {
+        evt.preventDefault();
+        if (currentLocale === "en") {
+            modalBody.innerHTML = "Carriage number is not specified";
+        } else {
+            modalBody.innerHTML = "Номер вагона не задано";
+        }
+        errorModal.show();
+        return;
+    }
+    if (newCarriageNumberInput.value === "") {
+        evt.preventDefault();
+        if (currentLocale === "en") {
+            modalBody.innerHTML = "New carriage number is not specified";
+        } else {
+            modalBody.innerHTML = "Новий номер вагона не задано";
+        }
+        errorModal.show();
+        return;
+    }
+    if (typeIdInput.value === "" || carriageTypeInput.value === "") {
+        evt.preventDefault();
+        if (currentLocale === "en") {
+            modalBody.innerHTML = "Carriage type is not specified";
+        } else {
+            modalBody.innerHTML = "Тип вагона не задано";
+        }
+        errorModal.show();
+        return;
+    }
+    carriageTypeInput.removeAttribute("disabled");
 });
 
 addCarriageTypeButton.addEventListener("click", evt => {
@@ -352,13 +554,6 @@ addCarriageTypeButton.addEventListener("click", evt => {
     }
 });
 
-carriageTypeForDeleteInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let typeIdInput = input.previousElementSibling.firstElementChild;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, typeIdInput, datalist);
-});
-
 deleteCarriageTypeButton.addEventListener("click", evt => {
     evt.preventDefault();
     let form = evt.currentTarget.parentElement;
@@ -384,13 +579,6 @@ deleteCarriageTypeButton.addEventListener("click", evt => {
         return;
     }
     confirmDeleteCarriageTypeModal.show();
-});
-
-carriageTypeForEditInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let typeIdInput = input.previousElementSibling.firstElementChild;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, typeIdInput, datalist);
 });
 
 editCarriageTypeButton.addEventListener("click", evt => {
@@ -440,12 +628,6 @@ addStationButton.addEventListener("click", evt => {
         }
         errorModal.show();
     }
-});
-
-stationNameForDeleteInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, input.previousElementSibling.firstElementChild, datalist);
 });
 
 deleteStationButton.addEventListener("click", evt => {
@@ -515,17 +697,6 @@ editStationButton.addEventListener("click", evt => {
     }
 });
 
-trainNumberForAddToScheduleInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, input.previousElementSibling.firstElementChild, datalist);
-    if (input.value !== "") {
-        addTrainToScheduleButton.removeAttribute("disabled");
-    } else {
-        addTrainToScheduleButton.setAttribute("disabled", "");
-    }
-});
-
 addTrainToScheduleButton.addEventListener("click", evt => {
     let trainIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
     if (!trainIdInput.hasAttribute("value")) {
@@ -536,17 +707,6 @@ addTrainToScheduleButton.addEventListener("click", evt => {
             modalBody.innerHTML = "Виберіть існуючий поїзд";
         }
         errorModal.show();
-    }
-});
-
-trainNumberForDeleteFromScheduleInput.addEventListener("change", evt => {
-    let input = evt.currentTarget;
-    let datalist = input.getAttribute('list');
-    changeAttribute(input.value, input.previousElementSibling.firstElementChild, datalist);
-    if (input.value !== "") {
-        deleteTrainFromScheduleButton.removeAttribute("disabled");
-    } else {
-        deleteTrainFromScheduleButton.setAttribute("disabled", "");
     }
 });
 

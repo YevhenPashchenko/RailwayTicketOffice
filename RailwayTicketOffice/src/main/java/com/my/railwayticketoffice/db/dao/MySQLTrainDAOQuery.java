@@ -37,6 +37,7 @@ public class MySQLTrainDAOQuery {
             "WHERE types.id = carriages.type_id AND carriages.id = ?";
     public static final String DELETE_CARRIAGE_FROM_TRAIN = "DELETE FROM railwayticketofficedb.trains_carriages WHERE train_id = ? AND carriage_id = ?";
     public static final String CHECK_IF_CARRIAGE_TYPE_EXISTS = "SELECT id FROM railwayticketofficedb.types WHERE type = ?";
+    public static final String EDIT_CARRIAGE_NUMBER_IN_TRAIN = "UPDATE trains_carriages SET carriage_id = ? WHERE train_id = ? AND carriage_id = ?";
     public static final String ADD_CARRIAGE_TYPE = "INSERT INTO railwayticketofficedb.types VALUES (default, ?, ?)";
     public static final String DELETE_CARRIAGE_TYPE = "DELETE FROM railwayticketofficedb.types WHERE id = ?";
     public static final String EDIT_CARRIAGE_TYPE = "UPDATE railwayticketofficedb.types SET type = ? WHERE id = ?";

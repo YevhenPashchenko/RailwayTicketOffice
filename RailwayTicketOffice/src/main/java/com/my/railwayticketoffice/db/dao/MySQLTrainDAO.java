@@ -309,6 +309,18 @@ public class MySQLTrainDAO implements TrainDAO {
     }
 
     @Override
+    public void editCarriageNumberInTrain(Connection connection, int newCarriageId, int trainId, int carriageId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.EDIT_CARRIAGE_NUMBER_IN_TRAIN);
+        pstmt.setInt(1, newCarriageId);
+        pstmt.setInt(2, trainId);
+        pstmt.setInt(3, carriageId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to edit carriage number in train");
+        }
+    }
+
+    @Override
     public void addCarriageType(Connection connection, String carriageType, int maxSeats) throws SQLException {
         PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.ADD_CARRIAGE_TYPE);
         pstmt.setString(1, carriageType);

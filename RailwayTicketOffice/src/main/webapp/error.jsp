@@ -34,5 +34,6 @@
                 <div class="col text-center text-danger fs-1 fw-bold">${sessionScope.errorMessage}</div>
             </div>
         </main>
+        <c:remove var="errorMessage" scope="session"/>
     </body>
 </html>

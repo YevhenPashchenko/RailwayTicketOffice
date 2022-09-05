@@ -305,4 +305,39 @@ public class MySQLScheduleDAOTest {
 
         assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().changeTrainAvailableSeatsOnThisDate(connection, trainId, currentDate, carriageId, seatsNumbers));
     }
+
+    /**
+     * Test for method editCarriageData from {@link MySQLScheduleDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testEditCarriageData() throws Exception {
+
+        int trainId = 1;
+        int carriageId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.EDIT_CARRIAGE_DATA)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(1);
+
+        DBManager.getInstance().getScheduleDAO().editCarriageData(connection, trainId, carriageId);
+        verify(pstmt, times(1)).executeUpdate();
+    }
+
+    /**
+     * Test for method editCarriageData from {@link MySQLScheduleDAO} failed.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testFailedEditCarriageData() throws Exception {
+
+        int trainId = 1;
+        int carriageId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.EDIT_CARRIAGE_DATA)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(0);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().editCarriageData(connection, trainId, carriageId));
+    }
 }
