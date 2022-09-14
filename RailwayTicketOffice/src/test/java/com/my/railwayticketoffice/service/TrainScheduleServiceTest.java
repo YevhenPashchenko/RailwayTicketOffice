@@ -24,7 +24,7 @@ public class TrainScheduleServiceTest {
      * Test for method create from {@link TrainScheduleService}.
      */
     @Test
-    public void testCreate() {
+    void testCreate() {
         ScheduleService trainScheduleService = new TrainScheduleService();
         List<String> scheduleDates = new ArrayList<>();
         LocalTime time = LocalTime.now();
@@ -38,16 +38,20 @@ public class TrainScheduleServiceTest {
             scheduleDates.add(currentDate);
         }
 
-        assertEquals(scheduleDates, trainScheduleService.create(train));
+        assertEquals(scheduleDates, trainScheduleService.create());
+    }
 
-        train.setDepartureTime(time.minusHours(1));
-        scheduleDates.clear();
+    /**
+     * Test for method collect from {@link TrainScheduleService}.
+     */
+    @Test
+    void testCollect() {
+        Train train = new Train();
+        for (int i = 0; i < 3; i++) {
+            Train.Carriage carriage = train.new Carriage();
+            carriage.setId(i + 1);
+            carriage.setNumber(i + 1);
 
-        for (int i = 0; i < Util.getScheduleDuration() - 1; i++) {
-            String currentDate = date.plusDays(i + 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH));
-            scheduleDates.add(currentDate);
         }
-
-        assertEquals(scheduleDates, trainScheduleService.create(train));
     }
 }

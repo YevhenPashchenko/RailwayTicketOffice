@@ -24,14 +24,14 @@ import java.util.Map;
  */
 public class DeleteTrainCommand implements Command {
 
-    private static final Logger logger = LogManager.getLogger(AddTrainCommand.class);
+    private static final Logger logger = LogManager.getLogger(DeleteTrainCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
 
     /**
      * Delete train from database.
-     * @param request - HttpServletRequest object.
-     * @param response - HttpServletResponse object.
+     * @param request HttpServletRequest object.
+     * @param response HttpServletResponse object.
      * @return link to {@link MainPageCommand}.
      * @throws DBException if {@link SQLException} occurs.
      */
@@ -42,13 +42,23 @@ public class DeleteTrainCommand implements Command {
         User user = (User) session.getAttribute("user");
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("trainId", request.getParameter("trainId"));
+            parameters.put("trainNumber", request.getParameter("trainNumber"));
             if (trainService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    trainDAO.deleteTrain(connection, Integer.parseInt(parameters.get("trainId")));
-                    if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("successMessage", "Train has been deleted");
+                    int isTrainExists = trainDAO.checkIfTrainExists(connection, parameters.get("trainNumber"));
+                    if (isTrainExists == 0 || isTrainExists != Integer.parseInt(parameters.get("trainId"))) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A train with this number no exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Поїзда з таким номером не існує");
+                        }
                     } else {
-                        session.setAttribute("successMessage", "Поїзд видалено");
+                        trainDAO.deleteTrain(connection, Integer.parseInt(parameters.get("trainId")));
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("successMessage", "Train has been deleted");
+                        } else {
+                            session.setAttribute("successMessage", "Поїзд видалено");
+                        }
                     }
                 } catch (SQLException e) {
                     logger.info("Failed to connect to database for delete train from database", e);

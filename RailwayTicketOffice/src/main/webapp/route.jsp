@@ -61,7 +61,9 @@
             <nav class="navbar border border-secondary rounded">
                 <div class="container-fluid justify-content-start">
                     <img src="resources/images/back-icon.png" role="button" onclick="window.history.back()" alt="back">
-                    <a class="navbar-brand offset-1 text-primary fs-4 fw-bold" href="controller?command=mainPage"><fmt:message key="route_jsp.nav.a"/></a>
+                    <c:if test="${sessionScope.user.getRole() eq 'admin'}">
+                        <a class="navbar-brand offset-1 text-primary fs-4 fw-bold" href="controller?command=mainPage"><fmt:message key="route_jsp.nav.a"/></a>
+                    </c:if>
                 </div>
             </nav>
             <div class="text-center text-primary fs-4 fw-semibold lh-1 py-2">
@@ -282,7 +284,9 @@
                             <input id="stationName" class="form-control mb-1" list="stationNameDatalist" type="text" autocomplete="off" required>
                             <datalist id="stationNameDatalist">
                                 <c:forEach items="${requestScope.stations}" var="station">
-                                    <option value="${station.getName()}" id="${station.getId()}"></option>
+                                    <c:if test="${!requestScope.train.getRoute().checkIfStationOnTheRoute(station.getId())}">
+                                        <option value="${station.getName()}" id="${station.getId()}"></option>
+                                    </c:if>
                                 </c:forEach>
                             </datalist>
                             <label for="timeSinceStart"><fmt:message key="route_jsp.label_for_timeSinceStartForEdit"/></label>

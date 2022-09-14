@@ -3,6 +3,7 @@ package com.my.railwayticketoffice.command;
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.ScheduleDAO;
+import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.TrainParameterService;
@@ -24,6 +25,7 @@ public class DeleteTrainFromScheduleCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(DeleteTrainFromScheduleCommand.class);
     private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
+    private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
 
     /**
@@ -40,22 +42,32 @@ public class DeleteTrainFromScheduleCommand implements Command {
         User user = (User) session.getAttribute("user");
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("trainId", request.getParameter("trainId"));
+            parameters.put("trainNumber", request.getParameter("trainNumber"));
             if (trainService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
                     boolean isExists = scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(parameters.get("trainId")));
-                    if (isExists) {
-                        scheduleDAO.deleteTrainFromSchedule(connection, Integer.parseInt(parameters.get("trainId")));
-                        if ("en".equals(session.getAttribute("locale"))) {
-                            session.setAttribute("successMessage", "Train has been deleted from schedule");
-                        } else {
-                            session.setAttribute("successMessage", "Поїзд видалено з розкладу");
-                        }
-                    } else {
+                    if (!isExists) {
                         if ("en".equals(session.getAttribute("locale"))) {
                             session.setAttribute("errorMessage", "There is no train on the schedule");
                         } else {
                             session.setAttribute("errorMessage", "Поїзда немає в розкладі");
                         }
+                        return "controller?command=mainPage";
+                    }
+                    int isTrainExists = trainDAO.checkIfTrainExists(connection, parameters.get("trainNumber"));
+                    if (isTrainExists == 0 || isTrainExists != Integer.parseInt(parameters.get("trainId"))) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A train with this number no exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Поїзда з таким номером не існує");
+                        }
+                        return "controller?command=mainPage";
+                    }
+                    scheduleDAO.deleteTrainFromSchedule(connection, Integer.parseInt(parameters.get("trainId")));
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("successMessage", "Train has been deleted from schedule");
+                    } else {
+                        session.setAttribute("successMessage", "Поїзд видалено з розкладу");
                     }
                 } catch (SQLException e) {
                     logger.warn("Failed to connect to database for delete train from schedule", e);

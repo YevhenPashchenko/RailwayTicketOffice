@@ -7,6 +7,8 @@ import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.filter.AvailableSeatFilter;
+import com.my.railwayticketoffice.filter.SeatFilter;
 import com.my.railwayticketoffice.mail.Mail;
 import com.my.railwayticketoffice.mail.MailException;
 import com.my.railwayticketoffice.mail.TicketMail;
@@ -35,9 +37,11 @@ public class BuyTicketCommand implements Command {
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
-    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
-    private final ParameterService<String[]> passengerService = new PassengerParameterService();
+    private final ParameterService<String> searchTrainService = new TrainSearchParameterService();
+    private final ParameterService<String[]> ticketParameterService = new TicketParameterService();
+    private final SeatFilter seatFilter = new AvailableSeatFilter();
     private final TicketService ticketService = new TrainTicketService();
+    private final ScheduleService scheduleService = new TrainScheduleService();
     private final Mail mail = new TicketMail();
 
     /**
@@ -51,7 +55,7 @@ public class BuyTicketCommand implements Command {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws DBException, ReceiptException, MailException {
         Map<String, String> parameters = new HashMap<>();
-        Map<String, String[]> passengersData = new HashMap<>();
+        Map<String, String[]> ticketParameters = new HashMap<>();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         String locale = (String) session.getAttribute("locale");
@@ -60,25 +64,27 @@ public class BuyTicketCommand implements Command {
         parameters.put("date", request.getParameter("departureDate"));
         if (user != null) {
             parameters.put("trainId", request.getParameter("trainId"));
-            passengersData.put("surname", request.getParameterValues("passengerSurname"));
-            passengersData.put("name", request.getParameterValues("passengerName"));
-            if (trainService.check(parameters, session) && passengerService.check(passengersData, session)) {
+            ticketParameters.put("surname", request.getParameterValues("passengerSurname"));
+            ticketParameters.put("name", request.getParameterValues("passengerName"));
+            ticketParameters.put("carriage", request.getParameterValues("carriage"));
+            ticketParameters.put("seat", request.getParameterValues("seat"));
+            ticketParameters.put("cost", request.getParameterValues("cost"));
+            if (trainService.check(parameters, session) && ticketParameterService.check(ticketParameters, session)) {
                 Train train;
-                int availableSeatsNow;
                 List<String> dateForDB = Arrays.asList(parameters.get("date").split("\\."));
                 Collections.reverse(dateForDB);
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    train = trainDAO.getTrainSpecifiedByDate(connection, Integer.parseInt(parameters.get("trainId")), String.join("-", dateForDB));
-                    availableSeatsNow = train.getSeats() - passengersData.get("surname").length;
-                    if (availableSeatsNow >= 0) {
-                        trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), "uk");
-                        int maxTrainSeats = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId"))).getSeats();
-                        user.setTickets(ticketService.create(train, maxTrainSeats, parameters, passengersData));
+                    train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
+                    trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), "uk");
+                    trainDAO.getCarriagesForTrains(connection, Collections.singletonList(train));
+                    trainDAO.getFreeSeatsForTrainsByDate(connection, Collections.singletonList(train), String.join("-", dateForDB));
+                    if (seatFilter.check(train, ticketParameters)) {
+                        user.setTickets(ticketService.create(train, parameters, ticketParameters));
                     } else {
                         if ("en".equals(locale)) {
-                            session.setAttribute("errorMessage", "There are fewer free seats on the train that the ordered tickets, choose something else");
+                            session.setAttribute("errorMessage", "One of ordered seat already occupied, please order another seat");
                         } else {
-                            session.setAttribute("errorMessage", "Вільних місць в поїзді менше, ніж замовлених білетів, виберіть щось інше");
+                            session.setAttribute("errorMessage", "Одне з замовлених місць вже зайняте, будь ласка виберіть інше");
                         }
                         return chooseLink(parameters, session);
                     }
@@ -95,7 +101,11 @@ public class BuyTicketCommand implements Command {
                 try {
                     connection = DBManager.getInstance().getConnection();
                     connection.setAutoCommit(false);
-                    scheduleDAO.changeTrainAvailableSeatsOnThisDate(connection, Integer.parseInt(parameters.get("trainId")), String.join("-", dateForDB), availableSeatsNow);
+                    Map<Integer, List<Integer>> seatsForDeleteFromSchedule = scheduleService.collect(train, ticketParameters);
+                    for (Integer carriageId:
+                         seatsForDeleteFromSchedule.keySet()) {
+                        scheduleDAO.changeTrainAvailableSeatsOnThisDate(connection, train.getId(), String.join("-", dateForDB), carriageId, seatsForDeleteFromSchedule.get(carriageId));
+                    }
                     connection.commit();
                     connection.setAutoCommit(true);
                     mail.send(user, session);

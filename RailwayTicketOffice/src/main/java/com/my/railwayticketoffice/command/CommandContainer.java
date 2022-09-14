@@ -29,6 +29,11 @@ public class CommandContainer {
         COMMANDS.put("addTrain", new AddTrainCommand());
         COMMANDS.put("deleteTrain", new DeleteTrainCommand());
         COMMANDS.put("editTrain", new EditTrainCommand());
+        COMMANDS.put("addCarriageToTrain", new AddCarriageToTrainCommand());
+        COMMANDS.put("addCarriageType", new AddCarriageTypeCommand());
+        COMMANDS.put("deleteCarriageFromTrain", new DeleteCarriageFromTrainCommand());
+        COMMANDS.put("deleteCarriageType", new DeleteCarriageTypeCommand());
+        COMMANDS.put("editCarriageType", new EditCarriageTypeCommand());
         COMMANDS.put("deleteStationFromTrainRoute", new DeleteStationFromTrainRouteCommand());
         COMMANDS.put("addStationToTrainRoute", new AddStationToTrainRouteCommand());
         COMMANDS.put("editStationDataOnTrainRoute", new EditStationDataOnTrainRouteCommand());
@@ -37,8 +42,10 @@ public class CommandContainer {
         COMMANDS.put("editStation", new EditStationCommand());
         COMMANDS.put("addTrainToSchedule", new AddTrainToScheduleCommand());
         COMMANDS.put("deleteTrainFromSchedule", new DeleteTrainFromScheduleCommand());
+        COMMANDS.put("chooseSeatsPage", new ChooseSeatsPageCommand());
         COMMANDS.put("changeMainPageLocale", new ChangeMainPageLocaleCommand());
         COMMANDS.put("changeRoutePageLocale", new ChangeRoutePageLocaleCommand());
+        COMMANDS.put("changeSeatsPageLocale", new ChangeSeatsPageLocaleCommand());
         COMMANDS.put("changeTicketPageLocale", new ChangeTicketPageLocaleCommand());
         COMMANDS.put("changeSuccessPageLocale", new ChangeSuccessPageLocaleCommand());
         COMMANDS.put("confirmRegistration", new ConfirmRegistrationCommand());

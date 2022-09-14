@@ -11,7 +11,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,10 +25,125 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TrainTest {
 
     /**
+     * Test for method getCarriagesTypesNumber from {@link Train}.
+     */
+    @Test
+    void testGetCarriagesTypesNumber() {
+        Train train = new Train();
+
+        String[] carriagesTypes = new String[] {"Л", "К", "П", "С1", "С2"};
+        for (int i = 0; i < carriagesTypes.length; i++) {
+            Train.Carriage carriage = train.new Carriage();
+            carriage.setType(carriagesTypes[i]);
+            train.addCarriage(i + 1, carriage);
+        }
+
+        assertEquals(5, train.getCarriagesTypesNumber());
+        assertNotEquals(4, train.getCarriagesTypesNumber());
+    }
+
+    /**
+     * Test for method getCarriageTypeOrderByMaxSeats from {@link Train}.
+     */
+    @Test
+    void testGetCarriageTypeOrderByMaxSeats() {
+        Train train = new Train();
+
+        String[] carriagesTypes = new String[] {"Л", "К", "П", "С1", "С2"};
+        int[] maxSeats = new int[] {20, 50, 10, 40, 30};
+
+        for (int i = 0; i < carriagesTypes.length; i++) {
+            Train.Carriage carriage = train.new Carriage();
+            carriage.setType(carriagesTypes[i]);
+            carriage.setMaxSeats(maxSeats[i]);
+            train.addCarriage(i + 1, carriage);
+        }
+
+        assertEquals("П", train.getCarriageTypeOrderByMaxSeats(1));
+        assertEquals("Л", train.getCarriageTypeOrderByMaxSeats(2));
+        assertEquals("С2", train.getCarriageTypeOrderByMaxSeats(3));
+        assertEquals("С1", train.getCarriageTypeOrderByMaxSeats(4));
+        assertEquals("К", train.getCarriageTypeOrderByMaxSeats(5));
+    }
+
+    /**
+     * Test for method getFreeSeatsSumByCarriageType from {@link Train}.
+     */
+    @Test
+    void testGetFreeSeatsSumByCarriageType() {
+        Train train = new Train();
+
+        String[] carriagesTypes = new String[] {"Л", "К", "П", "П", "К"};
+        int[] maxSeats = new int[] {20, 50, 40, 40, 50};
+
+        for (int i = 0; i < carriagesTypes.length; i++) {
+            Train.Carriage carriage = train.new Carriage();
+            carriage.setType(carriagesTypes[i]);
+            carriage.setMaxSeats(maxSeats[i]);
+            for (int j = 0; j <= i; j++) {
+                carriage.addSeat(j + 1);
+            }
+            train.addCarriage(i + 1, carriage);
+        }
+
+        assertEquals(1, train.getFreeSeatsSumByCarriageType(1));
+        assertEquals(7, train.getFreeSeatsSumByCarriageType(2));
+        assertEquals(7, train.getFreeSeatsSumByCarriageType(3));
+    }
+
+    /**
+     * Test for method getCarriagesFilteredByTypeAndSortedByNumber from {@link Train}.
+     */
+    @Test
+    void testGetCarriagesFilteredByTypeAndSortedByNumber() {
+        Train train = new Train();
+
+        String[] carriagesTypes = new String[] {"Л", "К", "П", "П", "К"};
+        int[] carriagesNumbers = new int[] {2, 5, 3, 4, 1};
+
+        for (int i = 0; i < carriagesTypes.length; i++) {
+            Train.Carriage carriage = train.new Carriage();
+            carriage.setType(carriagesTypes[i]);
+            carriage.setNumber(carriagesNumbers[i]);
+            train.addCarriage(i + 1, carriage);
+        }
+
+        Map<Integer, Train.Carriage> expected1 = new HashMap<>();
+        expected1.put(train.getCarriages().get(5).getNumber(), train.getCarriages().get(5));
+        expected1.put(train.getCarriages().get(2).getNumber(), train.getCarriages().get(2));
+
+        Map<Integer, Train.Carriage> expected2 = new HashMap<>();
+        expected2.put(train.getCarriages().get(3).getNumber(), train.getCarriages().get(3));
+        expected2.put(train.getCarriages().get(4).getNumber(), train.getCarriages().get(4));
+
+        assertEquals(expected1, train.getCarriagesFilteredByTypeAndSortedByNumber("К"));
+        assertEquals(expected2, train.getCarriagesFilteredByTypeAndSortedByNumber("П"));
+    }
+
+    /**
+     * Test for method isTrainHasBothStation from {@link Train}.
+     */
+    @Test
+    void testIsTrainHasBothStation() {
+        Train train1 = new Train();
+        Train train2 = new Train();
+        Station station1 = new Station();
+        station1.setId(1);
+        Station station2 = new Station();
+        station2.setId(2);
+        train1.getRoute().addStation(station1);
+        train1.getRoute().addStation(station2);
+        train2.getRoute().addStation(station1);
+
+        assertTrue(train1.getRoute().isTrainHasBothStation(station1.getId(), station2.getId()));
+        assertFalse(train2.getRoute().isTrainHasBothStation(station1.getId(), station2.getId()));
+    }
+
+    /**
      * Test for method checkDirectionIsRight from {@link Train}.
      */
     @Test
-    public void testCheckDirectionIsRight() {
+    void testCheckDirectionIsRight() {
 
         Train train = new Train();
         train.getRoute().addDistanceFromStart(1, 0);
@@ -42,7 +159,7 @@ public class TrainTest {
      * Test for method getDepartureDayOfWeekAndDateAsString from {@link Train}.
      */
     @Test
-    public void testGetDepartureDayOfWeekAndDateAsString() {
+    void testGetDepartureDayOfWeekAndDateAsString() {
 
         LocalDate date = LocalDate.now();
 
@@ -61,7 +178,7 @@ public class TrainTest {
      * Test for method getDestinationDayOfWeekAndDateAsString from {@link Train}.
      */
     @Test
-    public void testGetDestinationDayOfWeekAndDateAsString() {
+    void testGetDestinationDayOfWeekAndDateAsString() {
 
         LocalDate date = LocalDate.now();
 
@@ -104,7 +221,7 @@ public class TrainTest {
      * Test for method getArrivalTime from {@link Train}.
      */
     @Test
-    public void testGetArrivalTime() {
+    void testGetArrivalTime() {
 
         Train train = new Train();
         train.setDepartureTime(LocalTime.parse("00:10"));
@@ -118,7 +235,7 @@ public class TrainTest {
      * Test for method getDurationTrip from {@link Train}.
      */
     @Test
-    public void testGetDurationTrip() {
+    void testGetDurationTrip() {
 
         Train train = new Train();
         train.setDepartureTime(LocalTime.parse("00:10"));
@@ -139,7 +256,7 @@ public class TrainTest {
      * Test for method getCostOfTripAsString from {@link Train}.
      */
     @Test
-    public void testGetCostOfTripAsString() {
+    void testGetCostOfTripAsString() {
 
         Train train = new Train();
         for (int i = 1; i < 8; i++) {
@@ -148,9 +265,9 @@ public class TrainTest {
 
         for (int i = 2; i < 8; i++) {
             int tripDistance = train.getRoute().getDistanceFromFirstStation(i) - train.getRoute().getDistanceFromFirstStation(1);
-            double costOfTrip = Util.getBasicTicketCost() + tripDistance * Util.getOneKilometerRoadCost() * (1 - getCoefficientDependingOnDistanceOfTrip(tripDistance));
+            double costOfTrip = (Util.getBasicTicketCost() + tripDistance * Util.getOneKilometerRoadCost() * (1 - getCoefficientDependingOnDistanceOfTrip(tripDistance))) * Util.getCoefficientByCarriageType("Л");
 
-            assertEquals(new DecimalFormat("#0.00").format(costOfTrip), train.getRoute().getCostOfTripAsString(1, i));
+            assertEquals(new DecimalFormat("#0.00").format(costOfTrip), train.getRoute().getCostOfTripAsString(1, i, "Л"));
         }
     }
 

@@ -9,6 +9,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for methods from {@link StationParameterService}
@@ -24,34 +25,74 @@ public class StationParameterServiceTest {
      */
     @Test
     public void testCheck() {
+        String stationNameUA = "станція";
+        String stationNameEN = "station";
+        String stationId = "1";
+
         Map<String, String> parameters = new HashMap<>();
         List<String> keys = new ArrayList<>(Arrays.asList("stationNameUA", "stationNameEN", "stationName", "stationId"));
-        List<String> values = new ArrayList<>(Arrays.asList(null, "", "stationNameUA", null, "", "stationNameEN", null, "", "stationName", null, "", "1"));
+        List<String> values = new ArrayList<>(Arrays.asList(null, "", stationNameEN, stationNameUA,
+                null, "", stationNameUA, stationNameEN,
+                null, "", stationNameUA, stationNameEN,
+                null, "", stationId));
 
         ParameterService<String> stationParameterService = new StationParameterService();
 
-        parameters.put(keys.get(0), values.get(2));
+        parameters.put(keys.get(0), values.get(3));
         assertFalse(stationParameterService.check(parameters, session));
 
-        parameters.put(keys.get(1), values.get(5));
+        parameters.put(keys.get(1), values.get(7));
         assertTrue(stationParameterService.check(parameters, session));
 
-        parameters.put(keys.get(2), values.get(8));
-        parameters.put(keys.get(3), values.get(11));
+        parameters.put(keys.get(2), values.get(10));
+        assertTrue(stationParameterService.check(parameters, session));
+
+        parameters.put(keys.get(3), values.get(14));
+        assertTrue(stationParameterService.check(parameters, session));
 
         int count = 0;
 
-        for (String key : keys) {
-            parameters.put(key, values.get(count));
+        for (int i = 0; i < 2; i++) {
+            parameters.put(keys.get(i), values.get(count++));
             assertFalse(stationParameterService.check(parameters, session));
 
-            parameters.put(key, values.get(1 + count));
+            parameters.put(keys.get(i), values.get(count++));
             assertFalse(stationParameterService.check(parameters, session));
 
-            parameters.put(key, values.get(2 + count));
+            parameters.put(keys.get(i), values.get(count++));
+            assertFalse(stationParameterService.check(parameters, session));
+
+            parameters.put(keys.get(i), values.get(count++));
             assertTrue(stationParameterService.check(parameters, session));
-
-            count += 3;
         }
+
+        parameters.put(keys.get(2), values.get(count++));
+        assertFalse(stationParameterService.check(parameters, session));
+
+        parameters.put(keys.get(2), values.get(count++));
+        assertFalse(stationParameterService.check(parameters, session));
+
+        parameters.put(keys.get(2), values.get(count++));
+        assertTrue(stationParameterService.check(parameters, session));
+
+        parameters.put(keys.get(2), values.get(count--));
+        assertFalse(stationParameterService.check(parameters, session));
+
+        when(session.getAttribute("locale")).thenReturn("en");
+        parameters.put(keys.get(2), values.get(count++));
+        assertFalse(stationParameterService.check(parameters, session));
+
+        when(session.getAttribute("locale")).thenReturn("en");
+        parameters.put(keys.get(2), values.get(count++));
+        assertTrue(stationParameterService.check(parameters, session));
+
+        parameters.put(keys.get(3), values.get(count++));
+        assertFalse(stationParameterService.check(parameters, session));
+
+        parameters.put(keys.get(3), values.get(count++));
+        assertFalse(stationParameterService.check(parameters, session));
+
+        parameters.put(keys.get(3), values.get(count));
+        assertTrue(stationParameterService.check(parameters, session));
     }
 }

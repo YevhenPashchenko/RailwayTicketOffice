@@ -13,17 +13,65 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Train implements Serializable {
 
+    private Map<Integer, Carriage> carriages = new HashMap<>();
     private Route route = new Route();
     private int id;
     private String number;
-    private int seats;
     private LocalTime departureTime;
 
-    public int getSeatNumber(int maxTrainSeats) {
-        return maxTrainSeats - seats + 1;
+    /**
+     * @return the number of types of carriages in train.
+     */
+    public int getCarriagesTypesNumber() {
+        return (int) carriages.values().stream().map(Carriage::getType).distinct().count();
+    }
+
+    /**
+     * @param count number by which the type of carriage is contains in the array sorted by maximum carriage seats.
+     * @return carriage type.
+     */
+    public String getCarriageTypeOrderByMaxSeats(int count) {
+        return (String) carriages.values().stream()
+                .sorted(Comparator.comparingInt(Carriage::getMaxSeats))
+                .map(Carriage::getType).distinct().toArray()[count - 1];
+    }
+
+    /**
+     * @param count number for get type of carriage from method getCarriageTypeOrderByMaxSeats.
+     * @return sum of free seats in carriages of the same type.
+     */
+    public int getFreeSeatsSumByCarriageType(int count) {
+        String carriageType = getCarriageTypeOrderByMaxSeats(count);
+        return carriages.values().stream()
+                .filter(carriage -> carriageType.equals(carriage.type))
+                .flatMapToInt(carriage -> IntStream.of(carriage.seats.size())).sum();
+    }
+
+    /**
+     * @param carriageType chosen carriage type.
+     * @return filtered by carriage type and sorted by carriage number map in which key is carriage number.
+     */
+    public Map<Integer, Carriage> getCarriagesFilteredByTypeAndSortedByNumber(String carriageType) {
+        return carriages.values().stream()
+                .filter(carriage -> carriage.type.equals(carriageType))
+                .collect(Collectors.toMap(carriage -> carriage.number, carriage -> carriage));
+    }
+
+    public Map<Integer, Carriage> getCarriages() {
+        return Collections.unmodifiableMap(carriages);
+    }
+
+    public void setCarriages(Map<Integer, Carriage> carriages) {
+        this.carriages = carriages;
+    }
+
+    public void addCarriage(Integer carriageId, Carriage carriage) {
+        carriages.put(carriageId, carriage);
     }
 
     public Route getRoute() {
@@ -50,20 +98,74 @@ public class Train implements Serializable {
         this.number = number;
     }
 
-    public int getSeats() {
-        return seats;
-    }
-
-    public void setSeats(int seats) {
-        this.seats = seats;
-    }
-
     public LocalTime getDepartureTime() {
         return departureTime;
     }
 
     public void setDepartureTime(LocalTime departureTime) {
         this.departureTime = departureTime;
+    }
+
+    public class Carriage implements Serializable {
+
+        private int id;
+        private int number;
+        private String type;
+        private int maxSeats;
+        private final Set<Integer> seats = new TreeSet<>();
+
+        public Set<Integer> getSeats() {
+            return Collections.unmodifiableSet(seats);
+        }
+
+        public void addSeat(Integer seatNumber) {
+            seats.add(seatNumber);
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getNumber() {
+            return number;
+        }
+
+        public void setNumber(int number) {
+            this.number = number;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public int getMaxSeats() {
+            return maxSeats;
+        }
+
+        public void setMaxSeats(int maxSeats) {
+            this.maxSeats = maxSeats;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Carriage carriage = (Carriage) o;
+            return id == carriage.id && number == carriage.number && maxSeats == carriage.maxSeats && Objects.equals(type, carriage.type) && Objects.equals(seats, carriage.seats);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, number, type, maxSeats, seats);
+        }
     }
 
     public class Route implements Serializable {
@@ -81,6 +183,26 @@ public class Train implements Serializable {
          * Key - station id, value - distance from the first station to the current station.
          */
         private final Map<Integer, Integer> distanceFromStartMap = new HashMap<>();
+
+        /**
+         * Check that the train has both stations on the route.
+         * @param fromStationId departure station id.
+         * @param toStationId destination station id.
+         * @return true if both stations contains in stations list or false if not.
+         */
+        public boolean isTrainHasBothStation(int fromStationId, int toStationId) {
+            int isHas = 0;
+            for (Station station:
+                 stations) {
+                if (station.getId() == fromStationId || station.getId() == toStationId) {
+                    isHas++;
+                    if (isHas == 2) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         /**
          * Checks that the train goes in the needed direction.
@@ -205,13 +327,17 @@ public class Train implements Serializable {
         }
 
         /**
-         * @param fromStationId - id of departure station.
-         * @param toStationId - id of destination station.
+         * @param fromStationId id of departure station.
+         * @param toStationId id of destination station.
+         * @param carriageType {@link Carriage} type.
          * @return cost of trip between departure station and destination station.
          */
-        public String getCostOfTripAsString(int fromStationId, int toStationId) {
+        public String getCostOfTripAsString(int fromStationId, int toStationId, String carriageType) {
             int tripDistance = distanceFromStartMap.get(toStationId) - distanceFromStartMap.get(fromStationId);
-            double costOfTrip = Util.getBasicTicketCost() + tripDistance * Util.getOneKilometerRoadCost() * (1 - getCoefficientDependingOnDistanceOfTrip(tripDistance));
+            double costOfTrip = (Util.getBasicTicketCost()
+                    + tripDistance * Util.getOneKilometerRoadCost()
+                    * (1 - getCoefficientDependingOnDistanceOfTrip(tripDistance)))
+                    * Util.getCoefficientByCarriageType(carriageType);
             return new DecimalFormat("#0.00").format(costOfTrip);
         }
 
@@ -221,6 +347,10 @@ public class Train implements Serializable {
                 coefficient = 0.5;
             }
             return coefficient;
+        }
+
+        public boolean checkIfStationOnTheRoute(int stationId) {
+            return stations.stream().anyMatch(station -> station.getId() == stationId);
         }
 
         public int getDistanceFromFirstStation(int stationId) {
@@ -290,11 +420,11 @@ public class Train implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Train train = (Train) o;
-        return id == train.id && seats == train.seats && Objects.equals(route, train.route) && Objects.equals(number, train.number) && Objects.equals(departureTime, train.departureTime);
+        return id == train.id && Objects.equals(route, train.route) && Objects.equals(number, train.number) && Objects.equals(departureTime, train.departureTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(route, id, number, seats, departureTime);
+        return Objects.hash(route, id, number, departureTime);
     }
 }

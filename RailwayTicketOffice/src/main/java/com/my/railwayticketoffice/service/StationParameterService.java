@@ -2,6 +2,8 @@ package com.my.railwayticketoffice.service;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class that verify station parameters
@@ -20,6 +22,26 @@ public class StationParameterService implements ParameterService<String> {
                     session.setAttribute("stationErrorMessage", "Station name cannot be empty");
                 } else {
                     session.setAttribute("stationErrorMessage", "Ім'я станції не може бути пустим");
+                }
+                return false;
+            }
+            Pattern pattern = Pattern.compile("[\u0400-\u04FF\\p{Punct}\\p{Space}\\p{Digit}]*");
+            Matcher matcher = pattern.matcher(stationNameUA);
+            if (!matcher.matches()) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("stationErrorMessage", "Station name in Ukrainian should not contain letters other than Ukrainian");
+                } else {
+                    session.setAttribute("stationErrorMessage", "В назві станції українською не має бути інших букв, крім українських");
+                }
+                return false;
+            }
+            pattern = Pattern.compile("[A-Za-z\\p{Punct}\\p{Space}\\p{Digit}]*");
+            matcher = pattern.matcher(stationNameEN);
+            if (!matcher.matches()) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("stationErrorMessage", "Station name in English should not contain letters other than English");
+                } else {
+                    session.setAttribute("stationErrorMessage", "В назві станції англійською не має бути інших букв, крім англійських");
                 }
                 return false;
             }
@@ -45,6 +67,21 @@ public class StationParameterService implements ParameterService<String> {
                     session.setAttribute("stationErrorMessage", "Ім'я станції не може бути пустим");
                 }
                 return false;
+            }
+            if ("en".equals(session.getAttribute("locale"))) {
+                Pattern pattern = Pattern.compile("[A-Za-z\\p{Punct}\\p{Space}\\p{Digit}]*");
+                Matcher matcher = pattern.matcher(stationName);
+                if (!matcher.matches()) {
+                    session.setAttribute("stationErrorMessage", "Station name in English should not contain letters other than English");
+                    return false;
+                }
+            } else {
+                Pattern pattern = Pattern.compile("[\u0400-\u04FF\\p{Punct}\\p{Space}\\p{Digit}]*");
+                Matcher matcher = pattern.matcher(stationName);
+                if (!matcher.matches()) {
+                    session.setAttribute("stationErrorMessage", "В назві станції українською не має бути інших букв, крім українських");
+                    return false;
+                }
             }
         }
         return true;

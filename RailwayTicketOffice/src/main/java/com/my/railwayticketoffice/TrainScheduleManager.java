@@ -4,6 +4,8 @@ import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
+import com.my.railwayticketoffice.service.ScheduleService;
+import com.my.railwayticketoffice.service.TrainScheduleService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,22 +27,18 @@ public class TrainScheduleManager implements Runnable {
     private static final Logger logger = LogManager.getLogger(TrainScheduleManager.class);
     private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
+    private final ScheduleService scheduleService = new TrainScheduleService();
 
     /**
      * Prepares data for train schedule.
      */
     public void initialize() {
         try(Connection connection = DBManager.getInstance().getConnection()) {
-            LocalDate date = LocalDate.now();
-            List<String> scheduleDates = new ArrayList<>();
-            for (int i = 0; i < Util.getScheduleDuration(); i++) {
-                String currentDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH));
-                scheduleDates.add(currentDate);
-                date = date.plusDays(1);
-            }
+            List<String> scheduleDates = scheduleService.create();
             List<Train> trains = trainDAO.getAllTrains(connection);
             scheduleDAO.clearTable(connection);
             if (trains.size() > 0) {
+                trainDAO.getCarriagesForTrains(connection, trains);
                 scheduleDAO.addData(connection, scheduleDates, trains);
             }
         } catch (SQLException e) {
@@ -62,7 +60,10 @@ public class TrainScheduleManager implements Runnable {
             scheduleDAO.deleteData(connection, currentDate);
             scheduleDates.add(newLastScheduleDate);
             List<Train> trains = trainDAO.getAllTrains(connection);
-            scheduleDAO.addData(connection, scheduleDates, trains);
+            if (trains.size() > 0) {
+                trainDAO.getCarriagesForTrains(connection, trains);
+                scheduleDAO.addData(connection, scheduleDates, trains);
+            }
         } catch (SQLException e) {
             logger.warn("Failed to update train schedule", e);
         }

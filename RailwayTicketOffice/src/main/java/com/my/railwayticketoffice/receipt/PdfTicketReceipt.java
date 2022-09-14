@@ -38,7 +38,7 @@ public class PdfTicketReceipt implements TicketReceipt {
              user.getTickets()) {
             PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100);
-            table.setWidthPercentage(new float[] {20, 30, 30, 20}, new Rectangle(100, 100));
+            table.setWidthPercentage(new float[] {27, 28, 25, 20}, new Rectangle(100, 100));
 
             List<String> cellsText = Arrays.asList("ЗАЛІЗНИЧНИЙ КВИТОК", ticket.getTicketNumber()
                     , "Railway Ticket Office", LocalDateTime.now().format(dateTimeFormatter));
@@ -47,27 +47,31 @@ public class PdfTicketReceipt implements TicketReceipt {
                  cellsText) {
                 PdfPCell pdfPCell = new PdfPCell(new Paragraph(text, font));
                 pdfPCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                pdfPCell.setPadding(5);
                 table.addCell(pdfPCell);
             }
 
-            cellsText = Arrays.asList("Поїзд", ticket.getTrainNumber()
-                    , "Місце", "" + ticket.getSeatNumber(),
+            cellsText = Arrays.asList("Прізвище", ticket.getPassengerSurname(),
+                    "Ім'я", ticket.getPassengerName(),
                     "Відправлення", ticket.getDepartureStation(),
-                    "Дата/Час відправлення", ticket.getDepartureDateTime().format(dateTimeFormatter),
+                    "Поїзд", ticket.getTrainNumber(),
                     "Призначення", ticket.getDestinationStation(),
+                    "Вагон/Тип", ticket.getCarriageNumber() + " " + ticket.getCarriageType(),
+                    "Дата/Час відправлення", ticket.getDepartureDateTime().format(dateTimeFormatter),
+                    "Місце", "" + ticket.getSeatNumber(),
                     "Дата/Час призначення", ticket.getDestinationDateTime().format(dateTimeFormatter),
-                    "Прізвище, Ім'я", ticket.getPassengerSurname() + " " + ticket.getPassengerName()
-                    , "Вартість", ticket.getCost() + " грн.");
+                    "Вартість", ticket.getCost() + " грн.");
 
             for (int i = 0; i < cellsText.size(); i++) {
                 PdfPCell pdfPCell = new PdfPCell(new Paragraph(cellsText.get(i), font));
                 if (i % 2 != 0) {
                     pdfPCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 }
+                pdfPCell.setPadding(5);
                 table.addCell(pdfPCell);
             }
 
-            table.setSpacingAfter(10);
+            table.setSpacingAfter(20);
             document.add(table);
         }
 

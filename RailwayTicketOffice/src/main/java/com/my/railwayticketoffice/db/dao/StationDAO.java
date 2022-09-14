@@ -15,12 +15,23 @@ public interface StationDAO {
 
     /**
      * When a class implementing interface {@link StationDAO} call this method should be return a list of stations.
-     * @param connection - Connection object.
-     * @param locale - current locale.
-     * @throws SQLException – if a database access error occurs.
+     * @param connection Connection object.
+     * @param locale current locale.
+     * @throws SQLException if a database access error occurs.
      * @return a list of {@link Station}.
      */
     List<Station> getStations(Connection connection, String locale) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link StationDAO} call this method should return an {@link Station} id if it
+     * exists or 0 if not.
+     * @param connection Connection object.
+     * @param stationName {@link Station} name.
+     * @param locale current locale.
+     * @return an {@link Station} id if it exists or 0 if not.
+     * @throws SQLException if a database access error occurs.
+     */
+    int checkIfStationExists(Connection connection, String stationName, String locale) throws SQLException;
 
     /**
      * When a class implementing interface {@link StationDAO} call this method should be added station in Ukrainian to database

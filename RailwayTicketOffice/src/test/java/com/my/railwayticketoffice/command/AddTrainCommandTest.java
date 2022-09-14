@@ -3,6 +3,10 @@ package com.my.railwayticketoffice.command;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.TrainParameterService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -10,11 +14,11 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for methods from {@link AddTrainCommand}
@@ -26,9 +30,23 @@ public class AddTrainCommandTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
     HttpSession session = mock(HttpSession.class);
+    MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
+    private final ParameterService<String> trainService = mock(TrainParameterService.class);
+
+    @BeforeEach
+    void beforeEach() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+    }
+
+    @AfterEach
+    void afterEach() {
+        DBManagerMocked.close();
+    }
 
     /**
      * Test for method execute from {@link AddTrainCommand}.
@@ -40,17 +58,50 @@ public class AddTrainCommandTest {
         User user = new User();
         user.setRole("admin");
 
-        when(request.getSession()).thenReturn(session);
+        String trainNumber = "Номер";
+        String trainDepartureTime = "00:00";
+
         when((User) session.getAttribute("user")).thenReturn(user);
-        when(request.getParameter("trainNumber")).thenReturn("trainNumber");
-        when(request.getParameter("trainSeats")).thenReturn("1");
-        when(request.getParameter("trainDepartureTime")).thenReturn("00:00");
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+        when(request.getParameter("trainNumber")).thenReturn(trainNumber);
+        when(request.getParameter("trainDepartureTime")).thenReturn(trainDepartureTime);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(0);
 
         assertEquals("controller?command=mainPage", new AddTrainCommand().execute(request, response));
-        DBManagerMocked.close();
+        verify(trainDAO, times(1)).addTrain(connection, trainNumber, trainDepartureTime);
+    }
+
+    /**
+     * Test for method execute from {@link AddTrainCommand} when user is not in session.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testExecuteNotUser() throws Exception {
+
+        AddTrainCommand addTrainCommand = new AddTrainCommand();
+
+        Field field = addTrainCommand.getClass().getDeclaredField("trainService");
+        field.setAccessible(true);
+        field.set(addTrainCommand, trainService);
+
+        assertEquals("controller?command=mainPage", addTrainCommand.execute(request, response));
+        verifyNoInteractions(trainService);
+    }
+
+    /**
+     * Test for method execute from {@link AddTrainCommand} when incorrect parameters in request.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    public void testExecuteIncorrectParameters() throws Exception {
+        User user = new User();
+        user.setRole("admin");
+
+        when((User) session.getAttribute("user")).thenReturn(user);
+
+        assertEquals("controller?command=mainPage", new AddTrainCommand().execute(request, response));
+        verifyNoInteractions(trainDAO);
     }
 }

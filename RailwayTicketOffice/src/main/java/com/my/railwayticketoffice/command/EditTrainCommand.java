@@ -45,20 +45,27 @@ public class EditTrainCommand implements Command {
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("trainId", request.getParameter("trainId"));
             parameters.put("trainNumber", request.getParameter("trainNumber"));
-            parameters.put("trainSeats", request.getParameter("trainSeats"));
             parameters.put("trainDepartureTime", request.getParameter("trainDepartureTime"));
             if (trainService.check(parameters, session)) {
-                Train train = new Train();
-                train.setId(Integer.parseInt(parameters.get("trainId")));
-                train.setNumber(parameters.get("trainNumber"));
-                train.setSeats(Integer.parseInt(parameters.get("trainSeats")));
-                train.setDepartureTime(LocalTime.parse(parameters.get("trainDepartureTime")));
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    trainDAO.editTrain(connection, train);
-                    if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("successMessage", "Train data has been edited");
+                    int isTrainExists = trainDAO.checkIfTrainExists(connection, request.getParameter("oldTrainNumber"));
+                    if (isTrainExists == 0 || isTrainExists != Integer.parseInt(parameters.get("trainId"))) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A train with this number no exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Поїзда з таким номером не існує");
+                        }
                     } else {
-                        session.setAttribute("successMessage", "Дані поїзда змінено");
+                        Train train = new Train();
+                        train.setId(Integer.parseInt(parameters.get("trainId")));
+                        train.setNumber(parameters.get("trainNumber"));
+                        train.setDepartureTime(LocalTime.parse(parameters.get("trainDepartureTime")));
+                        trainDAO.editTrain(connection, train);
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("successMessage", "Train data has been edited");
+                        } else {
+                            session.setAttribute("successMessage", "Дані поїзда змінено");
+                        }
                     }
                 } catch (SQLException e) {
                     logger.info("Failed to connect to database for edit train data  in database");

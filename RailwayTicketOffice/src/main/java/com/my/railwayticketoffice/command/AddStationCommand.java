@@ -3,6 +3,7 @@ package com.my.railwayticketoffice.command;
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.StationDAO;
+import com.my.railwayticketoffice.entity.Station;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.StationParameterService;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,6 +49,16 @@ public class AddStationCommand implements Command {
                 Connection connection = null;
                 try {
                     connection = DBManager.getInstance().getConnection();
+                    int isStationUAExists = stationDAO.checkIfStationExists(connection, parameters.get("stationNameUA"), null);
+                    int isStationENExists = stationDAO.checkIfStationExists(connection, parameters.get("stationNameEN"), "en");
+                    if (isStationUAExists > 0 || isStationENExists > 0) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A station with this name already exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Станція з таким ім'ям вже існує");
+                        }
+                        return "controller?command=mainPage";
+                    }
                     connection.setAutoCommit(false);
                     int id = stationDAO.addStation(connection, parameters.get("stationNameUA"));
                     stationDAO.addStationEN(connection, id, parameters.get("stationNameEN"));

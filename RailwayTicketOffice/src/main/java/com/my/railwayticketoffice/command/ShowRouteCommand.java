@@ -8,7 +8,7 @@ import com.my.railwayticketoffice.entity.Station;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
-import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.service.TrainSearchParameterService;
 import com.my.railwayticketoffice.service.TrainParameterService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +34,7 @@ public class ShowRouteCommand implements Command {
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final StationDAO stationDAO = DBManager.getInstance().getStationDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
-    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
+    private final ParameterService<String> searchTrainService = new TrainSearchParameterService();
 
     /**
      * Get from database {@link com.my.railwayticketoffice.entity.Train} and his route.
@@ -55,16 +55,24 @@ public class ShowRouteCommand implements Command {
         if (trainService.check(parameters, session)) {
             try(Connection connection = DBManager.getInstance().getConnection()) {
                 Train train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
-                if (user != null && "admin".equals(user.getRole())) {
-                    List<Station> stations = stationDAO.getStations(connection, locale);
-                    request.setAttribute("stations", stations);
-                }
                 trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), locale);
+                if (train.getRoute().getStations().size() == 0) {
+                    if ("en".equals(locale)) {
+                        session.setAttribute("errorMessage", "Failed to get route for this train from database");
+                    } else {
+                        session.setAttribute("errorMessage", "Не вийшло отримати маршрут цього поїзда з бази даних");
+                    }
+                    return "controller?command=mainPage";
+                }
+                request.setAttribute("train", train);
                 if (searchTrainService.check(parameters, session)) {
                     request.setAttribute("from", Integer.parseInt(parameters.get("from")));
                     request.setAttribute("to", Integer.parseInt(parameters.get("to")));
                 }
-                request.setAttribute("train", train);
+                if (user != null && "admin".equals(user.getRole())) {
+                    List<Station> stations = stationDAO.getStations(connection, locale);
+                    request.setAttribute("stations", stations);
+                }
             } catch (SQLException e) {
                 logger.warn("Failed to connect to database for get train route", e);
                 if ("en".equals(locale)) {

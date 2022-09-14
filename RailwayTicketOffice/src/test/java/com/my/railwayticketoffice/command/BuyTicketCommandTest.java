@@ -6,7 +6,11 @@ import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.mail.Mail;
-import com.my.railwayticketoffice.service.TicketService;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.TicketParameterService;
+import com.my.railwayticketoffice.service.TrainParameterService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -17,12 +21,12 @@ import javax.servlet.http.HttpSession;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for methods from {@link BuyTicketCommand}
@@ -34,12 +38,26 @@ public class BuyTicketCommandTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
     HttpSession session = mock(HttpSession.class);
+    MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final ScheduleDAO scheduleDAO = mock(ScheduleDAO.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
-    private final TicketService ticketService = mock(TicketService.class);
+    private final ParameterService<String> trainService = mock(TrainParameterService.class);
+    private final ParameterService<String[]> ticketParameterService = mock(TicketParameterService.class);
     private final Mail mail = mock(Mail.class);
+
+    @BeforeEach
+    void beforeEach() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+    }
+
+    @AfterEach
+    void afterEach() {
+        DBManagerMocked.close();
+    }
 
     /**
      * Test for method execute from {@link BuyTicketCommand}.
@@ -47,46 +65,59 @@ public class BuyTicketCommandTest {
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
-    public void testExecute() throws Exception {
+    void testExecute() throws Exception {
         User user = new User();
-        user.setRole("admin");
 
+        String trainId = "1";
+        String from = "1";
+        String to = "2";
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        String[] passengerSurname = new String[] {"passengerSurname"};
+        String[] passengerName = new String[] {"passengerName"};
+        String[] carriages = new String[] {"1"};
+        String[] seat = new String[] {"1"};
+        String[] cost = new String[] {"1"};
 
         List<String> dateForDB = Arrays.asList(date.split("\\."));
         Collections.reverse(dateForDB);
 
         Train train = new Train();
-        train.setSeats(1);
+        train.setDepartureTime(LocalTime.of(0, 0));
+        train.getRoute().addDistanceFromStart(1, 1);
+        train.getRoute().addDistanceFromStart(2, 2);
+        train.getRoute().addTimeSinceStart(1, "00:01");
+        train.getRoute().addTimeSinceStart(2, "00:02");
+        Train.Carriage carriage = train.new Carriage();
+        carriage.setId(1);
+        carriage.setNumber(1);
+        carriage.setMaxSeats(1);
+        carriage.setType("П");
+        carriage.addSeat(Integer.parseInt(carriages[0]));
+        train.addCarriage(carriage.getId(), carriage);
 
-        when(request.getSession()).thenReturn(session);
         when((User) session.getAttribute("user")).thenReturn(user);
-        when(request.getParameter("trainId")).thenReturn("1");
-        when(request.getParameter("from")).thenReturn("1");
-        when(request.getParameter("to")).thenReturn("2");
-        when(request.getParameter("departureDate")).thenReturn(date);
-        when(request.getParameterValues("passengerSurname")).thenReturn(new String[] {"passengerSurname"});
-        when(request.getParameterValues("passengerName")).thenReturn(new String[] {"passengerName"});
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getConnection()).thenReturn(connection);
-        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
-        when(trainDAO.getTrainSpecifiedByDate(connection, 1, String.join("-", dateForDB))).thenReturn(train);
-        when(trainDAO.getTrain(connection, 1)).thenReturn(train);
-        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
-        when(scheduleDAO.getTrainAvailableSeatsOnThisDate(connection, 1, String.join("-", dateForDB))).thenReturn(1);
 
-        Command buyTicketCommand = new BuyTicketCommand();
-        Field field = buyTicketCommand.getClass().getDeclaredField("ticketService");
-        field.setAccessible(true);
-        field.set(buyTicketCommand, ticketService);
-        field = buyTicketCommand.getClass().getDeclaredField("mail");
+        when(request.getParameter("from")).thenReturn(from);
+        when(request.getParameter("to")).thenReturn(to);
+        when(request.getParameter("departureDate")).thenReturn(date);
+        when(request.getParameter("trainId")).thenReturn(trainId);
+        when(request.getParameterValues("passengerSurname")).thenReturn(passengerSurname);
+        when(request.getParameterValues("passengerName")).thenReturn(passengerName);
+        when(request.getParameterValues("carriage")).thenReturn(carriages);
+        when(request.getParameterValues("seat")).thenReturn(seat);
+        when(request.getParameterValues("cost")).thenReturn(cost);
+        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
+        when(trainDAO.getTrain(connection, 1)).thenReturn(train);
+
+        BuyTicketCommand buyTicketCommand = new BuyTicketCommand();
+
+        Field field = buyTicketCommand.getClass().getDeclaredField("mail");
         field.setAccessible(true);
         field.set(buyTicketCommand, mail);
 
-
         assertEquals("success.jsp", buyTicketCommand.execute(request, response));
-        DBManagerMocked.close();
+        verify(mail, times(1)).send(user, session);
     }
 
     /**
@@ -95,39 +126,38 @@ public class BuyTicketCommandTest {
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
-    public void testExecuteNotUserInSession() throws Exception {
-
+    void testExecuteNotUserInSession() throws Exception {
+        String from = "1";
+        String to = "2";
         LocalDate dateNow = LocalDate.now();
         String date = dateNow.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
-        when(request.getSession()).thenReturn(session);
-        when((User) session.getAttribute("user")).thenReturn(null);
-        when(request.getParameter("from")).thenReturn("1");
-        when(request.getParameter("to")).thenReturn("2");
+        when(request.getParameter("from")).thenReturn(from);
+        when(request.getParameter("to")).thenReturn(to);
         when(request.getParameter("departureDate")).thenReturn(date);
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
 
-        assertEquals("controller?command=getTrains&from=1&to=2&departureDate=" + date, new BuyTicketCommand().execute(request, response));
-        DBManagerMocked.close();
+        BuyTicketCommand buyTicketCommand = new BuyTicketCommand();
+
+        Field field = buyTicketCommand.getClass().getDeclaredField("trainService");
+        field.setAccessible(true);
+        field.set(buyTicketCommand, trainService);
+
+        assertEquals("controller?command=getTrains&from=" + from + "&to=" + to + "&departureDate=" + date, buyTicketCommand.execute(request, response));
+        verifyNoInteractions(trainService);
     }
 
     /**
-     * Test for method execute from {@link BuyTicketCommand} when user is not in session and no additional parameters.
+     * Test for method execute from {@link BuyTicketCommand} when incorrect parameters in request.
      *
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
-    public void testExecuteNotUserInSessionAndNoAdditionalParameters() throws Exception {
+    void testExecuteIncorrectParameters() throws Exception {
+        User user = new User();
 
-        when(request.getSession()).thenReturn(session);
-        when((User) session.getAttribute("user")).thenReturn(null);
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
+        when((User) session.getAttribute("user")).thenReturn(user);
 
         assertEquals("controller?command=mainPage", new BuyTicketCommand().execute(request, response));
-        DBManagerMocked.close();
+        verifyNoInteractions(ticketParameterService);
     }
 }

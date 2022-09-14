@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class that built at command pattern. Prepare data for main.jsp page.
@@ -31,9 +32,9 @@ public class MainPageCommand implements Command {
 
     /**
      * Prepare data for main.jsp page.
-     * @param request - HttpServletRequest object.
-     * @param response - HttpServletResponse object.
-     * @return - link to main.jsp
+     * @param request HttpServletRequest object.
+     * @param response HttpServletResponse object.
+     * @return link to main.jsp.
      * @throws DBException if {@link SQLException} occurs.
      */
     @Override
@@ -46,17 +47,32 @@ public class MainPageCommand implements Command {
             stations = stationDAO.getStations(connection, locale);
             request.setAttribute("stations", stations);
             if (user != null && "admin".equals(user.getRole())) {
-                List<Train> trains = trainDAO.getAllTrains(connection);
-                request.setAttribute("trainsForAdmin", trains);
+                try {
+                    List<Train> trains = trainDAO.getAllTrains(connection);
+                    if (trains.size() > 0) {
+                        trainDAO.getCarriagesForTrains(connection, trains);
+                        Map<Integer, String> carriagesTypes = trainDAO.getCarriagesTypes(connection);
+                        request.setAttribute("trainsForAdmin", trains);
+                        request.setAttribute("carriagesTypes", carriagesTypes);
+                    }
+                } catch (SQLException e) {
+                    logger.warn("Failed to connect to database to get trains from database", e);
+                    if ("en".equals(locale)) {
+                        session.setAttribute("errorMessage", "Failed to connect to database to get trains from database");
+                    } else {
+                        session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати поїзди");
+                    }
+                    throw new DBException("Failed to connect to database to get trains from database");
+                }
             }
         } catch (SQLException e) {
-            logger.warn("Failed to connect to database for get stations from database", e);
+            logger.warn("Failed to connect to database to get stations from database", e);
             if ("en".equals(locale)) {
-                session.setAttribute("errorMessage", "Failed to connect to database for get stations from database");
+                session.setAttribute("errorMessage", "Failed to connect to database to get stations from database");
             } else {
                 session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб отримати станції");
             }
-            throw new DBException("Failed to connect to database for get stations from database");
+            throw new DBException("Failed to connect to database to get stations from database");
         }
         return "main.jsp";
     }

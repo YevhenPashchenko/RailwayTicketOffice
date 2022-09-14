@@ -1,5 +1,8 @@
 package com.my.railwayticketoffice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Util class that contains some different variables.
  *
@@ -11,6 +14,15 @@ public class Util {
     private static int basicTicketCost = 50;
     private static double oneKilometerRoadCost = 0.5;
     private static int numberTrainOnPage = 2;
+    private static final Map<String, Double> coefficientsByCarriageTypes = new HashMap<>();
+
+    static {
+        coefficientsByCarriageTypes.put("Л", 2.0);
+        coefficientsByCarriageTypes.put("К", 1.5);
+        coefficientsByCarriageTypes.put("П", 1.0);
+        coefficientsByCarriageTypes.put("С1", 1.75);
+        coefficientsByCarriageTypes.put("С2", 1.5);
+    }
 
     /**
      * Returns the number of days contained in the train schedule
@@ -51,5 +63,13 @@ public class Util {
 
     public static void setNumberTrainOnPage(int numberTrainOnPage) {
         Util.numberTrainOnPage = numberTrainOnPage;
+    }
+
+    public static double getCoefficientByCarriageType(String carriageType) {
+        return coefficientsByCarriageTypes.get(carriageType);
+    }
+
+    public static void addCoefficientByCarriageType(String carriageType, double coefficient) {
+        coefficientsByCarriageTypes.put(carriageType, coefficient);
     }
 }

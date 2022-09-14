@@ -1,7 +1,7 @@
 package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.service.ParameterService;
-import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.service.TrainSearchParameterService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,12 +16,12 @@ import java.util.Map;
  */
 public class ChangeMainPageLocaleCommand implements Command {
 
-    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
+    private final ParameterService<String> searchTrainService = new TrainSearchParameterService();
 
     /**
      * Change locale on main.jsp.
-     * @param request - HttpServletRequest object.
-     * @param response - HttpServletResponse object.
+     * @param request HttpServletRequest object.
+     * @param response HttpServletResponse object.
      * @return link to {@link MainPageCommand} or link to train chooses command if additional parameters exists.
      */
     @Override

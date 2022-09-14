@@ -44,6 +44,24 @@ public class EditStationCommand implements Command {
             parameters.put("stationName", request.getParameter("stationName"));
             if (stationService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
+                    int isStationExist = stationDAO.checkIfStationExists(connection, request.getParameter("oldStationName"), locale);
+                    int isNewStationExist = stationDAO.checkIfStationExists(connection, parameters.get("stationName"), locale);
+                    if (isStationExist == 0 || isStationExist != Integer.parseInt(parameters.get("stationId"))) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A station with this name no exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Станції з такою назвою не існує");
+                        }
+                        return "controller?command=mainPage";
+                    }
+                    if (isNewStationExist > 0) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A station with this name already exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Станція з таким ім'ям вже існує");
+                        }
+                        return "controller?command=mainPage";
+                    }
                     stationDAO.editStation(connection, Integer.parseInt(parameters.get("stationId")), parameters.get("stationName"), locale);
                     if ("en".equals(locale)) {
                         session.setAttribute("successMessage", "Station data has been edited");

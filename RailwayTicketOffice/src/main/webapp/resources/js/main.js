@@ -136,16 +136,18 @@ $(function() {
 });
 
 inputFrom.addEventListener("change", e => {
-    let inputValue = e.currentTarget.value;
+    let input = e.currentTarget;
+    let datalist = input.getAttribute('list');
     for (let i = 0; i < inputsFrom.length; i++) {
-        changeAttribute(inputValue, inputsFrom[i]);
+        changeAttribute(input.value, inputsFrom[i], datalist);
     }
 });
 
 inputTo.addEventListener("change", e => {
-    let inputValue = e.currentTarget.value;
+    let input = e.currentTarget;
+    let datalist = input.getAttribute('list');
     for (let i = 0; i < inputsTo.length; i++) {
-        changeAttribute(inputValue, inputsTo[i]);
+        changeAttribute(input.value, inputsTo[i], datalist);
     }
 });
 
@@ -183,12 +185,13 @@ searchTrainsButton.addEventListener("click", ev => {
 document.querySelector('.reverseRoute').addEventListener("click", () => {
     let value = inputFrom.value;
     inputFrom.value = inputTo.value;
+    let datalist = document.querySelector('#stationsDatalistOptions').id;
     for (let i = 0; i < inputsFrom.length; i++) {
-        changeAttribute(inputFrom.value, inputsFrom[i]);
+        changeAttribute(inputFrom.value, inputsFrom[i], datalist);
     }
     inputTo.value = value;
     for (let i = 0; i < inputsTo.length; i++) {
-        changeAttribute(inputTo.value, inputsTo[i]);
+        changeAttribute(inputTo.value, inputsTo[i], datalist);
     }
 });
 
@@ -207,12 +210,12 @@ for (let i = 0; i < images.length; i++) {
     });
 }
 
-function changeAttribute(inputValue, input) {
+function changeAttribute(inputValue, input, datalist) {
     if (inputValue === "") {
         input.removeAttribute("value");
     } else {
-        let option = document.querySelector('option[value="' + inputValue + '"]');
-        if (option === undefined) {
+        let option = document.querySelector('datalist[id="' + datalist +'"]').querySelector('option[value="' + inputValue + '"]');
+        if (option === null) {
             input.removeAttribute("value");
         } else {
             input.setAttribute("value", option.getAttribute('id'));

@@ -9,6 +9,8 @@ public class MySQLStationDAOQuery {
 
     public static final String GET_STATIONS = "SELECT id, name FROM stations";
     public static final String GET_EN_STATIONS = "SELECT station_id as id, name FROM stations_en";
+    public static final String CHECK_IF_STATION_EXISTS = "SELECT id FROM stations WHERE name = ?";
+    public static final String CHECK_IF_STATION_EN_EXISTS = "SELECT station_id as id FROM stations_en WHERE name = ?";
     public static final String ADD_STATION = "INSERT INTO stations VALUES (default, ?)";
     public static final String ADD_STATION_EN = "INSERT INTO stations_en VALUES (?, ?)";
     public static final String DELETE_STATION = "DELETE FROM stations WHERE id = ?";

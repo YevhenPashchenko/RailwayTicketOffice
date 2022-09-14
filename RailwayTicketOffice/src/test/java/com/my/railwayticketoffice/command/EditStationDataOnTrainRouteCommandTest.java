@@ -3,6 +3,10 @@ package com.my.railwayticketoffice.command;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
+import com.my.railwayticketoffice.service.ParameterService;
+import com.my.railwayticketoffice.service.TrainParameterService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -10,11 +14,11 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for methods from {@link EditStationDataOnTrainRouteCommand}
@@ -26,9 +30,23 @@ public class EditStationDataOnTrainRouteCommandTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
     HttpSession session = mock(HttpSession.class);
+    MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
+    private final ParameterService<String> trainService = mock(TrainParameterService.class);
+
+    @BeforeEach
+    void beforeEach() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+    }
+
+    @AfterEach
+    void afterEach() {
+        DBManagerMocked.close();
+    }
 
     /**
      * Test for method execute from {@link EditStationDataOnTrainRouteCommand}.
@@ -36,24 +54,26 @@ public class EditStationDataOnTrainRouteCommandTest {
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
-    public void testExecute() throws Exception {
+    void testExecute() throws Exception {
         User user = new User();
         user.setRole("admin");
 
-        when(request.getSession()).thenReturn(session);
+        String timeSinceStart = "00:00";
+        String stopTime = "00:00";
+        String trainId = "1";
+        String stationId = "1";
+        String distanceFromStart = "1";
+
         when((User) session.getAttribute("user")).thenReturn(user);
-        when(request.getParameter("timeSinceStart")).thenReturn("00:00");
-        when(request.getParameter("stopTime")).thenReturn("00:00");
-        when(request.getParameter("trainId")).thenReturn("1");
-        when(request.getParameter("stationId")).thenReturn("1");
-        when(request.getParameter("distanceFromStart")).thenReturn("1");
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+        when(request.getParameter("timeSinceStart")).thenReturn(timeSinceStart);
+        when(request.getParameter("stopTime")).thenReturn(stopTime);
+        when(request.getParameter("trainId")).thenReturn(trainId);
+        when(request.getParameter("stationId")).thenReturn(stationId);
+        when(request.getParameter("distanceFromStart")).thenReturn(distanceFromStart);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
 
-        assertEquals("controller?command=showRoute&trainId=1", new EditStationDataOnTrainRouteCommand().execute(request, response));
-        DBManagerMocked.close();
+        assertEquals("controller?command=showRoute&trainId=" + trainId, new EditStationDataOnTrainRouteCommand().execute(request, response));
+        verify(trainDAO, times(1)).editStationDataOnTrainRoute(connection, timeSinceStart, stopTime, Integer.parseInt(distanceFromStart), Integer.parseInt(trainId), Integer.parseInt(stationId));
     }
 
     /**
@@ -62,15 +82,31 @@ public class EditStationDataOnTrainRouteCommandTest {
      * @throws Exception if any {@link Exception} occurs.
      */
     @Test
-    public void testExecuteNotUserInSession() throws Exception {
+    void testExecuteNotUserInSession() throws Exception {
 
-        when(request.getSession()).thenReturn(session);
-        when((User) session.getAttribute("user")).thenReturn(null);
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        EditStationDataOnTrainRouteCommand editStationDataOnTrainRouteCommand = new EditStationDataOnTrainRouteCommand();
+
+        Field field = editStationDataOnTrainRouteCommand.getClass().getDeclaredField("trainService");
+        field.setAccessible(true);
+        field.set(editStationDataOnTrainRouteCommand, trainService);
 
         assertEquals("controller?command=mainPage", new EditStationDataOnTrainRouteCommand().execute(request, response));
-        DBManagerMocked.close();
+        verifyNoInteractions(trainService);
+    }
+
+    /**
+     * Test for method execute from {@link EditStationDataOnTrainRouteCommand} when not parameters.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testExecuteNotParameters() throws Exception {
+        User user = new User();
+        user.setRole("admin");
+
+        when((User) session.getAttribute("user")).thenReturn(user);
+
+        assertEquals("controller?command=mainPage", new EditStationDataOnTrainRouteCommand().execute(request, response));
+        verifyNoInteractions(connection);
     }
 }

@@ -7,7 +7,7 @@ import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.UserDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
-import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.service.TrainSearchParameterService;
 import com.my.railwayticketoffice.service.UserParameterService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +32,7 @@ public class UserLoginCommand implements Command {
     private static final Logger logger = LogManager.getLogger(UserLoginCommand.class);
     private final UserDAO userDAO = DBManager.getInstance().getUserDAO();
     private final ParameterService<String> userService = new UserParameterService();
-    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
+    private final ParameterService<String> searchTrainService = new TrainSearchParameterService();
 
     /**
      * Authenticate user and save him in session on login.

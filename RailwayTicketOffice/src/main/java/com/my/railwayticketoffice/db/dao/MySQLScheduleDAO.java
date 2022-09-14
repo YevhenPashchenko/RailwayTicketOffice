@@ -20,11 +20,22 @@ public class MySQLScheduleDAO implements ScheduleDAO {
 
     @Override
     public void addData(Connection connection, List<String> scheduleDates, List<Train> trains) throws SQLException {
+        int countValues = 0;
         int count = 1;
-        StringBuilder query = new StringBuilder();
-        query.append(MySQLScheduleDAOQuery.ADD_DATA)
-                .append(MySQLScheduleDAOQuery.VALUES_FOR_ADD_DATA);
-        for (int j = 1; j < scheduleDates.size() * trains.size(); j++) {
+        for (int i = 0; i < scheduleDates.size(); i++) {
+            for (Train train:
+                    trains) {
+                for (Train.Carriage carriage:
+                        train.getCarriages().values()) {
+                    for (int j = 0; j < carriage.getMaxSeats(); j++) {
+                        countValues++;
+                    }
+                }
+            }
+        }
+        StringBuilder query = new StringBuilder(MySQLScheduleDAOQuery.ADD_DATA);
+        query.append(MySQLScheduleDAOQuery.VALUES_FOR_ADD_DATA);
+        for (int i = countValues; i > 1; i--) {
             query.append(", ")
                     .append(MySQLScheduleDAOQuery.VALUES_FOR_ADD_DATA);
         }
@@ -33,9 +44,15 @@ public class MySQLScheduleDAO implements ScheduleDAO {
              scheduleDates) {
             for (Train train:
                  trains) {
-                pstmt.setString(count++, scheduleDate);
-                pstmt.setInt(count++, train.getSeats());
-                pstmt.setInt(count++, train.getId());
+                for (Train.Carriage carriage:
+                     train.getCarriages().values()) {
+                    for (int i = 1; i <= carriage.getMaxSeats(); i++) {
+                        pstmt.setString(count++, scheduleDate);
+                        pstmt.setInt(count++, train.getId());
+                        pstmt.setInt(count++, carriage.getId());
+                        pstmt.setInt(count++, i);
+                    }
+                }
             }
         }
         int affectedRows = pstmt.executeUpdate();
@@ -50,7 +67,18 @@ public class MySQLScheduleDAO implements ScheduleDAO {
         pstmt.setString(1, currentDate);
         int deletedRows = pstmt.executeUpdate();
         if (deletedRows == 0) {
-            throw new SQLException("Data not deleted from train schedule");
+            throw new SQLException("Data less than current day not deleted from train schedule");
+        }
+    }
+
+    @Override
+    public void deleteCarriageFromSchedule(Connection connection, int trainId, int carriageId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_CARRIAGE_FROM_SCHEDULE);
+        pstmt.setInt(1, trainId);
+        pstmt.setInt(2, carriageId);
+        int deletedRows = pstmt.executeUpdate();
+        if (deletedRows == 0) {
+            throw new SQLException("Failed to delete carriage that deleted from train from schedule");
         }
     }
 
@@ -67,18 +95,6 @@ public class MySQLScheduleDAO implements ScheduleDAO {
             throw new SQLException("Failed to get train available seats");
         }
         return availableSeats;
-    }
-
-    @Override
-    public void changeTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate, int availableSeatsNow) throws SQLException {
-        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHANGE_AVAILABLE_SEATS);
-        pstmt.setInt(1, availableSeatsNow);
-        pstmt.setInt(2, trainId);
-        pstmt.setString(3, selectedDate);
-        int affectedRow = pstmt.executeUpdate();
-        if (affectedRow == 0) {
-            throw new SQLException("Failed to change train available seats on this date");
-        }
     }
 
     @Override
@@ -102,6 +118,29 @@ public class MySQLScheduleDAO implements ScheduleDAO {
         int affectedRow = pstmt.executeUpdate();
         if (affectedRow == 0) {
             throw new SQLException("Failed to delete train from schedule");
+        }
+    }
+
+    @Override
+    public void changeTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate, int carriageId, List<Integer> seatsNumbers) throws SQLException {
+        int count = 1;
+        StringBuilder query = new StringBuilder(MySQLScheduleDAOQuery.CHANGE_AVAILABLE_SEATS)
+                .append("(?");
+        for (int i = 1; i < seatsNumbers.size(); i++) {
+            query.append(", ?");
+        }
+        query.append(")");
+        PreparedStatement pstmt = connection.prepareStatement(query.toString());
+        pstmt.setString(count++, selectedDate);
+        pstmt.setInt(count++, trainId);
+        pstmt.setInt(count++, carriageId);
+        for (Integer seatNumber:
+                seatsNumbers) {
+            pstmt.setInt(count++, seatNumber);
+        }
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to change train available seats on this date");
         }
     }
 }

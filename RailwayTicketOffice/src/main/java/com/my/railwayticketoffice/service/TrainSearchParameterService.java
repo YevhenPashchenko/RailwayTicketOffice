@@ -8,7 +8,7 @@ import java.util.Map;
  *
  * @author Yevhen Pashchenko
  */
-public class SearchTrainParameterService implements ParameterService<String> {
+public class TrainSearchParameterService implements ParameterService<String> {
 
     @Override
     public boolean check(Map<String, String> parameters, HttpSession session) {
@@ -79,12 +79,6 @@ public class SearchTrainParameterService implements ParameterService<String> {
                 } else {
                     session.setAttribute("searchTrainErrorMessage", "Дату відправлення поїзда не задано");
                 }
-                return false;
-            }
-        }
-        if (parameters.containsKey("trainsSortedCommand")) {
-            String trainsSortedCommand = parameters.get("trainsSortedCommand");
-            if (trainsSortedCommand == null || "".equals(trainsSortedCommand)) {
                 return false;
             }
         }

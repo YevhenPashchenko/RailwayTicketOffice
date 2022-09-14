@@ -10,6 +10,12 @@
     <fmt:setLocale value="${sessionScope.locale}"/>
     <fmt:setBundle basename="resources"/>
 </c:if>
+
+<c:set var="link" value="" scope="page"/>
+<c:forEach begin="0" items="${requestScope.carriage}" varStatus="loop">
+    <c:set var="link" value="${pageScope.link}&carriage=${requestScope.carriage[loop.index]}&seat=${requestScope.seat[loop.index]}&cost=${requestScope.cost[loop.index]}" scope="page"/>
+</c:forEach>
+
 <html>
     <head>
         <title><fmt:message key="ticket_jsp.title"/></title>
@@ -30,30 +36,22 @@
                     <div class="dropdown mt-1 mb-5 offset-5">
                         <c:choose>
                             <c:when test="${sessionScope.locale eq null}">
-                                <input type="image" src="resources/images/uk-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="uk">
-                                <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                    <c:forEach items="${applicationScope.locales}" var="locale">
-                                        <c:if test="${locale.key ne 'uk'}">
-                                            <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeTicketPageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                            </li>
-                                        </c:if>
-                                    </c:forEach>
-                                </ul>
+                                <c:set var="locale" value="uk" scope="page"/>
                             </c:when>
                             <c:otherwise>
-                                <input type="image" src="resources/images/${sessionScope.locale}-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="${sessionScope.locale}">
-                                <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                    <c:forEach items="${applicationScope.locales}" var="locale">
-                                        <c:if test="${locale.key ne sessionScope.locale}">
-                                            <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeTicketPageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                            </li>
-                                        </c:if>
-                                    </c:forEach>
-                                </ul>
+                                <c:set var="locale" value="${sessionScope.locale}" scope="page"/>
                             </c:otherwise>
                         </c:choose>
+                        <input type="image" src="resources/images/${pageScope.locale}-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="${pageScope.locale}">
+                        <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
+                            <c:forEach items="${applicationScope.locales}" var="appLocale">
+                                <c:if test="${appLocale.key ne pageScope.locale}">
+                                    <li>
+                                        <a class="dropdown-item p-0" href="controller?command=changeTicketPageLocale&locale=${appLocale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&carriageType=${requestScope.carriageType}${pageScope.link}"><img src="resources/images/${appLocale.key}-icon.png" alt="${appLocale.key}"></a>
+                                    </li>
+                                </c:if>
+                            </c:forEach>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -61,8 +59,8 @@
         <main class="container bg-secondary bg-gradient bg-opacity-25 px-0">
             <nav class="navbar border border-secondary rounded">
                 <div class="container-fluid justify-content-start">
-                    <img src="resources/images/back-icon.png" role="button" onclick="window.history.back()" alt="back">
-                    <a class="navbar-brand offset-1 text-primary fs-4 fw-bold" href="controller?command=mainPage"><fmt:message key="route_jsp.nav.a"/></a>
+                    <a href="controller?command=chooseSeatsPage&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&carriageType=${requestScope.carriageType}${pageScope.link}"><img src="resources/images/back-icon.png" alt="Back to choice trains"></a>
+                    <a type="button" class="btn btn-primary ms-3 fs-5" href="controller?command=getTrains&page=1&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}">До вибору поїздів</a>
                 </div>
             </nav>
             <div class="text-center text-primary fs-4 fw-semibold lh-1 py-2">
@@ -73,18 +71,16 @@
             </div>
             <table class="table table-secondary table-bordered text-center mb-4 table-hover align-middle">
                 <thead class="text-primary fs-5 fw-semibold lh-1">
-                <tr class="align-middle">
-                    <th><fmt:message key="main_jsp.first_th"/></th>
-                    <th><fmt:message key="main_jsp.label_for_fromDatalist"/>/<fmt:message key="main_jsp.label_for_toDatalist"/></th>
-                    <th><fmt:message key="main_jsp.third_th"/></th>
-                    <th class="text-start">
-                        <div><fmt:message key="main_jsp.fourth_th.first_div"/></div>
-                        <div><fmt:message key="main_jsp.fourth_th.second_div"/></div>
-                    </th>
-                    <th><fmt:message key="main_jsp.fifth_th"/></th>
-                    <th><fmt:message key="main_jsp.sixth_th"/></th>
-                    <th><fmt:message key="main_jsp.seventh_th"/></th>
-                </tr>
+                    <tr class="align-middle">
+                        <th><fmt:message key="main_jsp.first_th"/></th>
+                        <th><fmt:message key="main_jsp.label_for_fromDatalist"/>/<fmt:message key="main_jsp.label_for_toDatalist"/></th>
+                        <th><fmt:message key="main_jsp.third_th"/></th>
+                        <th class="text-start">
+                            <div><fmt:message key="main_jsp.fourth_th.first_div"/></div>
+                            <div><fmt:message key="main_jsp.fourth_th.second_div"/></div>
+                        </th>
+                        <th><fmt:message key="main_jsp.fifth_th"/></th>
+                    </tr>
                 </thead>
                 <tbody class="fs-5 fw-semibold lh-1">
                     <tr>
@@ -113,32 +109,9 @@
                         <td>
                             <div>${requestScope.train.getRoute().getDurationTrip(requestScope.from, requestScope.to, sessionScope.locale)}</div>
                         </td>
-                        <td id="ticketCost">${requestScope.train.getRoute().getCostOfTripAsString(requestScope.from, requestScope.to)}</td>
-                        <td>
-                            <div>${requestScope.train.getSeats()}</div>
-                        </td>
                     </tr>
                 </tbody>
             </table>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <label for="ticketCounter" class="fs-5 text-primary text-center mb-2"><fmt:message key="ticket_jsp.label_for_ticketCounter"/></label>
-                    <div class="col-1">
-                        <select class="form-select form-select-sm mb-2 text-center fw-semibold" id="ticketCounter">
-                            <c:forEach begin="1" end="${requestScope.train.getSeats()}" varStatus="loop">
-                                <c:choose>
-                                    <c:when test="${loop.first}">
-                                        <option value="${loop.count}" selected>${loop.count}</option>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <option value="${loop.count}">${loop.count}</option>
-                                    </c:otherwise>
-                                </c:choose>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </div>
-            </div>
             <form action="controller?command=buyTicket" method="post">
                 <label>
                     <input type="number" name="trainId" value="${requestScope.train.getId()}" hidden>
@@ -153,41 +126,63 @@
                     <input name="departureDate" value="${requestScope.departureDate}" hidden>
                 </label>
                 <div class="text-center fs-5 fw-semibold text-primary mb-1"><fmt:message key="ticket_jsp.main.form.first_div"/></div>
-                <div class="container px-0" datatype="passenger">
-                    <div class="fs-5 fw-semibold text-primary bg-secondary bg-opacity-50 mb-1"><fmt:message key="ticket_jsp.main.form.second_div.first_div"/> 1</div>
-                    <div class="row mb-3">
-                        <div class="col-4">
-                            <label for="passengerSurname" class="form-label text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserSurnameField"/></label>
-                            <input id="passengerSurname" class="form-control" name="passengerSurname" placeholder=<fmt:message key="main_jsp.label_for_editUserSurnameField"/> value="${sessionScope.user.getLastName()}" required>
+                <c:forEach begin="0" items="${requestScope.carriage}" varStatus="loop">
+                    <div class="container px-0" datatype="passenger">
+                        <div class="fs-5 fw-semibold text-primary bg-secondary bg-opacity-50 mb-1"><fmt:message key="seats_jsp.legend"/> ${loop.count}</div>
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <label for="passengerSurname" class="form-label text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserSurnameField"/></label>
+                                <input id="passengerSurname" class="form-control" name="passengerSurname" placeholder=<fmt:message key="main_jsp.label_for_editUserSurnameField"/> required>
+                            </div>
+                            <div class="col-4">
+                                <label for="passengerName" class="form-label text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserNameField"/></label>
+                                <input id="passengerName" class="form-control" name="passengerName" placeholder=<fmt:message key="main_jsp.label_for_editUserNameField"/> required>
+                            </div>
+                            <div class="col-2 offset-1 btn-sm align-self-end">
+                                <a class="btn btn-primary" type="cancel"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></a>
+                            </div>
                         </div>
-                        <div class="col-4">
-                            <label for="passengerName" class="form-label text-primary fs-6 fw-semibold lh-1"><fmt:message key="main_jsp.label_for_editUserNameField"/></label>
-                            <input id="passengerName" class="form-control" name="passengerName" placeholder=<fmt:message key="main_jsp.label_for_editUserNameField"/> value="${sessionScope.user.getFirstName()}" required>
+                        <div class="row mb-3">
+                            <div class="col-2">
+                                <label><fmt:message key="seats_jsp.label_for_carriageInput"/>
+                                    <input class="w-25 text-end border-0 opacity-100" name="carriage" value="${requestScope.carriage[loop.index]}" disabled>
+                                </label>
+                            </div>
+                            <div class="col-2">
+                                <label><fmt:message key="seats_jsp.label_for_seatInput"/>
+                                    <input class="w-25 text-end border-0 opacity-100" name="seat" value="${requestScope.seat[loop.index]}" disabled>
+                                </label>
+                            </div>
+                            <div class="col-2">
+                                <label><fmt:message key="ticket_jsp.label_for_costInput"/>
+                                    <input class="w-50 text-end border-0 opacity-100" name="cost" value="${requestScope.cost[loop.index]}" disabled> <fmt:message key="ticket_jsp.label_for_costInput_UAH"/>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div id="totalCost" class="fs-5 text-end text-primary mb-2"><fmt:message key="ticket_jsp.div_totalCost"/>: ${requestScope.train.getRoute().getCostOfTripAsString(requestScope.from, requestScope.to)} <fmt:message key="ticket_jsp.div_totalCost_UAH"/>.</div>
+                </c:forEach>
+                <div id="totalCost" class="fs-5 text-end text-primary mb-2"><fmt:message key="seats_jsp.div_totalCost"/> <fmt:message key="ticket_jsp.label_for_costInput_UAH"/></div>
                 <div class="container">
                     <div class="row justify-content-end">
-                        <button class="col-1 btn btn-lg btn-primary mb-3"><fmt:message key="ticket_jsp.button_for_buyTicket"/></button>
-                    </div>
-                </div>
-                <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="cancelModalLabel"><fmt:message key="ticket_jsp.h5_cancelModalLabel"/></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body"><fmt:message key="ticket_jsp.div_for_cancelModal"/></div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary"><fmt:message key="ticket_jsp.div_cancelModal.first_button"/></button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="ticket_jsp.div_cancelModal.second_button"/></button>
-                            </div>
-                        </div>
+                        <button id="buyTicket" class="col-1 btn btn-lg btn-primary mb-3"><fmt:message key="ticket_jsp.button_for_buyTicket"/></button>
                     </div>
                 </div>
             </form>
+            <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cancelModalLabel"><fmt:message key="ticket_jsp.h5_cancelModalLabel"/></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body"><fmt:message key="ticket_jsp.div_for_cancelModal"/></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary"><fmt:message key="ticket_jsp.div_cancelModal.first_button"/></button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="ticket_jsp.div_cancelModal.second_button"/></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
         <script type="text/javascript" src="resources/js/ticket.js"></script>
     </body>

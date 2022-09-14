@@ -25,47 +25,64 @@ public class TrainParameterServiceTest {
     @Test
     public void testCheck() {
         Map<String, String> parameters = new HashMap<>();
-        List<String> keys = new ArrayList<>(Arrays.asList("trainNumber", "trainSeats", "trainDepartureTime", "trainId"));
-        List<String> values = new ArrayList<>(Arrays.asList(null, "", "trainNumber", null, "", "trainSeats", "1", null, "", "trainDepartureTime", "00:00", null, "", "trainId", "1"));
+        String trainId = "1";
+        String trainNumber = "номер";
+        String trainDepartureTime = "00:00";
+        String carriageNumber = "1";
+        String typeId = "1";
+        String carriageType = "тип";
+        String newCarriageType = "новий тип";
+        String maxSeats = "1";
+        List<String> keys = new ArrayList<>(Arrays.asList("trainId", "trainNumber", "trainDepartureTime", "carriageNumber", "typeId", "carriageType", "newCarriageType", "maxSeats"));
+        List<String> values = new ArrayList<>(Arrays.asList(null, "", "trainId", trainId,
+                null, "", "number", trainNumber,
+                null, "", "trainDepartureTime", trainDepartureTime,
+                null, "", "carriageNumber", carriageNumber,
+                null, "", "typeId", typeId,
+                null, "", "carriageType", carriageType,
+                null, "", carriageType, newCarriageType,
+                null, "", "maxSeats", maxSeats));
 
         ParameterService<String> trainParameterService = new TrainParameterService();
 
-        parameters.put(keys.get(0), values.get(2));
-        assertFalse(trainParameterService.check(parameters, session));
+        parameters.put(keys.get(0), values.get(3));
+        assertTrue(trainParameterService.check(parameters, session));
 
-        parameters.put(keys.get(1), values.get(6));
-        assertFalse(trainParameterService.check(parameters, session));
+        parameters.put(keys.get(1), values.get(7));
+        assertTrue(trainParameterService.check(parameters, session));
 
-        parameters.put(keys.get(2), values.get(10));
+        parameters.put(keys.get(2), values.get(11));
+        assertTrue(trainParameterService.check(parameters, session));
+
+        parameters.put(keys.get(3), values.get(15));
+        assertTrue(trainParameterService.check(parameters, session));
+
+        parameters.put(keys.get(4), values.get(19));
+        assertTrue(trainParameterService.check(parameters, session));
+
+        parameters.put(keys.get(5), values.get(23));
+        assertTrue(trainParameterService.check(parameters, session));
+
+        parameters.put(keys.get(6), values.get(27));
+        assertTrue(trainParameterService.check(parameters, session));
+
+        parameters.put(keys.get(7), values.get(31));
         assertTrue(trainParameterService.check(parameters, session));
 
         int count = 0;
 
-        parameters.put(keys.get(count), values.get(count));
-        assertFalse(trainParameterService.check(parameters, session));
-
-        parameters.put(keys.get(count), values.get(1 + count));
-        assertFalse(trainParameterService.check(parameters, session));
-
-        parameters.put(keys.get(count), values.get(2 + count));
-        assertTrue(trainParameterService.check(parameters, session));
-
-        count = 3;
-
-        for (int i = 1; i < keys.size(); i++) {
-            parameters.put(keys.get(i), values.get(count));
+        for (int i = 0; i < 4; i++) {
+            parameters.put(keys.get(i), values.get(count++));
             assertFalse(trainParameterService.check(parameters, session));
 
-            parameters.put(keys.get(i), values.get(1 + count));
+            parameters.put(keys.get(i), values.get(count++));
             assertFalse(trainParameterService.check(parameters, session));
 
-            parameters.put(keys.get(i), values.get(2 + count));
+            parameters.put(keys.get(i), values.get(count++));
             assertFalse(trainParameterService.check(parameters, session));
 
-            parameters.put(keys.get(i), values.get(3 + count));
+            parameters.put(keys.get(i), values.get(count++));
             assertTrue(trainParameterService.check(parameters, session));
-
-            count += 4;
         }
     }
 }

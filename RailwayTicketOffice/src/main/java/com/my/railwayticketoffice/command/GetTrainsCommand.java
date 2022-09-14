@@ -11,7 +11,7 @@ import com.my.railwayticketoffice.filter.TrainFilterByDirectionAndDepartureTime;
 import com.my.railwayticketoffice.pagination.MainPagePagination;
 import com.my.railwayticketoffice.pagination.Pagination;
 import com.my.railwayticketoffice.service.ParameterService;
-import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.service.TrainSearchParameterService;
 import com.my.railwayticketoffice.sorting.TrainSorting;
 import com.my.railwayticketoffice.sorting.TrainSortingManger;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -37,7 +36,7 @@ public class GetTrainsCommand implements Command {
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final TrainFilter trainFilter = new TrainFilterByDirectionAndDepartureTime();
     private final Pagination pagination = new MainPagePagination();
-    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
+    private final ParameterService<String> searchTrainService = new TrainSearchParameterService();
 
     /**
      * Get from database list of {@link com.my.railwayticketoffice.entity.Train}
@@ -63,21 +62,25 @@ public class GetTrainsCommand implements Command {
                 List<Train> trains = trainDAO.getTrainsSpecifiedByStationsAndDate(connection, Integer.parseInt(parameters.get("from")), Integer.parseInt(parameters.get("to")), String.join("-", dateForDB));
                 if (trains.size() > 0) {
                     trainDAO.getRoutesForTrains(connection, trains, locale);
-                    List<Train> filteredTrains = trainFilter.filter(trains, Integer.parseInt(parameters.get("from")), Integer.parseInt(parameters.get("to")), LocalDate.parse(String.join("-", dateForDB)));
-                    if (request.getParameter("sort") != null) {
-                        session.setAttribute("sort", request.getParameter("sort"));
+                    List<Train> filteredTrains = trainFilter.filter(trains, parameters);
+                    if (filteredTrains.size() > 0) {
+                        if (request.getParameter("sort") != null) {
+                            session.setAttribute("sort", request.getParameter("sort"));
+                        }
+                        List<Train> sortedTrains;
+                        if (session.getAttribute("sort") != null) {
+                            TrainSorting trainSorting = TrainSortingManger.getStrategy((String) session.getAttribute("sort"));
+                            sortedTrains = trainSorting.sort(filteredTrains, parameters);
+                        } else {
+                            sortedTrains = filteredTrains;
+                        }
+                        int numberOfPages = (int) Math.ceil((float) sortedTrains.size() / Util.getNumberTrainOnPage());
+                        List<Train> trainsPerPage = pagination.paginate(sortedTrains, Integer.parseInt(parameters.get("page")));
+                        trainDAO.getCarriagesForTrains(connection, trainsPerPage);
+                        trainDAO.getFreeSeatsForTrainsByDate(connection, trainsPerPage, String.join("-", dateForDB));
+                        request.setAttribute("trains", trainsPerPage);
+                        request.setAttribute("numberOfPages", numberOfPages);
                     }
-                    List<Train> sortedTrains;
-                    if (session.getAttribute("sort") != null) {
-                        TrainSorting trainSorting = TrainSortingManger.getStrategy((String) session.getAttribute("sort"));
-                        sortedTrains = trainSorting.sort(filteredTrains, parameters);
-                    } else {
-                        sortedTrains = filteredTrains;
-                    }
-                    int numberOfPages = (int) Math.ceil((float) sortedTrains.size() / Util.getNumberTrainOnPage());
-                    List<Train> trainsPerPage = pagination.paginate(sortedTrains, Integer.parseInt(parameters.get("page")));
-                    request.setAttribute("trains", trainsPerPage);
-                    request.setAttribute("numberOfPages", numberOfPages);
                 }
                 request.setAttribute("page", Integer.parseInt(parameters.get("page")));
                 request.setAttribute("from", Integer.parseInt(parameters.get("from")));

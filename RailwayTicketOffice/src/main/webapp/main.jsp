@@ -331,8 +331,6 @@
                                             <form id="addTrain" class="collapse ps-2" action="controller?command=addTrain" method="post">
                                                 <label for="trainNumber" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
                                                 <input id="trainNumber" class="form-control w-50 mb-2" type="text" name="trainNumber" autocomplete="off" required>
-                                                <label for="trainSeats" class="form-label"><fmt:message key="main_jsp.label_for_trainSeats"/></label>
-                                                <input id="trainSeats" class="form-control w-50 mb-2" type="number" name="trainSeats" required>
                                                 <label for="trainDepartureTime" class="form-label"><fmt:message key="main_jsp.label_for_trainDepartureTime"/></label>
                                                 <input id="trainDepartureTime" class="form-control w-50 mb-2" type="time" name="trainDepartureTime" required>
                                                 <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addTrain"/></button>
@@ -347,7 +345,7 @@
                                                 <label>
                                                     <input type="number" name="trainId" hidden>
                                                 </label>
-                                                <input id="trainNumberForDelete" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <input id="trainNumberForDelete" name="trainNumber" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
                                                 <button id="deleteTrainButton" class="btn btn-primary"><fmt:message key="main_jsp.a_for_deleteTrain"/></button>
                                             </form>
                                         </li>
@@ -356,18 +354,13 @@
                                                 <fmt:message key="main_jsp.a_for_editTrain"/>
                                             </a>
                                             <form id="editTrain" class="collapse ps-2" action="controller?command=editTrain" method="post">
-                                                <label for="trainNumberForEdit" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
+                                                <label for="oldTrainNumberForEdit" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
                                                 <label class="d-block">
                                                     <input type="number" name="trainId" hidden>
                                                 </label>
-                                                <input id="trainNumberForEdit" class="d-inline-block form-control w-50 mb-2" list="trainNumberDatalist" type="text" name="trainNumber" autocomplete="off" required>
-                                                <div class="d-inline-block form-check form-switch ms-2">
-                                                    <label>
-                                                        <input class="form-check-input" role="switch" type="checkbox" hidden>
-                                                    </label>
-                                                </div>
-                                                <label for="trainSeatsForEdit" class="d-block form-label"><fmt:message key="main_jsp.label_for_trainSeats"/></label>
-                                                <input id="trainSeatsForEdit" class="d-inline-block form-control w-50 mb-2" type="number" name="trainSeats" required disabled>
+                                                <input id="oldTrainNumberForEdit" class="d-inline-block form-control w-50 mb-2" list="trainNumberDatalist" type="text" name="oldTrainNumber" autocomplete="off" required>
+                                                <label for="trainNumberForEdit" class="d-block form-label"><fmt:message key="main_jsp.label_for_trainNumberForEdit"/></label>
+                                                <input id="trainNumberForEdit" class="d-inline-block form-control w-50 mb-2" type="text" name="trainNumber" autocomplete="off" required disabled>
                                                 <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
                                                         <input class="form-check-input" role="switch" type="checkbox" hidden>
@@ -399,20 +392,107 @@
                                                 <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_editTrainRoute"/></button>
                                             </form>
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#addCarriageToTrain" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                <fmt:message key="main_jsp.a_for_addCarriageToTrain"/>
+                                            </a>
+                                            <form id="addCarriageToTrain" class="collapse ps-2" action="controller?command=addCarriageToTrain" method="post">
+                                                <label for="trainNumberForAddCarriageToTrain" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
+                                                <label>
+                                                    <input type="number" name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForAddCarriageToTrain" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <label for="carriageNumberForAddCarriageToTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageNumberForAddCarriageToTrain"/></label>
+                                                <input id="carriageNumberForAddCarriageToTrain" class="form-control w-50 mb-2" name="carriageNumber" type="number" autocomplete="off" required>
+                                                <label for="carriageTypeForAddCarriageToTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
+                                                <label>
+                                                    <input type="number" name="typeId" hidden>
+                                                </label>
+                                                <input id="carriageTypeForAddCarriageToTrain" class="form-control w-50 mb-2" list="carriagesTypesDatalist" type="text" autocomplete="off" required>
+                                                <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addCarriageToTrain"/></button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#deleteCarriageFromTrain" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                <fmt:message key="main_jsp.a_for_deleteCarriageFromTrain"/>
+                                            </a>
+                                            <form id="deleteCarriageFromTrain" class="collapse ps-2" action="controller?command=deleteCarriageFromTrain" method="post">
+                                                <label for="trainNumberForDeleteCarriageFromTrain" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
+                                                <label>
+                                                    <input type="number" name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForDeleteCarriageFromTrain" class="form-control w-50 mb-2" list="trainNumberDatalist" type="text" autocomplete="off" required>
+                                                <label for="carriageNumberForDeleteCarriageFromTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageNumberForAddCarriageToTrain"/></label>
+                                                <input id="carriageNumberForDeleteCarriageFromTrain" class="form-control w-50 mb-2" type="number" name="carriageNumber" autocomplete="off" required disabled>
+                                                <label for="carriageTypeForDeleteCarriageFromTrain" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
+                                                <label>
+                                                    <input type="number" name="typeId" hidden>
+                                                </label>
+                                                <input id="carriageTypeForDeleteCarriageFromTrain" class="form-control w-50 mb-2" list="carriagesTypesDatalist" type="text" autocomplete="off" disabled>
+                                                <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_deleteCarriageFromTrain"/></button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#addCarriageType" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                <fmt:message key="main_jsp.a_for_addCarriageType"/>
+                                            </a>
+                                            <form id="addCarriageType" class="collapse ps-2" action="controller?command=addCarriageType" method="post">
+                                                <label for="carriageType" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
+                                                <input id="carriageType" class="form-control w-50 mb-2" type="text" name="carriageType" autocomplete="off" required>
+                                                <label for="carriageTypeMaxSeats" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeMaxSeats"/></label>
+                                                <input id="carriageTypeMaxSeats" class="form-control w-50 mb-2" type="number" name="maxSeats" autocomplete="off" required>
+                                                <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addCarriageType"/></button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#deleteCarriageType" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                <fmt:message key="main_jsp.a_for_deleteCarriageType"/>
+                                            </a>
+                                            <form id="deleteCarriageType" class="collapse ps-2" action="controller?command=deleteCarriageType" method="post">
+                                                <label for="carriageTypeForDelete" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
+                                                <label>
+                                                    <input type="number" name="typeId" hidden>
+                                                </label>
+                                                <input id="carriageTypeForDelete" class="form-control w-50 mb-2" type="text" name="carriageType" list="carriagesTypesDatalist" autocomplete="off" required>
+                                                <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_deleteCarriageType"/></button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#editCarriageType" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                <fmt:message key="main_jsp.a_for_editCarriageType"/>
+                                            </a>
+                                            <form id="editCarriageType" class="collapse ps-2" action="controller?command=editCarriageType" method="post">
+                                                <label for="carriageTypeForEdit" class="form-label"><fmt:message key="main_jsp.label_for_carriageTypeForAddCarriageToTrain"/></label>
+                                                <label>
+                                                    <input type="number" name="typeId" hidden>
+                                                </label>
+                                                <input id="carriageTypeForEdit" class="form-control w-50 mb-2" type="text" name="carriageType" list="carriagesTypesDatalist" autocomplete="off" required>
+                                                <label for="newCarriageType" class="form-label"><fmt:message key="main_jsp.label_for_newCarriageType"/></label>
+                                                <input id="newCarriageType" class="form-control w-50 mb-2" type="text" name="newCarriageType" autocomplete="off" required>
+                                                <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_editCarriageType"/></button>
+                                            </form>
+                                        </li>
                                         <li>
                                             <datalist id="trainNumberDatalist">
                                                 <c:forEach items="${requestScope.trainsForAdmin}" var="train">
                                                     <option value="${train.getNumber()}" id="${train.getId()}"></option>
                                                 </c:forEach>
                                             </datalist>
-                                            <datalist id="trainSeatsDatalist">
-                                                <c:forEach items="${requestScope.trainsForAdmin}" var="train">
-                                                    <option value="${train.getSeats()}" id="${train.getId()}"></option>
-                                                </c:forEach>
-                                            </datalist>
                                             <datalist id="trainDepartureTimeDatalist">
                                                 <c:forEach items="${requestScope.trainsForAdmin}" var="train">
                                                     <option value="${train.getDepartureTime()}" id="${train.getId()}"></option>
+                                                </c:forEach>
+                                            </datalist>
+                                            <c:forEach items="${requestScope.trainsForAdmin}" var="train">
+                                                <datalist id="train${train.getId()}Carriages">
+                                                    <c:forEach items="${train.getCarriages().values()}" var="carriage">
+                                                        <option value="${carriage.getNumber()}" id="${carriage.getId()}" data-type="${carriage.getType()}"></option>
+                                                    </c:forEach>
+                                                </datalist>
+                                            </c:forEach>
+                                            <datalist id="carriagesTypesDatalist">
+                                                <c:forEach items="${requestScope.carriagesTypes.keySet()}" var="typeId">
+                                                    <option value="${requestScope.carriagesTypes.get(typeId)}" id="${typeId}"></option>
                                                 </c:forEach>
                                             </datalist>
                                         </li>
@@ -444,7 +524,7 @@
                                                 <label>
                                                     <input type="number" name="stationId" hidden>
                                                 </label>
-                                                <input id="stationNameForDelete" class="form-control w-50 mb-2" type="text" list="stationsDatalistOptions" autocomplete="off" required>
+                                                <input id="stationNameForDelete" class="form-control w-50 mb-2" type="text" name="stationName" list="stationsDatalistOptions" autocomplete="off" required>
                                                 <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_deleteStation"/></button>
                                             </form>
                                         </li>
@@ -457,7 +537,7 @@
                                                 <label>
                                                     <input type="number" name="stationId" hidden>
                                                 </label>
-                                                <input id="oldStationNameForEdit" class="form-control w-50 mb-2" type="text" list="stationsDatalistOptions" autocomplete="off" required>
+                                                <input id="oldStationNameForEdit" class="form-control w-50 mb-2" type="text" name="oldStationName" list="stationsDatalistOptions" autocomplete="off" required>
                                                 <label for="newStationNameForEdit" class="form-label"><fmt:message key="main_jsp.label_for_newStationNameForEdit"/></label>
                                                 <input id="newStationNameForEdit" class="form-control w-50 mb-2" type="text" name="stationName" autocomplete="off" required disabled>
                                                 <button class="btn btn-primary" disabled><fmt:message key="main_jsp.a_for_editStation"/></button>
@@ -479,7 +559,7 @@
                                                 <label>
                                                     <input type="number" name="trainId" hidden>
                                                 </label>
-                                                <input id="trainNumberForAddToSchedule" class="form-control w-50 mb-2" type="text" list="trainNumberDatalist" autocomplete="off" required>
+                                                <input id="trainNumberForAddToSchedule" class="form-control w-50 mb-2" type="text" name="trainNumber" list="trainNumberDatalist" autocomplete="off" required>
                                                 <button class="btn btn-primary" disabled><fmt:message key="main_jsp.button_for_addTrainToSchedule"/></button>
                                             </form>
                                         </li>
@@ -492,7 +572,7 @@
                                                 <label>
                                                     <input type="number" name="trainId" hidden>
                                                 </label>
-                                                <input id="trainNumberForDeleteFromSchedule" class="form-control w-50 mb-2" type="text" list="trainNumberDatalist" autocomplete="off" required>
+                                                <input id="trainNumberForDeleteFromSchedule" class="form-control w-50 mb-2" type="text" name="trainNumber" list="trainNumberDatalist" autocomplete="off" required>
                                                 <button class="btn btn-primary" disabled><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
                                             </form>
                                         </li>
@@ -513,6 +593,36 @@
                         <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteTrainModal"/></div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary" form="deleteTrain"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmDeleteCarriageFromTrainModal" tabindex="-1" aria-labelledby="confirmDeleteCarriageFromTrainModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-warning" id="confirmDeleteCarriageFromTrainModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteCarriageFromTrainModalLabel"/></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.div_for_confirmDeleteCarriageFromTrainModal"/></div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" form="deleteCarriageFromTrain"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmDeleteCarriageTypeModal" tabindex="-1" aria-labelledby="confirmDeleteCarriageTypeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-warning" id="confirmDeleteCarriageTypeModalLabel"><fmt:message key="main_jsp.h5_confirmDeleteCarriageTypeModalLabel"/></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-danger fs-5 fw-semibold lh-2"><fmt:message key="main_jsp.h5_confirmDeleteCarriageTypeModal"/></div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" form="deleteCarriageType"><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><fmt:message key="main_jsp.button_for_confirmDeleteTrainModal_cancel"/></button>
                         </div>
                     </div>
@@ -623,13 +733,6 @@
                                 </c:if>
                             </th>
                             <th><fmt:message key="main_jsp.sixth_th"/></th>
-                            <th><fmt:message key="main_jsp.seventh_th"/>
-                                <c:if test="${sessionScope.sort ne 'availableSeats'}">
-                                    <a href="controller?command=getTrains&page=${requestScope.page}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&sort=availableSeats">
-                                        <img src="resources/images/sort-icon.png" class="img-fluid align-top" alt="Сортувати">
-                                    </a>
-                                </c:if>
-                            </th>
                         </tr>
                     </thead>
                     <tbody class="fs-5 fw-semibold lh-1">
@@ -660,36 +763,20 @@
                             <td>
                                 <div>${train.getRoute().getDurationTrip(requestScope.from, requestScope.to, sessionScope.locale)}</div>
                             </td>
-                            <td>${train.getRoute().getCostOfTripAsString(requestScope.from, requestScope.to)}</td>
-                            <td>
-                                <div>${train.getSeats()}</div>
-                                <c:if test="${sessionScope.user ne null}">
-                                    <c:choose>
-                                        <c:when test="${train.getSeats() gt 0}">
-                                            <form action="controller" method="get">
-                                                <label>
-                                                    <input name="command" value="ticketPage" hidden>
-                                                </label>
-                                                <label>
-                                                    <input type="number" name="trainId" value="${train.getId()}" hidden>
-                                                </label>
-                                                <label>
-                                                    <input type="number" name="from" hidden>
-                                                </label>
-                                                <label>
-                                                    <input type="number" name="to" hidden>
-                                                </label>
-                                                <label>
-                                                    <input name="departureDate" hidden>
-                                                </label>
-                                                <button class="btn btn-primary fs-6 lh-1 mt-2"><fmt:message key="main_jsp.button_for_orderTicket"/></button>
-                                            </form>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <a class="btn btn-primary fs-6 lh-1 mt-2 disabled"><fmt:message key="main_jsp.button_for_orderTicket"/></a>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </c:if>
+                            <td class="p-0">
+                                <div class="container">
+                                    <c:forEach begin="1" end="${train.getCarriagesTypesNumber()}" varStatus="loop">
+                                        <c:if test="${train.getFreeSeatsSumByCarriageType(loop.count) > 0}">
+                                            <div class="row justify-content-evenly border-bottom border-secondary border-opacity-25">
+                                                <div class="col pt-2 px-0 text-primary">${train.getCarriageTypeOrderByMaxSeats(loop.count)}</div>
+                                                <div class="col pt-2 px-0">${train.getFreeSeatsSumByCarriageType(loop.count)}</div>
+                                                <c:if test="${sessionScope.user ne null}">
+                                                    <a class="col btn btn-primary btn-sm my-1" role="button" href="controller?command=chooseSeatsPage&trainId=${train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&carriageType=${train.getCarriageTypeOrderByMaxSeats(loop.count)}"><fmt:message key="main_jsp.button_for_chooseTicket"/></a>
+                                                </c:if>
+                                            </div>
+                                        </c:if>
+                                    </c:forEach>
+                                </div>
                             </td>
                         </tr>
                     </c:forEach>

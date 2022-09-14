@@ -14,9 +14,8 @@ public interface TicketService {
     /**
      * Method that creates a list of {@link com.my.railwayticketoffice.entity.Ticket}.
      * @param train {@link Train}.
-     * @param passengersData map of passengers names and surnames.
-     * @param maxTrainSeats max number train seats.
+     * @param ticketParameters map of ticket parameters.
      * @return list of {@link com.my.railwayticketoffice.entity.Ticket}.
      */
-    List<Ticket> create(Train train, int maxTrainSeats, Map<String, String> parameters, Map<String, String[]> passengersData);
+    List<Ticket> create(Train train, Map<String, String> parameters, Map<String, String[]> ticketParameters);
 }

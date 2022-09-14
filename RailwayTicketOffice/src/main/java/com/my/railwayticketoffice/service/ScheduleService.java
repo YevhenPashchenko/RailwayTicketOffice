@@ -3,16 +3,16 @@ package com.my.railwayticketoffice.service;
 import com.my.railwayticketoffice.entity.Train;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Interface that provides a method that creates a list of dates for a new train schedule
+ * Interface that provides a methods that prepare a data for managing schedule
+ *
+ * @author Yevhen Pashchenko
  */
 public interface ScheduleService {
 
-    /**
-     * Creates a list of dates for a new train schedule.
-     * @param train - {@link Train}.
-     * @return list of dates for a new train schedule.
-     */
-    List<String> create(Train train);
+    List<String> create();
+
+    Map<Integer, List<Integer>> collect(Train train, Map<String, String[]> ticketParameters);
 }

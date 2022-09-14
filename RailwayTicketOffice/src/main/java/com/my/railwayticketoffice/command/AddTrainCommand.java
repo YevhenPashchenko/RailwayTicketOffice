@@ -30,8 +30,8 @@ public class AddTrainCommand implements Command {
 
     /**
      * Add train to database.
-     * @param request - HttpServletRequest object.
-     * @param response - HttpServletResponse object.
+     * @param request HttpServletRequest object.
+     * @param response HttpServletResponse object.
      * @return link to {@link MainPageCommand}.
      * @throws DBException if {@link SQLException} occurs.
      */
@@ -42,15 +42,23 @@ public class AddTrainCommand implements Command {
         User user = (User) session.getAttribute("user");
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("trainNumber", request.getParameter("trainNumber"));
-            parameters.put("trainSeats", request.getParameter("trainSeats"));
             parameters.put("trainDepartureTime", request.getParameter("trainDepartureTime"));
             if (trainService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    trainDAO.addTrain(connection, parameters.get("trainNumber"), Integer.parseInt(parameters.get("trainSeats")), parameters.get("trainDepartureTime"));
-                    if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("successMessage", "New train has been created");
+                    int isTrainExists = trainDAO.checkIfTrainExists(connection, parameters.get("trainNumber"));
+                    if (isTrainExists > 0) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A train with this number already exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Поїзд з таким номером вже існує");
+                        }
                     } else {
-                        session.setAttribute("successMessage", "Новий поїзд створено");
+                        trainDAO.addTrain(connection, parameters.get("trainNumber"), parameters.get("trainDepartureTime"));
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("successMessage", "New train has been created");
+                        } else {
+                            session.setAttribute("successMessage", "Новий поїзд створено");
+                        }
                     }
                 } catch (SQLException e) {
                     logger.info("Failed to add new train in database");

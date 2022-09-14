@@ -11,7 +11,7 @@ import com.my.railwayticketoffice.mail.Mail;
 import com.my.railwayticketoffice.mail.MailException;
 import com.my.railwayticketoffice.mail.RegistrationMail;
 import com.my.railwayticketoffice.service.ParameterService;
-import com.my.railwayticketoffice.service.SearchTrainParameterService;
+import com.my.railwayticketoffice.service.TrainSearchParameterService;
 import com.my.railwayticketoffice.service.UserParameterService;
 import jakarta.mail.MessagingException;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +39,7 @@ public class UserRegistrationCommand implements Command {
     private final UserDAO userDAO = DBManager.getInstance().getUserDAO();
     private final Mail mail = new RegistrationMail();
     private final ParameterService<String> userService = new UserParameterService();
-    private final ParameterService<String> searchTrainService = new SearchTrainParameterService();
+    private final ParameterService<String> searchTrainService = new TrainSearchParameterService();
 
 
     /**

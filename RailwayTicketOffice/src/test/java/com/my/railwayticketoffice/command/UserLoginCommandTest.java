@@ -1,8 +1,11 @@
 package com.my.railwayticketoffice.command;
 
+import com.my.railwayticketoffice.authentication.PasswordAuthentication;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.UserDAO;
 import com.my.railwayticketoffice.entity.User;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -11,10 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for methods from {@link UserLoginCommand}
@@ -26,9 +30,24 @@ public class UserLoginCommandTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
     HttpSession session = mock(HttpSession.class);
+    MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
+    MockedStatic<PasswordAuthentication> PasswordAuthenticationMocked = Mockito.mockStatic(PasswordAuthentication.class);
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     UserDAO userDAO = mock(UserDAO.class);
+
+    @BeforeEach
+    void beforeEach() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
+        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+    }
+
+    @AfterEach
+    void afterEach() {
+        DBManagerMocked.close();
+        PasswordAuthenticationMocked.close();
+    }
 
     /**
      * Test for method execute from {@link UserLoginCommand}.
@@ -37,25 +56,28 @@ public class UserLoginCommandTest {
      */
     @Test
     public void testExecute() throws Exception {
+        String email = "user@mail.com";
+        String password = "password";
+        String from = "1";
+        String to = "2";
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+
         User user = new User();
-        user.setEmail("email@com");
-        user.setPassword("93M7C3ez6Fjo8_JnCjCNidIyy1hKyxusapdRtntgZOIsJx5Xy0sOt4aFSTrNAvpwhAr-BjYYGjMXOpUt3uhDXk");
+        user.setEmail(email);
+        user.setPassword(password);
         user.setRegistered(true);
 
-        when(request.getSession()).thenReturn(session);
-        when(request.getParameter("email")).thenReturn("email@com");
-        when(request.getParameter("password")).thenReturn("user1pass");
-        when(request.getParameter("from")).thenReturn("1");
-        when(request.getParameter("to")).thenReturn("2");
-        when(request.getParameter("departureDate")).thenReturn("1.1.1");
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+        when(request.getParameter("email")).thenReturn(email);
+        when(request.getParameter("password")).thenReturn(password);
+        when(request.getParameter("from")).thenReturn(from);
+        when(request.getParameter("to")).thenReturn(to);
+        when(request.getParameter("departureDate")).thenReturn(date);
         when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
-        when(userDAO.getUser(connection, "email@com")).thenReturn(user);
+        when(userDAO.getUser(connection, email)).thenReturn(user);
+        PasswordAuthenticationMocked.when(() -> PasswordAuthentication.check(password, user.getPassword())).thenReturn(true);
 
-        assertEquals("controller?command=getTrains&from=1&to=2&departureDate=1.1.1", new UserLoginCommand().execute(request, response));
-        DBManagerMocked.close();
+        assertEquals("controller?command=getTrains&from=" + from + "&to=" + to + "&departureDate=" + date, new UserLoginCommand().execute(request, response));
+        verify(session, times(1)).setAttribute("user", user);
     }
 
     /**
@@ -65,22 +87,22 @@ public class UserLoginCommandTest {
      */
     @Test
     public void testExecuteNotAdditionalParameters() throws Exception {
-        User user = new User();
-        user.setEmail("email");
-        user.setPassword("93M7C3ez6Fjo8_JnCjCNidIyy1hKyxusapdRtntgZOIsJx5Xy0sOt4aFSTrNAvpwhAr-BjYYGjMXOpUt3uhDXk");
-        user.setRole("admin");
+        String email = "user@mail.com";
+        String password = "password";
 
-        when(request.getSession()).thenReturn(session);
-        when(request.getParameter("email")).thenReturn("email");
-        when(request.getParameter("password")).thenReturn("user1pass");
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getConnection()).thenReturn(connection);
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setRegistered(true);
+
+        when(request.getParameter("email")).thenReturn(email);
+        when(request.getParameter("password")).thenReturn(password);
         when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
-        when(userDAO.getUser(connection, "email")).thenReturn(user);
+        when(userDAO.getUser(connection, email)).thenReturn(user);
+        PasswordAuthenticationMocked.when(() -> PasswordAuthentication.check(password, user.getPassword())).thenReturn(true);
 
         assertEquals("controller?command=mainPage", new UserLoginCommand().execute(request, response));
-        DBManagerMocked.close();
+        verify(session, times(1)).setAttribute("user", user);
     }
 
     /**
@@ -91,13 +113,7 @@ public class UserLoginCommandTest {
     @Test
     public void testExecuteNotParameters() throws Exception {
 
-        when(request.getSession()).thenReturn(session);
-        MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
-        DBManagerMocked.when((MockedStatic.Verification) DBManager.getInstance()).thenReturn(DBManagerInstance);
-        when(DBManager.getInstance().getConnection()).thenReturn(connection);
-        when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
-
         assertEquals("controller?command=mainPage", new UserLoginCommand().execute(request, response));
-        DBManagerMocked.close();
+        verifyNoInteractions(connection);
     }
 }

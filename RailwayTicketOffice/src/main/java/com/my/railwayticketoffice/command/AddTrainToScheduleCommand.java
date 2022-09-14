@@ -45,6 +45,7 @@ public class AddTrainToScheduleCommand implements Command {
         User user = (User) session.getAttribute("user");
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("trainId", request.getParameter("trainId"));
+            parameters.put("trainNumber", request.getParameter("trainNumber"));
             if (trainService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
                     boolean isExists = scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(parameters.get("trainId")));
@@ -54,19 +55,33 @@ public class AddTrainToScheduleCommand implements Command {
                         } else {
                             session.setAttribute("errorMessage", "Поїзд вже додано до розкладу");
                         }
-                    } else {
-                        Train train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
-                        if (train.getDepartureTime() != null) {
-                            List<String> scheduleDates = service.create(train);
-                            scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train));
-                            if ("en".equals(session.getAttribute("locale"))) {
-                                session.setAttribute("successMessage", "Train has been added to schedule");
-                            } else {
-                                session.setAttribute("successMessage", "Поїзд додано до розкладу");
-                            }
+                        return "controller?command=mainPage";
+                    }
+                    int isTrainExists = trainDAO.checkIfTrainExists(connection, parameters.get("trainNumber"));
+                    if (isTrainExists == 0 || isTrainExists != Integer.parseInt(parameters.get("trainId"))) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A train with this number no exists");
                         } else {
-                            session.setAttribute("errorMessage", "Виберіть існуючий поїзд");
+                            session.setAttribute("errorMessage", "Поїзда з таким номером не існує");
                         }
+                        return "controller?command=mainPage";
+                    }
+                    Train train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
+                    trainDAO.getCarriagesForTrains(connection, Collections.singletonList(train));
+                    if (train.getCarriages().size() == 0) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "The train has no carriages");
+                        } else {
+                            session.setAttribute("errorMessage", "Поїзд не має вагонів");
+                        }
+                        return "controller?command=mainPage";
+                    }
+                    List<String> scheduleDates = service.create();
+                    scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train));
+                    if ("en".equals(session.getAttribute("locale"))) {
+                        session.setAttribute("successMessage", "Train has been added to schedule");
+                    } else {
+                        session.setAttribute("successMessage", "Поїзд додано до розкладу");
                     }
                 } catch (SQLException e) {
                     logger.warn("Failed to connect to database for add train to schedule", e);

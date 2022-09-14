@@ -40,19 +40,30 @@ public class DeleteStationCommand implements Command {
         Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
+        String locale = (String) session.getAttribute("locale");
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("stationId", request.getParameter("stationId"));
+            parameters.put("stationName", request.getParameter("stationName"));
             if (stationService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    stationDAO.deleteStation(connection, Integer.parseInt(parameters.get("stationId")));
-                    if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("successMessage", "Station deleted");
+                    int isStationExists = stationDAO.checkIfStationExists(connection, parameters.get("stationName"), locale);
+                    if (isStationExists == 0 || isStationExists != Integer.parseInt(parameters.get("stationId"))) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "A station with this name no exists");
+                        } else {
+                            session.setAttribute("errorMessage", "Станції з такою назвою не існує");
+                        }
                     } else {
-                        session.setAttribute("successMessage", "Станцію видалено");
+                        stationDAO.deleteStation(connection, Integer.parseInt(parameters.get("stationId")));
+                        if ("en".equals(locale)) {
+                            session.setAttribute("successMessage", "Station deleted");
+                        } else {
+                            session.setAttribute("successMessage", "Станцію видалено");
+                        }
                     }
                 } catch (SQLException e) {
                     logger.warn("Failed to delete station from database", e);
-                    if ("en".equals(session.getAttribute("locale"))) {
+                    if ("en".equals(locale)) {
                         session.setAttribute("errorMessage", "Failed to connect to database for delete station from database");
                     } else {
                         session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб видалити станцію з бази даних");

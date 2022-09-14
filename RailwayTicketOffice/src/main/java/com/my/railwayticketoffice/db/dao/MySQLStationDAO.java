@@ -33,6 +33,23 @@ public class MySQLStationDAO implements StationDAO {
     }
 
     @Override
+    public int checkIfStationExists(Connection connection, String stationName, String locale) throws SQLException {
+        int id = 0;
+        PreparedStatement pstmt;
+        if ("en".equals(locale)) {
+            pstmt = connection.prepareStatement(MySQLStationDAOQuery.CHECK_IF_STATION_EN_EXISTS);
+        } else {
+            pstmt = connection.prepareStatement(MySQLStationDAOQuery.CHECK_IF_STATION_EXISTS);
+        }
+        pstmt.setString(1, stationName);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            id = rs.getInt("id");
+        }
+        return id;
+    }
+
+    @Override
     public int addStation(Connection connection, String stationName) throws SQLException {
         int id;
         PreparedStatement pstmt = connection.prepareStatement(MySQLStationDAOQuery.ADD_STATION, PreparedStatement.RETURN_GENERATED_KEYS);

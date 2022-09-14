@@ -25,7 +25,7 @@ public class ChangeMainPageLocaleCommandTest {
      * Test for method execute from {@link ChangeMainPageLocaleCommand}.
      */
     @Test
-    public void testExecute() {
+    void testExecute() {
 
         when(request.getParameter("trainsSortedCommand")).thenReturn("trainsSortedCommand");
         when(request.getParameter("page")).thenReturn("1");
@@ -40,7 +40,7 @@ public class ChangeMainPageLocaleCommandTest {
      * Test for method execute from {@link ChangeMainPageLocaleCommand} when no additional parameters.
      */
     @Test
-    public void testExecuteWhenNoAdditionalParameters() {
+    void testExecuteWhenNoAdditionalParameters() {
 
         when(request.getSession()).thenReturn(session);
 

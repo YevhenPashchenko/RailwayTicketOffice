@@ -17,8 +17,8 @@ public interface Command {
 
     /**
      * Method implemented by classes that built at command pattern.
-     * @param request - HttpServletRequest object.
-     * @param response - HttpServletResponse object.
+     * @param request HttpServletRequest object.
+     * @param response HttpServletResponse object.
      * @return string that must be a link at JSP or new request.
      */
     String execute(HttpServletRequest request, HttpServletResponse response) throws DBException, AuthenticationException, MailException, ReceiptException;

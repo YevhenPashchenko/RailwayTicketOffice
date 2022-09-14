@@ -18,7 +18,6 @@ public class TrainSortingManger {
         SORTING_TYPES.put("departureTime", new TrainSortingByDepartureTime());
         SORTING_TYPES.put("destinationTime", new TrainSortingByDestinationTime());
         SORTING_TYPES.put("durationTrip", new TrainSortingByDurationTrip());
-        SORTING_TYPES.put("availableSeats", new TrainSortingByAvailableSeats());
     }
 
     public static TrainSorting getStrategy(String sortBy) {
