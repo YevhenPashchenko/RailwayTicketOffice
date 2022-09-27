@@ -135,23 +135,26 @@ $(function() {
 
 });
 
-let inputs = [inputFrom, inputTo];
+let inputs = {
+    inputFrom: [inputFrom, inputsFrom],
+    inputTo: [inputTo, inputsTo],
+};
 
-inputs.map(input => {
-    input.addEventListener("change", e => {
+for (const inputsKey in inputs) {
+    inputs[inputsKey][0].addEventListener("change", e => {
         let input = e.currentTarget;
         let datalist = input.getAttribute('list');
-        for (let i = 0; i < inputsFrom.length; i++) {
-            changeAttribute(input.value, inputsFrom[i], datalist);
+        for (let i = 0; i < inputs[inputsKey][1].length; i++) {
+            changeAttribute(input.value, inputs[inputsKey][1][i], datalist);
         }
     });
-});
+}
 
 searchTrainsButton.addEventListener("click", ev => {
     if (!inputsFrom[0].hasAttribute("value")) {
         ev.preventDefault();
         if (currentLocale === "en") {
-            modalBody.innerHTML = "Enter your destination";
+            modalBody.innerHTML = "Enter your departure point";
         } else {
             modalBody.innerHTML = "Введіть пункт відправлення";
         }
@@ -161,9 +164,9 @@ searchTrainsButton.addEventListener("click", ev => {
     if (!inputsTo[0].hasAttribute("value")) {
         ev.preventDefault();
         if (currentLocale === "en") {
-            modalBody.innerHTML = "Enter your destination";
+            modalBody.innerHTML = "Enter your destination point";
         } else {
-            modalBody.innerHTML = "Введіть пункт відправлення";
+            modalBody.innerHTML = "Введіть пункт призначення";
         }
         errorModal.show();
     }

@@ -63,8 +63,9 @@ confirmDeleteStationModal = new bootstrap.Modal(confirmDeleteStationModal, {
     keyboard: false,
 });
 
-let oldStationNameForEditInput = document.querySelector('#oldStationNameForEdit');
-let newStationNameForEditInput = document.querySelector('#newStationNameForEdit');
+let stationNameForEditInput = document.querySelector('#stationNameForEdit');
+let newStationNameUAForEditInput = document.querySelector('#newStationNameUAForEdit');
+let newStationNameENForEditInput = document.querySelector('#newStationNameENForEdit');
 let editStationButton = document.querySelector('#editStation button');
 
 let trainNumberForAddToScheduleInput = document.querySelector('#trainNumberForAddToSchedule');
@@ -559,17 +560,7 @@ deleteCarriageTypeButton.addEventListener("click", evt => {
     let form = evt.currentTarget.parentElement;
     let typeIdInput = form.querySelector('input[name="typeId"]');
     let carriageType = form.querySelector('input[name="carriageType"]');
-    if (typeIdInput.value === "") {
-        if (currentLocale === "en") {
-            modalBody.innerHTML = "Carriage type is not specified";
-        } else {
-            modalBody.innerHTML = "Тип вагона не задано";
-        }
-        errorModal.show();
-        return;
-    }
-    if (carriageType.value === "") {
-        evt.preventDefault();
+    if (typeIdInput.value === "" || carriageType.value === "") {
         if (currentLocale === "en") {
             modalBody.innerHTML = "Carriage type is not specified";
         } else {
@@ -617,9 +608,10 @@ editCarriageTypeButton.addEventListener("click", evt => {
 });
 
 addStationButton.addEventListener("click", evt => {
-    let stationNameUA = evt.currentTarget.previousElementSibling.previousElementSibling.previousElementSibling.value;
-    let stationNameEN = evt.currentTarget.previousElementSibling.value;
-    if (stationNameEN === "" || stationNameUA === "") {
+    let form = evt.currentTarget.parentElement;
+    let stationNameUAInput = form.querySelector('input[name="stationNameUA"]');
+    let stationNameENInput = form.querySelector('input[name="stationNameEN"]');
+    if (stationNameENInput.value === "" || stationNameUAInput.value === "") {
         evt.preventDefault();
         if (currentLocale === "en") {
             modalBody.innerHTML = "Station name cannot be empty";
@@ -631,7 +623,8 @@ addStationButton.addEventListener("click", evt => {
 });
 
 deleteStationButton.addEventListener("click", evt => {
-    let stationIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
+    let form = evt.currentTarget.parentElement;
+    let stationIdInput = form.querySelector('input[name="stationId"]');
     evt.preventDefault();
     if (!stationIdInput.hasAttribute("value")) {
         if (currentLocale === "en") {
@@ -645,28 +638,26 @@ deleteStationButton.addEventListener("click", evt => {
     confirmDeleteStationModal.show();
 });
 
-oldStationNameForEditInput.addEventListener("change", evt => {
+stationNameForEditInput.addEventListener("change", evt => {
     let input = evt.currentTarget;
+    let idInput = input.previousElementSibling.firstElementChild;
     let datalist = input.getAttribute('list');
-    changeAttribute(input.value, input.previousElementSibling.firstElementChild, datalist);
-    if (input.value !== "") {
-        newStationNameForEditInput.removeAttribute("disabled");
-    } else {
-        newStationNameForEditInput.setAttribute("disabled", "");
-    }
-});
-
-newStationNameForEditInput.addEventListener("change", evt => {
-    let inputValue = evt.currentTarget.value;
-    if (inputValue !== "") {
+    changeAttribute(input.value, idInput, datalist);
+    if (idInput.value !== "") {
+        newStationNameUAForEditInput.removeAttribute("disabled");
+        newStationNameENForEditInput.removeAttribute("disabled");
         editStationButton.removeAttribute("disabled");
     } else {
+        newStationNameUAForEditInput.setAttribute("disabled", "");
+        newStationNameENForEditInput.setAttribute("disabled", "");
         editStationButton.setAttribute("disabled", "");
     }
 });
 
 editStationButton.addEventListener("click", evt => {
-    if (!oldStationNameForEditInput.previousElementSibling.firstElementChild.hasAttribute("value")) {
+    let form = evt.currentTarget.parentElement;
+    let idInput = form.querySelector('input[name="stationId"]');
+    if (!idInput.hasAttribute("value")) {
         evt.preventDefault();
         if (currentLocale === "en") {
             modalBody.innerHTML = "Select an existing station";
@@ -676,22 +667,12 @@ editStationButton.addEventListener("click", evt => {
         errorModal.show();
         return;
     }
-    if (newStationNameForEditInput.value === "") {
+    if (newStationNameUAForEditInput.value === "" || newStationNameENForEditInput.value === "") {
         evt.preventDefault();
         if (currentLocale === "en") {
             modalBody.innerHTML = "Station name cannot be empty";
         } else {
             modalBody.innerHTML = "Ім'я станції не може бути пустим";
-        }
-        errorModal.show();
-        return;
-    }
-    if (oldStationNameForEditInput.value === newStationNameForEditInput.value) {
-        evt.preventDefault();
-        if (currentLocale === "en") {
-            modalBody.innerHTML = "New and old station name match";
-        } else {
-            modalBody.innerHTML = "Нове та старе імена станції однакові";
         }
         errorModal.show();
     }

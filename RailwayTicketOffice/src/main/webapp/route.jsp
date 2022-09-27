@@ -29,30 +29,22 @@
                     <div class="dropdown mt-1 mb-5 offset-5">
                         <c:choose>
                             <c:when test="${sessionScope.locale eq null}">
-                                <input type="image" src="resources/images/uk-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="uk">
-                                <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                    <c:forEach items="${applicationScope.locales}" var="locale">
-                                        <c:if test="${locale.key ne 'uk'}">
-                                            <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeRoutePageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                            </li>
-                                        </c:if>
-                                    </c:forEach>
-                                </ul>
+                                <c:set var="locale" value="uk" scope="page"/>
                             </c:when>
                             <c:otherwise>
-                                <input type="image" src="resources/images/${sessionScope.locale}-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="${sessionScope.locale}">
-                                <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
-                                    <c:forEach items="${applicationScope.locales}" var="locale">
-                                        <c:if test="${locale.key ne sessionScope.locale}">
-                                            <li>
-                                                <a class="dropdown-item p-0" href="controller?command=changeRoutePageLocale&locale=${locale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}"><img src="resources/images/${locale.key}-icon.png" alt="${locale.key}"></a>
-                                            </li>
-                                        </c:if>
-                                    </c:forEach>
-                                </ul>
+                                <c:set var="locale" value="${sessionScope.locale}" scope="page"/>
                             </c:otherwise>
                         </c:choose>
+                        <input type="image" src="resources/images/${pageScope.locale}-icon.png" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="${pageScope.locale}">
+                        <ul class="dropdown-menu p-0" style="background: none; min-width: 0; border: 0">
+                            <c:forEach items="${applicationScope.locales}" var="appLocale">
+                                <c:if test="${appLocale.key ne pageScope.locale}">
+                                    <li>
+                                        <a class="dropdown-item p-0" href="controller?command=changeRoutePageLocale&locale=${appLocale.key}&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}"><img src="resources/images/${appLocale.key}-icon.png" alt="${appLocale.key}"></a>
+                                    </li>
+                                </c:if>
+                            </c:forEach>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -66,6 +58,18 @@
                     </c:if>
                 </div>
             </nav>
+            <c:if test="${sessionScope.successMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-success fs-4 fw-semibold">${sessionScope.successMessage}</div>
+                </div>
+                <c:remove var="successMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.errorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.errorMessage}</div>
+                </div>
+                <c:remove var="errorMessage" scope="session"/>
+            </c:if>
             <div class="text-center text-primary fs-4 fw-semibold lh-1 py-2">
                 <fmt:message key="route_jsp.main.first_div"/>
                 <img class="img-fluid w-auto" src="resources/images/train-icon.png" alt="">
@@ -97,40 +101,25 @@
                         <tr>
                             <c:choose>
                                 <c:when test="${loop.first}">
-                                    <td class="position-relative align-bottom py-0" style="height: 70px;">
-                                        ${requestScope.train.getRoute().getArrivalTime(station.getId())}
-                                        <c:choose>
-                                            <c:when test="${station.getId() eq requestScope.from}">
-                                                <c:set var="isStationWillBeVisited" value="true" scope="page"/>
-                                                <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-primary p-2">
-                                                    <span class="visually-hidden"></span>
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-secondary border-opacity-75 bg-light p-2">
-                                                    <span class="visually-hidden"></span>
-                                                </span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
+                                    <c:choose>
+                                        <c:when test="${station.getId() eq requestScope.from}">
+                                            <c:set var="isStationWillBeVisited" value="true" scope="page"/>
+                                            <c:set var="spanBorderColor" value="border-primary bg-primary" scope="page"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:set var="spanBorderColor" value="border-secondary border-opacity-75 bg-light" scope="page"/>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:when>
                                 <c:when test="${loop.last}">
                                     <c:choose>
                                         <c:when test="${isStationWillBeVisited eq true}">
-                                            <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(13, 110, 253, 0.75)">
-                                                    ${requestScope.train.getRoute().getArrivalTime(station.getId())}
-                                                <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-primary p-2">
-                                                    <span class="visually-hidden"></span>
-                                                </span>
-                                            </td>
+                                            <c:set var="borderRight" value="border-right: 2px dashed rgba(13, 110, 253, 0.75);" scope="page"/>
+                                            <c:set var="spanBorderColor" value="border-primary bg-primary" scope="page"/>
                                         </c:when>
                                         <c:otherwise>
-                                            <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(108, 117, 125, 0.75)">
-                                                    ${requestScope.train.getRoute().getArrivalTime(station.getId())}
-                                                <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-secondary border-opacity-75 bg-light p-2">
-                                                    <span class="visually-hidden"></span>
-                                                </span>
-                                            </td>
+                                            <c:set var="borderRight" value="border-right: 2px dashed rgba(108, 117, 125, 0.75);" scope="page"/>
+                                            <c:set var="spanBorderColor" value="border-secondary border-opacity-75 bg-light" scope="page"/>
                                         </c:otherwise>
                                     </c:choose>
                                 </c:when>
@@ -140,22 +129,18 @@
                                             <c:choose>
                                                 <c:when test="${station.getId() eq requestScope.to}">
                                                     <c:set var="isStationWillBeVisited" value="false" scope="page"/>
-                                                    <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(13, 110, 253, 0.75)">
-                                                        <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
+                                                    <c:set var="borderRight" value="border-right: 2px dashed rgba(13, 110, 253, 0.75);" scope="page"/>
+                                                    <c:set var="timeInMinutes" scope="page">
                                                         <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
-                                                        <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-primary p-2">
-                                                            <span class="visually-hidden"></span>
-                                                        </span>
-                                                    </td>
+                                                    </c:set>
+                                                    <c:set var="spanBorderColor" value="border-primary bg-primary" scope="page"/>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(13, 110, 253, 0.75)">
-                                                        <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
+                                                    <c:set var="borderRight" value="border-right: 2px dashed rgba(13, 110, 253, 0.75);" scope="page"/>
+                                                    <c:set var="timeInMinutes" scope="page">
                                                         <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
-                                                        <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-light p-2">
-                                                            <span class="visually-hidden"></span>
-                                                        </span>
-                                                    </td>
+                                                    </c:set>
+                                                    <c:set var="spanBorderColor" value="border-primary bg-light" scope="page"/>
                                                 </c:otherwise>
                                             </c:choose>
                                         </c:when>
@@ -163,47 +148,52 @@
                                             <c:choose>
                                                 <c:when test="${station.getId() eq requestScope.from}">
                                                     <c:set var="isStationWillBeVisited" value="true" scope="page"/>
-                                                    <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(108, 117, 125, 0.75)">
-                                                        <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
+                                                    <c:set var="borderRight" value="border-right: 2px dashed rgba(108, 117, 125, 0.75);" scope="page"/>
+                                                    <c:set var="timeInMinutes" scope="page">
                                                         <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
-                                                        <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-primary bg-primary p-2">
-                                                            <span class="visually-hidden"></span>
-                                                        </span>
-                                                    </td>
+                                                    </c:set>
+                                                    <c:set var="spanBorderColor" value="border-primary bg-primary" scope="page"/>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <td class="position-relative align-bottom py-0" style="height: 70px; border-right: 2px dashed rgba(108, 117, 125, 0.75)">
-                                                        <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
+                                                    <c:set var="borderRight" value="border-right: 2px dashed rgba(108, 117, 125, 0.75);" scope="page"/>
+                                                    <c:set var="timeInMinutes" scope="page">
                                                         <div><my:timeInMinutes time="${requestScope.train.getRoute().getTimeStop(station.getId())}"/> <fmt:message key="route_jsp.td.div_minutes"/>.</div>
-                                                        <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 border-secondary border-opacity-75 bg-light p-2">
-                                                            <span class="visually-hidden"></span>
-                                                        </span>
-                                                    </td>
+                                                    </c:set>
+                                                    <c:set var="spanBorderColor" value="border-secondary border-opacity-75 bg-light" scope="page"/>
                                                 </c:otherwise>
                                             </c:choose>
                                         </c:otherwise>
                                     </c:choose>
                                 </c:otherwise>
                             </c:choose>
+                            <td class="position-relative align-bottom py-0" style="height: 70px; ${pageScope.borderRight}">
+                                <div>${requestScope.train.getRoute().getArrivalTime(station.getId())}</div>
+                                ${pageScope.timeInMinutes}
+                                <span class="position-absolute start-100 bottom-0 translate-middle-x badge rounded-circle border border-2 ${pageScope.spanBorderColor} p-2">
+                                    <span class="visually-hidden"></span>
+                                </span>
+                                <c:remove var="borderRight" scope="page"/>
+                                <c:remove var="timeInMinutes" scope="page"/>
+                            </td>
                             <td class="align-bottom py-0">${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}</td>
                             <td class="d-flex text-start align-bottom py-0 justify-content-between align-items-end" style="height: 70px;">
                                 <c:choose>
                                     <c:when test="${station.getId() eq requestScope.from}">
-                                        <div>
+                                        <c:set var="divStation" scope="page">
                                             <div class="text-primary align-self-baseline"><fmt:message key="route_jsp.td.div_departureStation"/>:</div>
-                                            ${station.getName()}
-                                        </div>
+                                        </c:set>
                                     </c:when>
                                     <c:when test="${station.getId() eq requestScope.to}">
-                                        <div>
+                                        <c:set var="divStation" scope="page">
                                             <div class="text-primary align-self-baseline"><fmt:message key="route_jsp.td.div_destinationStation"/>:</div>
-                                            ${station.getName()}
-                                        </div>
+                                        </c:set>
                                     </c:when>
-                                    <c:otherwise>
-                                        ${station.getName()}
-                                    </c:otherwise>
                                 </c:choose>
+                                <div>
+                                    ${pageScope.divStation}
+                                    ${station.getName()}
+                                    <c:remove var="divStation" scope="page"/>
+                                </div>
                                 <c:if test="${sessionScope.user.getRole() eq 'admin'}">
                                     <div>
                                         <div class="d-inline-block position-relative">
@@ -228,7 +218,7 @@
                                                     </label>
                                                 </div>
                                                 <label for="stopTimeForEdit"><fmt:message key="route_jsp.label_for_stopTimeForEdit"/></label>
-                                                <input id="stopTimeForEdit" class="d-inline-block w-50 form-control mb-1" name="stopTime" value="${requestScope.train.getRoute().getStopTime(station.getId())}" type="time" required disabled>
+                                                <input id="stopTimeForEdit" class="d-inline-block w-50 form-control mb-1 time" name="stopTime" value="${requestScope.train.getRoute().getStopTime(station.getId())}" type="text" required disabled>
                                                 <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
                                                         <input class="form-check-input" role="switch" type="checkbox">
@@ -238,7 +228,7 @@
                                                     </label>
                                                 </div>
                                                 <label for="distanceFromStartForEdit"><fmt:message key="route_jsp.label_for_distanceFromStartForEdit"/></label>
-                                                <input id="distanceFromStartForEdit" class="d-inline-block w-50 form-control mb-1" name="distanceFromStart" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" type="number" required disabled>
+                                                <input id="distanceFromStartForEdit" class="d-inline-block w-50 form-control mb-1" name="distanceFromStart" value="${requestScope.train.getRoute().getDistanceFromFirstStation(station.getId())}" type="number" min="0" required disabled>
                                                 <div class="d-inline-block form-check form-switch ms-2">
                                                     <label>
                                                         <input class="form-check-input" role="switch" type="checkbox">
@@ -284,7 +274,7 @@
                             <input id="stationName" class="form-control mb-1" list="stationNameDatalist" type="text" autocomplete="off" required>
                             <datalist id="stationNameDatalist">
                                 <c:forEach items="${requestScope.stations}" var="station">
-                                    <c:if test="${!requestScope.train.getRoute().checkIfStationOnTheRoute(station.getId())}">
+                                    <c:if test="${!requestScope.train.getRoute().checkIfStationIsOnTheRoute(station.getId())}">
                                         <option value="${station.getName()}" id="${station.getId()}"></option>
                                     </c:if>
                                 </c:forEach>
@@ -292,9 +282,9 @@
                             <label for="timeSinceStart"><fmt:message key="route_jsp.label_for_timeSinceStartForEdit"/></label>
                             <input id="timeSinceStart" class="form-control w-100 mb-1 html-duration-picker text-start" data-hide-seconds name="timeSinceStart" required>
                             <label for="stopTime"><fmt:message key="route_jsp.label_for_stopTimeForEdit"/></label>
-                            <input id="stopTime" class="form-control mb-1" name="stopTime" type="time" required>
+                            <input id="stopTime" class="form-control mb-1 time" name="stopTime" type="text" required>
                             <label for="distanceFromStart"><fmt:message key="route_jsp.label_for_distanceFromStartForEdit"/></label>
-                            <input id="distanceFromStart" class="form-control mb-1" name="distanceFromStart" type="number" required>
+                            <input id="distanceFromStart" class="form-control mb-1" name="distanceFromStart" type="number" min="0" required>
                             <button class="btn btn-primary"><fmt:message key="main_jsp.a_for_addStation"/></button>
                         </form>
                     </div>
@@ -327,6 +317,8 @@
                             </div>
                         </div>
                     </div>
+                    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/dmuy/MDTimePicker@2.0.0/dist/mdtimepicker.min.css">
+                    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/dmuy/MDTimePicker@2.0.0/dist/mdtimepicker.min.js"></script>
                     <script type="text/javascript" src="resources/js/route.js"></script>
                 </c:if>
             </div>

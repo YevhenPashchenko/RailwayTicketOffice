@@ -60,18 +60,22 @@ public class EditStationCommandTest {
 
         String stationId = "1";
         String stationName = "Станція";
-        String oldStationName = "Стара назва станції";
+        String stationNameUA = "Нова назва станції українською";
+        String stationNameEN = "New station name english";
 
         when((User) session.getAttribute("user")).thenReturn(user);
+        when((String) session.getAttribute("locale")).thenReturn(null);
         when(request.getParameter("stationId")).thenReturn(stationId);
         when(request.getParameter("stationName")).thenReturn(stationName);
-        when(request.getParameter("oldStationName")).thenReturn(oldStationName);
+        when(request.getParameter("stationNameUA")).thenReturn(stationNameUA);
+        when(request.getParameter("stationNameEN")).thenReturn(stationNameEN);
         when(DBManager.getInstance().getStationDAO()).thenReturn(stationDAO);
-        when(stationDAO.checkIfStationExists(connection, oldStationName, null)).thenReturn(1);
-        when(stationDAO.checkIfStationExists(connection, stationName, null)).thenReturn(0);
+        when(stationDAO.checkIfStationExists(connection, stationName, null)).thenReturn(1);
+        when(stationDAO.checkIfStationExists(connection, stationNameUA, "uk")).thenReturn(0);
+        when(stationDAO.checkIfStationExists(connection, stationNameEN, "en")).thenReturn(0);
 
         assertEquals("controller?command=mainPage", new EditStationCommand().execute(request, response));
-        verify(stationDAO, times(1)).editStation(connection, Integer.parseInt(stationId), stationName, null);
+        verify(stationDAO, times(1)).editStation(connection, Integer.parseInt(stationId), stationNameEN, "en");
     }
 
     /**

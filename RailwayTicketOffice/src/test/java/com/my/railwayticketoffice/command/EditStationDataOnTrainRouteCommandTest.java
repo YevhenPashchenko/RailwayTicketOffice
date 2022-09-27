@@ -2,6 +2,8 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.entity.Station;
+import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.TrainParameterService;
@@ -58,19 +60,37 @@ public class EditStationDataOnTrainRouteCommandTest {
         User user = new User();
         user.setRole("admin");
 
-        String timeSinceStart = "00:00";
-        String stopTime = "00:00";
         String trainId = "1";
         String stationId = "1";
+        String timeSinceStart = "00:00";
+        String stopTime = "00:00";
         String distanceFromStart = "1";
 
+        Train train = new Train();
+        train.setId(Integer.parseInt(trainId));
+
+        Station station = new Station();
+        station.setId(Integer.parseInt(stationId));
+        Station station1 = new Station();
+        station1.setId(2);
+
+        train.getRoute().addStation(station);
+        train.getRoute().addTimeSinceStart(station.getId(), "00:10");
+        train.getRoute().addDistanceFromStart(station.getId(), 10);
+
+        train.getRoute().addStation(station1);
+        train.getRoute().addTimeSinceStart(station1.getId(), "00:20");
+        train.getRoute().addDistanceFromStart(station1.getId(), 20);
+
         when((User) session.getAttribute("user")).thenReturn(user);
-        when(request.getParameter("timeSinceStart")).thenReturn(timeSinceStart);
-        when(request.getParameter("stopTime")).thenReturn(stopTime);
         when(request.getParameter("trainId")).thenReturn(trainId);
         when(request.getParameter("stationId")).thenReturn(stationId);
+        when(request.getParameter("timeSinceStart")).thenReturn(timeSinceStart);
+        when(request.getParameter("stopTime")).thenReturn(stopTime);
         when(request.getParameter("distanceFromStart")).thenReturn(distanceFromStart);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(trainDAO.getTrain(connection, Integer.parseInt(trainId))).thenReturn(train);
+
 
         assertEquals("controller?command=showRoute&trainId=" + trainId, new EditStationDataOnTrainRouteCommand().execute(request, response));
         verify(trainDAO, times(1)).editStationDataOnTrainRoute(connection, timeSinceStart, stopTime, Integer.parseInt(distanceFromStart), Integer.parseInt(trainId), Integer.parseInt(stationId));

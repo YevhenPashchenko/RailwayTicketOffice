@@ -2,6 +2,8 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.entity.Station;
+import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.TrainParameterService;
@@ -61,10 +63,19 @@ public class DeleteStationFromTrainRouteCommandTest {
         String trainId = "1";
         String stationId = "1";
 
+        Train train = new Train();
+        train.setId(Integer.parseInt(trainId));
+
+        Station station = new Station();
+        station.setId(Integer.parseInt(stationId));
+
+        train.getRoute().addStation(station);
+
         when((User) session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("trainId")).thenReturn(trainId);
         when(request.getParameter("stationId")).thenReturn(stationId);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(trainDAO.getTrain(connection, Integer.parseInt(trainId))).thenReturn(train);
 
         assertEquals("controller?command=showRoute&trainId=" + Integer.parseInt(trainId), new DeleteStationFromTrainRouteCommand().execute(request, response));
         verify(trainDAO, times(1)).deleteStationFromTrainRoute(connection, Integer.parseInt(trainId), Integer.parseInt(stationId));

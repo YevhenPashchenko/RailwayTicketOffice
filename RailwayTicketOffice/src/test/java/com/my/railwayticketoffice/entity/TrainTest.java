@@ -278,4 +278,93 @@ public class TrainTest {
         }
         return coefficient;
     }
+
+    /**
+     * Test for method checkIfStationIsOnTheRoute from {@link Train}.
+     */
+    @Test
+    void testCheckIfStationIsOnTheRoute() {
+        Train train = new Train();
+        Station station = new Station();
+        station.setId(1);
+        train.getRoute().addStation(station);
+
+        Station station1 = new Station();
+        station1.setId(2);
+
+        assertTrue(train.getRoute().checkIfStationIsOnTheRoute(station.getId()));
+        assertFalse(train.getRoute().checkIfStationIsOnTheRoute(station1.getId()));
+    }
+
+    /**
+     * Test for method checkIfNewTimeSinceStartCorrect from {@link Train}.
+     */
+    @Test
+    void testCheckIfNewTimeSinceStartCorrect() {
+        Train train = new Train();
+
+        Station station = new Station();
+        station.setId(1);
+        Station station1 = new Station();
+        station1.setId(2);
+
+        train.getRoute().addStation(station);
+        train.getRoute().addStation(station1);
+
+        train.getRoute().addTimeSinceStart(station.getId(), "00:10");
+        train.getRoute().addTimeSinceStart(station1.getId(), "00:20");
+
+        assertTrue(train.getRoute().checkIfNewTimeSinceStartCorrect(station.getId(), "00:05"));
+        assertFalse(train.getRoute().checkIfNewTimeSinceStartCorrect(station.getId(), "00:25"));
+
+        assertTrue(train.getRoute().checkIfNewTimeSinceStartCorrect(station1.getId(), "00:25"));
+        assertFalse(train.getRoute().checkIfNewTimeSinceStartCorrect(station1.getId(), "00:05"));
+
+        Station station2 = new Station();
+        station1.setId(3);
+
+        train.getRoute().addStation(station2);
+
+        train.getRoute().addTimeSinceStart(station2.getId(), "00:30");
+
+        assertTrue(train.getRoute().checkIfNewTimeSinceStartCorrect(station1.getId(), "00:25"));
+        assertFalse(train.getRoute().checkIfNewTimeSinceStartCorrect(station1.getId(), "00:05"));
+        assertFalse(train.getRoute().checkIfNewTimeSinceStartCorrect(station1.getId(), "00:35"));
+    }
+
+    /**
+     * Test for method checkIfNewDistanceFromStartCorrect from {@link Train}.
+     */
+    @Test
+    public void testCheckIfNewDistanceFromStartCorrect() {
+        Train train = new Train();
+
+        Station station = new Station();
+        station.setId(1);
+        Station station1 = new Station();
+        station1.setId(2);
+
+        train.getRoute().addStation(station);
+        train.getRoute().addStation(station1);
+
+        train.getRoute().addDistanceFromStart(station.getId(), 10);
+        train.getRoute().addDistanceFromStart(station1.getId(), 20);
+
+        assertTrue(train.getRoute().checkIfNewDistanceFromStartCorrect(station.getId(), 5));
+        assertFalse(train.getRoute().checkIfNewDistanceFromStartCorrect(station.getId(), 25));
+
+        assertTrue(train.getRoute().checkIfNewDistanceFromStartCorrect(station1.getId(), 25));
+        assertFalse(train.getRoute().checkIfNewDistanceFromStartCorrect(station1.getId(), 5));
+
+        Station station2 = new Station();
+        station1.setId(3);
+
+        train.getRoute().addStation(station2);
+
+        train.getRoute().addDistanceFromStart(station2.getId(), 30);
+
+        assertTrue(train.getRoute().checkIfNewDistanceFromStartCorrect(station1.getId(), 25));
+        assertFalse(train.getRoute().checkIfNewDistanceFromStartCorrect(station1.getId(), 5));
+        assertFalse(train.getRoute().checkIfNewDistanceFromStartCorrect(station1.getId(), 35));
+    }
 }

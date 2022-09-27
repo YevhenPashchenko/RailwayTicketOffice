@@ -42,27 +42,35 @@ public class EditStationCommand implements Command {
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("stationId", request.getParameter("stationId"));
             parameters.put("stationName", request.getParameter("stationName"));
+            parameters.put("stationNameUA", request.getParameter("stationNameUA"));
+            parameters.put("stationNameEN", request.getParameter("stationNameEN"));
             if (stationService.check(parameters, session)) {
-                try(Connection connection = DBManager.getInstance().getConnection()) {
-                    int isStationExist = stationDAO.checkIfStationExists(connection, request.getParameter("oldStationName"), locale);
-                    int isNewStationExist = stationDAO.checkIfStationExists(connection, parameters.get("stationName"), locale);
+                Connection connection = null;
+                try {
+                    connection = DBManager.getInstance().getConnection();
+                    int isStationExist = stationDAO.checkIfStationExists(connection, parameters.get("stationName"), locale);
+                    int isNewStationUAExist = stationDAO.checkIfStationExists(connection, parameters.get("stationNameUA"), "uk");
+                    int isNewStationENExist = stationDAO.checkIfStationExists(connection, parameters.get("stationNameEN"), "en");
                     if (isStationExist == 0 || isStationExist != Integer.parseInt(parameters.get("stationId"))) {
-                        if ("en".equals(session.getAttribute("locale"))) {
+                        if ("en".equals(locale)) {
                             session.setAttribute("errorMessage", "A station with this name no exists");
                         } else {
                             session.setAttribute("errorMessage", "Станції з такою назвою не існує");
                         }
                         return "controller?command=mainPage";
                     }
-                    if (isNewStationExist > 0) {
-                        if ("en".equals(session.getAttribute("locale"))) {
+                    if (isNewStationUAExist > 0 || isNewStationENExist > 0) {
+                        if ("en".equals(locale)) {
                             session.setAttribute("errorMessage", "A station with this name already exists");
                         } else {
                             session.setAttribute("errorMessage", "Станція з таким ім'ям вже існує");
                         }
                         return "controller?command=mainPage";
                     }
-                    stationDAO.editStation(connection, Integer.parseInt(parameters.get("stationId")), parameters.get("stationName"), locale);
+                    connection.setAutoCommit(false);
+                    stationDAO.editStation(connection, Integer.parseInt(parameters.get("stationId")), parameters.get("stationNameUA"), "uk");
+                    stationDAO.editStation(connection, Integer.parseInt(parameters.get("stationId")), parameters.get("stationNameEN"), "en");
+                    connection.setAutoCommit(true);
                     if ("en".equals(locale)) {
                         session.setAttribute("successMessage", "Station data has been edited");
                     } else {
@@ -70,12 +78,9 @@ public class EditStationCommand implements Command {
                     }
                 } catch (SQLException e) {
                     logger.warn("Failed to connect to database for edit station data in database", e);
-                    if ("en".equals(locale)) {
-                        session.setAttribute("errorMessage", "Failed to connect to database for edit station data in database");
-                    } else {
-                        session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб відредагувати станцію");
-                    }
-                    throw new DBException("Failed to connect to database for edit station data in database");
+                    DBManager.getInstance().rollback(session, connection, e);
+                } finally {
+                    DBManager.getInstance().close(connection);
                 }
             }
         }

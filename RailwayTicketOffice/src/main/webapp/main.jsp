@@ -521,13 +521,15 @@
                                                 <fmt:message key="main_jsp.a_for_editStation"/>
                                             </a>
                                             <form id="editStation" class="collapse ps-2" action="controller?command=editStation" method="post">
-                                                <label for="oldStationNameForEdit" class="form-label"><fmt:message key="main_jsp.label_for_stationNameForDelete"/></label>
+                                                <label for="stationNameForEdit" class="form-label"><fmt:message key="main_jsp.label_for_stationNameForDelete"/></label>
                                                 <label>
                                                     <input type="number" name="stationId" hidden>
                                                 </label>
-                                                <input id="oldStationNameForEdit" class="form-control w-50 mb-2" type="text" name="oldStationName" list="stationsDatalistOptions" autocomplete="off" required>
-                                                <label for="newStationNameForEdit" class="form-label"><fmt:message key="main_jsp.label_for_newStationNameForEdit"/></label>
-                                                <input id="newStationNameForEdit" class="form-control w-50 mb-2" type="text" name="stationName" autocomplete="off" required disabled>
+                                                <input id="stationNameForEdit" class="form-control w-50 mb-2" type="text" name="stationName" list="stationsDatalistOptions" autocomplete="off" required>
+                                                <label for="newStationNameUAForEdit" class="form-label"><fmt:message key="main_jsp.label_for_newStationNameUAForEdit"/></label>
+                                                <input id="newStationNameUAForEdit" class="form-control w-50 mb-2" type="text" name="stationNameUA" autocomplete="off" required disabled>
+                                                <label for="newStationNameENForEdit" class="form-label"><fmt:message key="main_jsp.label_for_newStationNameENForEdit"/></label>
+                                                <input id="newStationNameENForEdit" class="form-control w-50 mb-2" type="text" name="stationNameEN" autocomplete="off" required disabled>
                                                 <button class="btn btn-primary" disabled><fmt:message key="main_jsp.a_for_editStation"/></button>
                                             </form>
                                         </li>

@@ -2,6 +2,7 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.TrainParameterService;
@@ -64,6 +65,9 @@ public class AddStationToTrainRouteCommandTest {
         String stationId = "1";
         String distanceFromStart = "1";
 
+        Train train = new Train();
+        train.setId(Integer.parseInt(trainId));
+
         when((User) session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("timeSinceStart")).thenReturn(timeSinceStart);
         when(request.getParameter("stopTime")).thenReturn(stopTime);
@@ -71,6 +75,7 @@ public class AddStationToTrainRouteCommandTest {
         when(request.getParameter("stationId")).thenReturn(stationId);
         when(request.getParameter("distanceFromStart")).thenReturn(distanceFromStart);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(trainDAO.getTrain(connection, Integer.parseInt(trainId))).thenReturn(train);
 
         assertEquals("controller?command=showRoute&trainId=" + trainId, new AddStationToTrainRouteCommand().execute(request, response));
         verify(trainDAO, times(1)).addStationToTrainRoute(connection, timeSinceStart, stopTime, Integer.parseInt(distanceFromStart), Integer.parseInt(trainId), Integer.parseInt(stationId));

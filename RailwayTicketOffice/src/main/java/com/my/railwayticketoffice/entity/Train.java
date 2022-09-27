@@ -349,12 +349,91 @@ public class Train implements Serializable {
             return coefficient;
         }
 
-        public boolean checkIfStationOnTheRoute(int stationId) {
+        /**
+         * Check that station is on the route.
+         * @param stationId {@link Station} id.
+         * @return true if {@link Station} exists on the route or false if not.
+         */
+        public boolean checkIfStationIsOnTheRoute(int stationId) {
             return stations.stream().anyMatch(station -> station.getId() == stationId);
         }
 
+        /**
+         * Check that new time since start of the {@link Station} on the route is between times since start of the nearest {@link Station}.
+         * @param stationId {@link Station} id.
+         * @param timeSinceStart new time since start of the {@link Station}.
+         * @return true if time since start is between or false if not.
+         */
+        public boolean checkIfNewTimeSinceStartCorrect(int stationId, String timeSinceStart) {
+            if (stations.size() <= 1) {
+                return true;
+            }
+            LocalDateTime newTimeSinceStart = LocalDateTime.MIN.plusHours(Integer.parseInt(timeSinceStart.split(":")[0]))
+                    .plusMinutes(Integer.parseInt(timeSinceStart.split(":")[1]));
+            String timeSinceStartPrevious;
+            String timeSinceStartNext;
+            LocalDateTime timeSinceStartPreviousStation;
+            LocalDateTime timeSinceStartNextStation;
+            if (stations.get(0).getId() == stationId) {
+                timeSinceStartNext = timeSinceStartMap.get(stations.get(1).getId());
+                timeSinceStartNextStation = LocalDateTime.MIN.plusHours(Integer.parseInt(timeSinceStartNext.split(":")[0]))
+                        .plusMinutes(Integer.parseInt(timeSinceStartNext.split(":")[1]));
+                return timeSinceStartNextStation.compareTo(newTimeSinceStart) > 0;
+            }
+            if (stations.get(stations.size() - 1).getId() == stationId) {
+                timeSinceStartPrevious = timeSinceStartMap.get(stations.get(stations.size() - 2).getId());
+                timeSinceStartPreviousStation = LocalDateTime.MIN.plusHours(Integer.parseInt(timeSinceStartPrevious.split(":")[0]))
+                        .plusMinutes(Integer.parseInt(timeSinceStartPrevious.split(":")[1]));
+                return newTimeSinceStart.compareTo(timeSinceStartPreviousStation) > 0;
+            }
+            int index = 0;
+            for (int i = 0; i < stations.size(); i++) {
+                if (stations.get(i).getId() == stationId) {
+                    index = i;
+                }
+            }
+            timeSinceStartPrevious = timeSinceStartMap.get(stations.get(index - 1).getId());
+            timeSinceStartNext = timeSinceStartMap.get(stations.get(index + 1).getId());
+            timeSinceStartPreviousStation = LocalDateTime.MIN.plusHours(Integer.parseInt(timeSinceStartPrevious.split(":")[0]))
+                    .plusMinutes(Integer.parseInt(timeSinceStartPrevious.split(":")[1]));
+            timeSinceStartNextStation = LocalDateTime.MIN.plusHours(Integer.parseInt(timeSinceStartNext.split(":")[0]))
+                    .plusMinutes(Integer.parseInt(timeSinceStartNext.split(":")[1]));
+            return newTimeSinceStart.compareTo(timeSinceStartPreviousStation) > 0 && timeSinceStartNextStation.compareTo(newTimeSinceStart) > 0;
+        }
+
+        /**
+         * Check that new distance from start of the {@link Station} on the route is between distances from start of the nearest {@link Station}.
+         * @param stationId {@link Station} id.
+         * @param distanceFromStart new distance from start of the {@link Station}.
+         * @return true if distance from start is between or false if not.
+         */
+        public boolean checkIfNewDistanceFromStartCorrect(int stationId, int distanceFromStart) {
+            if (stations.size() <= 1) {
+                return true;
+            }
+            int distanceFromStartPrevious;
+            int distanceFromStartNext;
+            if (stations.get(0).getId() == stationId) {
+                distanceFromStartNext = distanceFromStartMap.get(stations.get(1).getId());
+                return distanceFromStartNext > distanceFromStart;
+            }
+            if (stations.get(stations.size() - 1).getId() == stationId) {
+                distanceFromStartPrevious = distanceFromStartMap.get(stations.get(stations.size() - 2).getId());
+                return distanceFromStart > distanceFromStartPrevious;
+            }
+            int index = 0;
+            for (int i = 0; i < stations.size(); i++) {
+                if (stations.get(i).getId() == stationId) {
+                    index = i;
+                }
+            }
+            distanceFromStartPrevious = distanceFromStartMap.get(stations.get(index - 1).getId());
+            distanceFromStartNext = distanceFromStartMap.get(stations.get(index + 1).getId());
+            return distanceFromStart > distanceFromStartPrevious && distanceFromStartNext > distanceFromStart;
+        }
+
         public int getDistanceFromFirstStation(int stationId) {
-            return distanceFromStartMap.get(stationId);
+            return distanceFromStartMap.getOrDefault(stationId, 0);
         }
 
         public LocalTime getTimeStop(int stationId) {
@@ -378,7 +457,7 @@ public class Train implements Serializable {
         }
 
         public String getTimeSinceStart(Integer stationId) {
-            return timeSinceStartMap.get(stationId).substring(0, 5);
+            return timeSinceStartMap.computeIfPresent(stationId, (id, time) -> time.substring(0, 5));
         }
 
         public LocalTime getStopTime(Integer stationId) {
@@ -387,6 +466,22 @@ public class Train implements Serializable {
 
         public void addStation(Station station) {
             stations.add(station);
+        }
+
+        public void addStationByTimeSinceStart(Station station, String timeSinceStart) {
+            LocalDateTime newTimeSinceStart = LocalDateTime.MIN.plusHours(Integer.parseInt(timeSinceStart.split(":")[0]))
+                    .plusMinutes(Integer.parseInt(timeSinceStart.split(":")[1]));
+            int index = 0;
+            for (int i = 0; i < stations.size(); i++) {
+                String stringTime = timeSinceStartMap.get(stations.get(i).getId());
+                LocalDateTime time = LocalDateTime.MIN.plusHours(Integer.parseInt(stringTime.split(":")[0]))
+                        .plusMinutes(Integer.parseInt(stringTime.split(":")[1]));
+                if (newTimeSinceStart.compareTo(time) > 0) {
+                    index = i + 1;
+                    break;
+                }
+            }
+            stations.add(index, station);
         }
 
         public void addTimeSinceStart(Integer stationId, String timeSinceStart) {

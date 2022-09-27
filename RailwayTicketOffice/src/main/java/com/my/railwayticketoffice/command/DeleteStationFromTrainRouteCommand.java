@@ -3,6 +3,7 @@ package com.my.railwayticketoffice.command;
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.StationParameterService;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,16 +44,41 @@ public class DeleteStationFromTrainRouteCommand implements Command {
         Map<String, String> parameters = new HashMap<>();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
+        String locale = (String) session.getAttribute("locale");
         if (user != null && "admin".equals(user.getRole())) {
             parameters.put("trainId", request.getParameter("trainId"));
             parameters.put("stationId", request.getParameter("stationId"));
             if (trainService.check(parameters, session) && stationService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    trainDAO.deleteStationFromTrainRoute(connection, Integer.parseInt(parameters.get("trainId")), Integer.parseInt(parameters.get("stationId")));
-                    return "controller?command=showRoute&trainId=" + Integer.parseInt(parameters.get("trainId"));
+                    int trainId = Integer.parseInt(parameters.get("trainId"));
+                    Train train = trainDAO.getTrain(connection, trainId);
+                    if (trainId != train.getId()) {
+                        if ("en".equals(locale)) {
+                            session.setAttribute("errorMessage", "Train not found");
+                        } else {
+                            session.setAttribute("errorMessage", "Поїзд не знайдено");
+                        }
+                        return "controller?command=showRoute&trainId=" + trainId;
+                    }
+                    trainDAO.getRoutesForTrains(connection, Collections.singletonList(train), locale);
+                    if (train.getRoute().checkIfStationIsOnTheRoute(Integer.parseInt(parameters.get("stationId")))) {
+                        trainDAO.deleteStationFromTrainRoute(connection, trainId, Integer.parseInt(parameters.get("stationId")));
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("successMessage", "Station has been deleted from the route");
+                        } else {
+                            session.setAttribute("successMessage", "Станцію видалено з маршруту");
+                        }
+                    } else {
+                        if ("en".equals(locale)) {
+                            session.setAttribute("errorMessage", "Station for deleting from the route not found");
+                        } else {
+                            session.setAttribute("errorMessage", "Не знайдено станцію для видалення з маршруту");
+                        }
+                    }
+                    return "controller?command=showRoute&trainId=" + trainId;
                 } catch (SQLException e) {
                     logger.warn("Failed to connect to database for delete station from train route", e);
-                    if ("en".equals(session.getAttribute("locale"))) {
+                    if ("en".equals(locale)) {
                         session.setAttribute("errorMessage", "Failed to connect to database for delete station from train route");
                     } else {
                         session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб видалити станцію з маршруту поїзда");
