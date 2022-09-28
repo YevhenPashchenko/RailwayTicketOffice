@@ -39,7 +39,7 @@ public class TrainScheduleManager implements Runnable {
             scheduleDAO.clearTable(connection);
             if (trains.size() > 0) {
                 trainDAO.getCarriagesForTrains(connection, trains);
-                scheduleDAO.addData(connection, scheduleDates, trains);
+                scheduleDAO.addData(connection, scheduleDates, trains, null);
             }
         } catch (SQLException e) {
             logger.warn("Failed to prepare train schedule", e);
@@ -62,7 +62,7 @@ public class TrainScheduleManager implements Runnable {
             List<Train> trains = trainDAO.getAllTrains(connection);
             if (trains.size() > 0) {
                 trainDAO.getCarriagesForTrains(connection, trains);
-                scheduleDAO.addData(connection, scheduleDates, trains);
+                scheduleDAO.addData(connection, scheduleDates, trains, null);
             }
         } catch (SQLException e) {
             logger.warn("Failed to update train schedule", e);

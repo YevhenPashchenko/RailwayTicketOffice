@@ -89,7 +89,7 @@ public class AddTrainToScheduleCommandTest {
         when(trainDAO.getTrain(connection, 1)).thenReturn(train);
 
         assertEquals("controller?command=mainPage", new AddTrainToScheduleCommand().execute(request, response));
-        verify(scheduleDAO, times(1)).addData(connection, scheduleDates, Collections.singletonList(train));
+        verify(scheduleDAO, times(1)).addData(connection, scheduleDates, Collections.singletonList(train), null);
     }
 
     /**

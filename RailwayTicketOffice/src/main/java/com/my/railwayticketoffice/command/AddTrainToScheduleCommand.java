@@ -77,7 +77,7 @@ public class AddTrainToScheduleCommand implements Command {
                         return "controller?command=mainPage";
                     }
                     List<String> scheduleDates = service.create();
-                    scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train));
+                    scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train), null);
                     if ("en".equals(session.getAttribute("locale"))) {
                         session.setAttribute("successMessage", "Train has been added to schedule");
                     } else {

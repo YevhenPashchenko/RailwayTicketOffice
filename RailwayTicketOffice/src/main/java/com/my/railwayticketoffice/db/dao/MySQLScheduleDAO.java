@@ -1,6 +1,7 @@
 package com.my.railwayticketoffice.db.dao;
 
 import com.my.railwayticketoffice.entity.Train;
+import com.my.railwayticketoffice.entity.User;
 
 import java.sql.*;
 import java.util.List;
@@ -19,7 +20,7 @@ public class MySQLScheduleDAO implements ScheduleDAO {
     }
 
     @Override
-    public void addData(Connection connection, List<String> scheduleDates, List<Train> trains) throws SQLException {
+    public void addData(Connection connection, List<String> scheduleDates, List<Train> trains, User user) throws SQLException {
         int countValues = 0;
         int count = 1;
         for (int i = 0; i < scheduleDates.size(); i++) {
@@ -51,6 +52,11 @@ public class MySQLScheduleDAO implements ScheduleDAO {
                         pstmt.setInt(count++, train.getId());
                         pstmt.setInt(count++, carriage.getId());
                         pstmt.setInt(count++, i);
+                        if (user != null) {
+                            pstmt.setInt(count++, user.getId());
+                        } else {
+                            pstmt.setObject(count++, null);
+                        }
                     }
                 }
             }
@@ -122,7 +128,7 @@ public class MySQLScheduleDAO implements ScheduleDAO {
     }
 
     @Override
-    public void changeTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate, int carriageId, List<Integer> seatsNumbers) throws SQLException {
+    public void changeTrainAvailableSeatsOnThisDate(Connection connection, int userId, int trainId, String selectedDate, int carriageId, List<Integer> seatsNumbers) throws SQLException {
         int count = 1;
         StringBuilder query = new StringBuilder(MySQLScheduleDAOQuery.CHANGE_AVAILABLE_SEATS)
                 .append("(?");
@@ -131,6 +137,7 @@ public class MySQLScheduleDAO implements ScheduleDAO {
         }
         query.append(")");
         PreparedStatement pstmt = connection.prepareStatement(query.toString());
+        pstmt.setInt(count++, userId);
         pstmt.setString(count++, selectedDate);
         pstmt.setInt(count++, trainId);
         pstmt.setInt(count++, carriageId);

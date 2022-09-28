@@ -101,10 +101,10 @@ public class BuyTicketCommand implements Command {
                 try {
                     connection = DBManager.getInstance().getConnection();
                     connection.setAutoCommit(false);
-                    Map<Integer, List<Integer>> seatsForDeleteFromSchedule = scheduleService.collect(train, ticketParameters);
+                    Map<Integer, List<Integer>> bookedSeats = scheduleService.collect(train, ticketParameters);
                     for (Integer carriageId:
-                         seatsForDeleteFromSchedule.keySet()) {
-                        scheduleDAO.changeTrainAvailableSeatsOnThisDate(connection, train.getId(), String.join("-", dateForDB), carriageId, seatsForDeleteFromSchedule.get(carriageId));
+                         bookedSeats.keySet()) {
+                        scheduleDAO.changeTrainAvailableSeatsOnThisDate(connection, user.getId(), train.getId(), String.join("-", dateForDB), carriageId, bookedSeats.get(carriageId));
                     }
                     connection.commit();
                     connection.setAutoCommit(true);

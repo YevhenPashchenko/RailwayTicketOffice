@@ -105,7 +105,7 @@ public class AddCarriageToTrainCommandTest {
         when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
 
         assertEquals("controller?command=mainPage", new AddCarriageToTrainCommand().execute(request, response));
-        verify(scheduleDAO, times(1)).addData(connection, scheduleDates, Collections.singletonList(train));
+        verify(scheduleDAO, times(1)).addData(connection, scheduleDates, Collections.singletonList(train), null);
     }
 
     /**

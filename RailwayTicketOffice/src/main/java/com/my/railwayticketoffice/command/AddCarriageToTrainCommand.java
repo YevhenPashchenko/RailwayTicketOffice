@@ -121,7 +121,7 @@ public class AddCarriageToTrainCommand implements Command {
                     carriage.setId(carriageId);
                     carriage.setMaxSeats(maxSeats);
                     train.addCarriage(carriageId, carriage);
-                    scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train));
+                    scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train), null);
                     connection.setAutoCommit(true);
                     if ("en".equals(session.getAttribute("locale"))) {
                         session.setAttribute("successMessage", "Carriages added to train");

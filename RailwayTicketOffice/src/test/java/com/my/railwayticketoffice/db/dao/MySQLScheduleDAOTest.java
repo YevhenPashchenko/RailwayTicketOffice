@@ -65,7 +65,7 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.ADD_DATA + MySQLScheduleDAOQuery.VALUES_FOR_ADD_DATA)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(1);
 
-        DBManager.getInstance().getScheduleDAO().addData(connection, scheduleDates, Collections.singletonList(train));
+        DBManager.getInstance().getScheduleDAO().addData(connection, scheduleDates, Collections.singletonList(train), null);
 
         verify(pstmt, times(1)).executeUpdate();
     }
@@ -88,7 +88,7 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.ADD_DATA + MySQLScheduleDAOQuery.VALUES_FOR_ADD_DATA)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(0);
 
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().addData(connection, scheduleDates, Collections.singletonList(train)));
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().addData(connection, scheduleDates, Collections.singletonList(train), null));
     }
 
     /**
@@ -273,6 +273,7 @@ public class MySQLScheduleDAOTest {
     @Test
     void testChangeTrainAvailableSeatsOnThisDate() throws Exception {
 
+        int userId = 1;
         int trainId = 1;
         String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH));
         int carriageId = 1;
@@ -282,7 +283,7 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.CHANGE_AVAILABLE_SEATS + "(?)")).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(1);
 
-        DBManager.getInstance().getScheduleDAO().changeTrainAvailableSeatsOnThisDate(connection, trainId, currentDate, carriageId, seatsNumbers);
+        DBManager.getInstance().getScheduleDAO().changeTrainAvailableSeatsOnThisDate(connection, userId, trainId, currentDate, carriageId, seatsNumbers);
         verify(pstmt, times(1)).executeUpdate();
     }
 
@@ -294,6 +295,7 @@ public class MySQLScheduleDAOTest {
     @Test
     void testFailedChangeTrainAvailableSeatsOnThisDate() throws Exception {
 
+        int userId = 1;
         int trainId = 1;
         String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH));
         int carriageId = 1;
@@ -303,7 +305,7 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.CHANGE_AVAILABLE_SEATS + "(?)")).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(0);
 
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().changeTrainAvailableSeatsOnThisDate(connection, trainId, currentDate, carriageId, seatsNumbers));
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().changeTrainAvailableSeatsOnThisDate(connection, userId, trainId, currentDate, carriageId, seatsNumbers));
     }
 
     /**

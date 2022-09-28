@@ -1,6 +1,7 @@
 package com.my.railwayticketoffice.db.dao;
 
 import com.my.railwayticketoffice.entity.Train;
+import com.my.railwayticketoffice.entity.User;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,9 +27,10 @@ public interface ScheduleDAO {
      * @param connection Connection object.
      * @param scheduleDates list string of dates. String date must be match with pattern "yyyy-MM-dd".
      * @param trains list of {@link Train} data that needed for train schedule data.
+     * @param user
      * @throws SQLException if a database access error occurs.
      */
-    void addData(Connection connection, List<String> scheduleDates, List<Train> trains) throws SQLException;
+    void addData(Connection connection, List<String> scheduleDates, List<Train> trains, User user) throws SQLException;
 
     /**
      * When a class implementing interface {@link ScheduleDAO} call this method should delete train data from schedule
@@ -80,13 +82,14 @@ public interface ScheduleDAO {
      * When a class implementing interface {@link ScheduleDAO} call this method should be changed a number of train
      * available seats on selected date.
      * @param connection Connection object.
+     * @param userId
      * @param trainId {@link Train} id.
      * @param selectedDate selected date.
-     * @param carriageId {@link com.my.railwayticketoffice.entity.Train.Carriage} id.
-     * @param seatsNumbers list of seats from {@link com.my.railwayticketoffice.entity.Train.Carriage} that must be deleted from schedule.
+     * @param carriageId {@link Train.Carriage} id.
+     * @param seatsNumbers list of seats from {@link Train.Carriage} that must be deleted from schedule.
      * @throws SQLException if a database access error occurs.
      */
-    void changeTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate, int carriageId, List<Integer> seatsNumbers) throws SQLException;
+    void changeTrainAvailableSeatsOnThisDate(Connection connection, int userId, int trainId, String selectedDate, int carriageId, List<Integer> seatsNumbers) throws SQLException;
 
     /**
      * When a class implementing interface {@link ScheduleDAO} call this method should be changed {@link com.my.railwayticketoffice.entity.Train.Carriage} id
