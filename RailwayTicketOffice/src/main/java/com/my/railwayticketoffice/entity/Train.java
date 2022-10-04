@@ -23,6 +23,7 @@ public class Train implements Serializable {
     private int id;
     private String number;
     private LocalTime departureTime;
+    private boolean inSchedule;
 
     /**
      * @return the number of types of carriages in train.
@@ -104,6 +105,14 @@ public class Train implements Serializable {
 
     public void setDepartureTime(LocalTime departureTime) {
         this.departureTime = departureTime;
+    }
+
+    public boolean isInSchedule() {
+        return inSchedule;
+    }
+
+    public void setInSchedule(boolean inSchedule) {
+        this.inSchedule = inSchedule;
     }
 
     public class Carriage implements Serializable {

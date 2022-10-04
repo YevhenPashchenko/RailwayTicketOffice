@@ -3,6 +3,7 @@ package com.my.railwayticketoffice.command;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.db.dao.UserDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.TrainParameterService;
@@ -17,6 +18,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -36,6 +42,7 @@ public class DeleteTrainFromScheduleCommandTest {
     private final Connection connection = mock(Connection.class);
     private final ScheduleDAO scheduleDAO = mock(ScheduleDAO.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
+    private final UserDAO userDAO = mock(UserDAO.class);
     private final ParameterService<String> trainService = mock(TrainParameterService.class);
 
     @BeforeEach
@@ -62,17 +69,58 @@ public class DeleteTrainFromScheduleCommandTest {
 
         String trainId = "1";
         String trainNumber = "Номер";
+        String departureDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+
+        List<String> dateForDB = Arrays.asList(departureDate.split("\\."));
+        Collections.reverse(dateForDB);
 
         when((User) session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("trainId")).thenReturn(trainId);
         when(request.getParameter("trainNumber")).thenReturn(trainNumber);
+        when(request.getParameter("departureDate")).thenReturn(departureDate);
         when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
         when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(true);
-        when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(1);
+        when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(Integer.parseInt(trainId));
+        when(scheduleDAO.checkIfTrainHasBookedSeatsAtDate(connection, String.join("-", dateForDB), Integer.parseInt(trainId))).thenReturn(true);
 
         assertEquals("controller?command=mainPage", new DeleteTrainFromScheduleCommand().execute(request, response));
-        verify(scheduleDAO, times(1)).deleteTrainFromSchedule(connection, Integer.parseInt(trainId));
+        verify(userDAO, times(1)).getUsersThatPurchasedSeatOnTrainAtDate(connection, String.join("-", dateForDB), Integer.parseInt(trainId));
+        verify(scheduleDAO, times(1)).deleteTrainFromScheduleAtDate(connection, String.join("-", dateForDB), Integer.parseInt(trainId));
+    }
+
+    /**
+     * Test for method execute from {@link DeleteTrainFromScheduleCommand} when users have not purchased tickets on this train at this day.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testExecuteUsersNotPurchasedTickets() throws Exception {
+        User user = new User();
+        user.setRole("admin");
+
+        String trainId = "1";
+        String trainNumber = "Номер";
+        String departureDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+
+        List<String> dateForDB = Arrays.asList(departureDate.split("\\."));
+        Collections.reverse(dateForDB);
+
+        when((User) session.getAttribute("user")).thenReturn(user);
+        when(request.getParameter("trainId")).thenReturn(trainId);
+        when(request.getParameter("trainNumber")).thenReturn(trainNumber);
+        when(request.getParameter("departureDate")).thenReturn(departureDate);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
+        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
+        when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(true);
+        when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(Integer.parseInt(trainId));
+        when(scheduleDAO.checkIfTrainHasBookedSeatsAtDate(connection, String.join("-", dateForDB), Integer.parseInt(trainId))).thenReturn(false);
+
+        assertEquals("controller?command=mainPage", new DeleteTrainFromScheduleCommand().execute(request, response));
+        verify(userDAO, times(0)).getUsersThatPurchasedSeatOnTrainAtDate(connection, String.join("-", dateForDB), Integer.parseInt(trainId));
+        verify(scheduleDAO, times(1)).deleteTrainFromScheduleAtDate(connection, String.join("-", dateForDB), Integer.parseInt(trainId));
     }
 
     /**

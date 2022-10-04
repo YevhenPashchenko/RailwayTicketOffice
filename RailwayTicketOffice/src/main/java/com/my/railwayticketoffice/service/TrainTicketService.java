@@ -43,7 +43,7 @@ public class TrainTicketService implements TicketService {
             ticket.setPassengerName(passengersNames[i]);
 
             ticket.setCost(train.getRoute().getCostOfTripAsString(Integer.parseInt(parameters.get("from")), Integer.parseInt(parameters.get("to")), carriageType));
-            ticket.setTicketNumber();
+            ticket.setTicketNumber(Integer.parseInt(parameters.get("trainId")));
             tickets.add(ticket);
         }
         return tickets;

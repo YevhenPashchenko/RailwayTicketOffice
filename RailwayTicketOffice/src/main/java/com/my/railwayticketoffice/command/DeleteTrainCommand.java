@@ -2,6 +2,7 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
+import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -26,6 +27,7 @@ public class DeleteTrainCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(DeleteTrainCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
+    private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
 
     /**
@@ -53,11 +55,19 @@ public class DeleteTrainCommand implements Command {
                             session.setAttribute("errorMessage", "Поїзда з таким номером не існує");
                         }
                     } else {
-                        trainDAO.deleteTrain(connection, Integer.parseInt(parameters.get("trainId")));
-                        if ("en".equals(session.getAttribute("locale"))) {
-                            session.setAttribute("successMessage", "Train has been deleted");
+                        if (!scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(parameters.get("trainId")))) {
+                            trainDAO.deleteTrain(connection, Integer.parseInt(parameters.get("trainId")));
+                            if ("en".equals(session.getAttribute("locale"))) {
+                                session.setAttribute("successMessage", "Train has been deleted");
+                            } else {
+                                session.setAttribute("successMessage", "Поїзд видалено");
+                            }
                         } else {
-                            session.setAttribute("successMessage", "Поїзд видалено");
+                            if ("en".equals(session.getAttribute("locale"))) {
+                                session.setAttribute("errorMessage", "Cannot be deleted, train is on the schedule");
+                            } else {
+                                session.setAttribute("errorMessage", "Неможливо видалити, поїзд є в розкладі");
+                            }
                         }
                     }
                 } catch (SQLException e) {

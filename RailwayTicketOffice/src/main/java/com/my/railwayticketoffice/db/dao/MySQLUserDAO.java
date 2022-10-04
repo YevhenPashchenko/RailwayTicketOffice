@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class that implements {@link UserDAO} interface methods for MySQL.
@@ -57,5 +59,55 @@ public class MySQLUserDAO implements UserDAO {
         if (affectedRow == 0) {
             throw new SQLException("Failed to edit user data in database");
         }
+    }
+
+    @Override
+    public List<User> getUsersThatPurchasedSeatOnTrain(Connection connection, int trainId) throws SQLException {
+        List<User> users = new ArrayList<>();
+        PreparedStatement pstmt = connection.prepareStatement(MySQLUserDAOQuery.GET_USERS_THAT_PURCHASED_SEAT_ON_TRAIN);
+        pstmt.setInt(1, trainId);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            User user = new User();
+            user.setEmail(rs.getString("email"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            users.add(user);
+        }
+        return users;
+    }
+
+    @Override
+    public List<User> getUsersThatPurchasedSeatOnTrainCarriage(Connection connection, int trainId, int carriageId) throws SQLException {
+        List<User> users = new ArrayList<>();
+        PreparedStatement pstmt = connection.prepareStatement(MySQLUserDAOQuery.GET_USERS_THAT_PURCHASED_SEAT_IN_CARRIAGE_ON_TRAIN);
+        pstmt.setInt(1, trainId);
+        pstmt.setInt(2, carriageId);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            User user = new User();
+            user.setEmail(rs.getString("email"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            users.add(user);
+        }
+        return users;
+    }
+
+    @Override
+    public List<User> getUsersThatPurchasedSeatOnTrainAtDate(Connection connection, String departureDate, int trainId) throws SQLException {
+        List<User> users = new ArrayList<>();
+        PreparedStatement pstmt = connection.prepareStatement(MySQLUserDAOQuery.GET_USERS_THAT_PURCHASED_SEAT_ON_TRAIN_AT_DATE);
+        pstmt.setString(1, departureDate);
+        pstmt.setInt(2, trainId);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            User user = new User();
+            user.setEmail(rs.getString("email"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            users.add(user);
+        }
+        return users;
     }
 }

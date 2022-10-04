@@ -106,7 +106,8 @@ $(function() {
 
     function addDate() {
         let inputs = document.querySelectorAll('input[name="departureDate"]');
-        let date = $('.drp-selected')[0].innerHTML.split("-")[0];
+        let drpSelected = $('.drp-selected');
+        let date = drpSelected[drpSelected.length - 1].innerHTML.split("-")[0];
         if (date.length === 0) {
             date = new Date(startDate.split(".").reverse().join("-")).toLocaleDateString('uk-UA', {
                 year: 'numeric',
@@ -129,7 +130,9 @@ $(function() {
 
     addDate();
 
-    $('.applyBtn')[0].addEventListener("click", () => {
+    let applyBtn = $('.applyBtn');
+
+    applyBtn[applyBtn.length - 1].addEventListener("click", () => {
         addDate();
     });
 

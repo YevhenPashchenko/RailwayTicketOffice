@@ -143,7 +143,7 @@
                         </c:otherwise>
                     </c:choose>
                     <li class="nav-item text-center ${pageScope.border} position-relative" style="width: 113px; height: 50px; background-image: url('resources/images/carriage-icon.png'); background-size: cover">
-                        <a class="nav-link text-light fs-4 fw-semibold" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<fmt:message key="seats_jsp.tooltip_first_part"/>${carriage.getNumber()} <fmt:message key="seats_jsp.tooltip_second_part"/> ${carriage.getSeats().size()}" href="${pageScope.chooseCarriageHref}" aria-current="page">${carriage.getNumber()}</a>
+                        <a class="nav-link text-light fs-4 fw-semibold" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<fmt:message key="seats_jsp.tooltip_first_part"/> ${carriage.getNumber()} <fmt:message key="seats_jsp.tooltip_second_part"/> ${carriage.getSeats().size()}" href="${pageScope.chooseCarriageHref}" aria-current="page">${carriage.getNumber()}</a>
                         <span class="badge position-absolute top-0 fs-5">${carriage.getSeats().size()}</span>
                     </li>
                     <c:remove var="border"/>

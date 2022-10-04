@@ -27,7 +27,7 @@ public interface ScheduleDAO {
      * @param connection Connection object.
      * @param scheduleDates list string of dates. String date must be match with pattern "yyyy-MM-dd".
      * @param trains list of {@link Train} data that needed for train schedule data.
-     * @param user
+     * @param user {@link User}.
      * @throws SQLException if a database access error occurs.
      */
     void addData(Connection connection, List<String> scheduleDates, List<Train> trains, User user) throws SQLException;
@@ -40,15 +40,6 @@ public interface ScheduleDAO {
      * @throws SQLException if a database access error occurs.
      */
     void deleteData(Connection connection, String currentDate) throws SQLException;
-
-    /**
-     * When a class implementing interface {@link ScheduleDAO} call this method should delete {@link com.my.railwayticketoffice.entity.Train.Carriage} that deleted from {@link Train} from schedule.
-     * @param connection Connection object.
-     * @param trainId {@link Train} id.
-     * @param carriageId {@link com.my.railwayticketoffice.entity.Train.Carriage} id.
-     * @throws SQLException if a database access error occurs.
-     */
-    void deleteCarriageFromSchedule(Connection connection, int trainId, int carriageId) throws SQLException;
 
     /**
      * When a class implementing interface {@link ScheduleDAO} call this method should be return a number of train
@@ -71,18 +62,19 @@ public interface ScheduleDAO {
     boolean checkIfRecordExists(Connection connection, int trainId) throws SQLException;
 
     /**
-     * When a class implementing interface {@link ScheduleDAO} call this method should be deleted train from schedule.
+     * When a class implementing interface {@link ScheduleDAO} call this method should be deleted train from schedule at this departure date.
      * @param connection Connection object.
+     * @param departureDate departure date.
      * @param trainId train id.
      * @throws SQLException if a database access error occurs.
      */
-    void deleteTrainFromSchedule(Connection connection, int trainId) throws SQLException;
+    void deleteTrainFromScheduleAtDate(Connection connection, String departureDate, int trainId) throws SQLException;
 
     /**
      * When a class implementing interface {@link ScheduleDAO} call this method should be changed a number of train
      * available seats on selected date.
      * @param connection Connection object.
-     * @param userId
+     * @param userId {@link User} id.
      * @param trainId {@link Train} id.
      * @param selectedDate selected date.
      * @param carriageId {@link Train.Carriage} id.
@@ -95,9 +87,65 @@ public interface ScheduleDAO {
      * When a class implementing interface {@link ScheduleDAO} call this method should be changed {@link com.my.railwayticketoffice.entity.Train.Carriage} id
      * where is this {@link Train} id.
      * @param connection Connection object.
+     * @param newCarriageId new {@link Train.Carriage} id.
      * @param trainId {@link Train} id.
-     * @param carriageId {@link com.my.railwayticketoffice.entity.Train.Carriage} id.
+     * @param carriageId {@link Train.Carriage} id.
      * @throws SQLException if a database access error occurs.
      */
-    void editCarriageData(Connection connection, int trainId, int carriageId) throws SQLException;
+    void editCarriageData(Connection connection, int newCarriageId, int trainId, int carriageId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should be checked that {@link User}
+     * id is not null.
+     * @param connection Connection object.
+     * @param departureDate departure date.
+     * @param trainId {@link Train} id.
+     * @param carriageId {@link Train.Carriage} id.
+     * @param seatNumber seat number.
+     * @return {@link User} id if this seat booked or null if not.
+     * @throws SQLException if a database access error occurs.
+     */
+    Integer checkIfSeatBooked(Connection connection, String departureDate, int trainId, int carriageId, int seatNumber) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should set the value of {@link User} id equals null.
+     * @param connection Connection object.
+     * @param departureDate departure date.
+     * @param trainId {@link Train} id.
+     * @param carriageId {@link Train.Carriage} id.
+     * @param seatNumber seat number.
+     * @throws SQLException if a database access error occurs.
+     */
+    void returnTicket(Connection connection, String departureDate, int trainId, int carriageId, int seatNumber) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should return true if any {@link Train.Carriage} id
+     * with this type id exists in schedule or false if not.
+     * @param connection Connection object.
+     * @param typeId {@link Train.Carriage} type id.
+     * @return true if any {@link Train.Carriage} id with this type id exists in schedule or false if not.
+     * @throws SQLException if a database access error occurs.
+     */
+    boolean checkIfCarriagesIsInSchedule(Connection connection, int typeId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should return true if any {@link Train} has
+     * this {@link com.my.railwayticketoffice.entity.Station} on its route and is in the schedule.
+     * @param connection Connection object.
+     * @param stationId {@link com.my.railwayticketoffice.entity.Station} id.
+     * @return true if any {@link Train} has this {@link com.my.railwayticketoffice.entity.Station} on its route and is in the schedule or false if not.
+     * @throws SQLException if a database access error occurs.
+     */
+    boolean checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(Connection connection, int stationId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link ScheduleDAO} call this method should return true if any seat in this {@link Train}
+     * booked at this departure date.
+     * @param connection Connection object.
+     * @param departureDate departure date.
+     * @param trainId {@link Train} id.
+     * @return true if any seat in this {@link Train} booked at this departure date or false if not.
+     * @throws SQLException if a database access error occurs.
+     */
+    boolean checkIfTrainHasBookedSeatsAtDate(Connection connection, String departureDate, int trainId) throws SQLException;
 }

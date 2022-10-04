@@ -1,6 +1,7 @@
 package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
+import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.StationDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -35,6 +36,7 @@ public class DeleteStationCommandTest {
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final StationDAO stationDAO = mock(StationDAO.class);
+    private final ScheduleDAO scheduleDAO = mock(ScheduleDAO.class);
     private final ParameterService<String> stationService = mock(StationParameterService.class);
 
     @BeforeEach
@@ -66,10 +68,38 @@ public class DeleteStationCommandTest {
         when(request.getParameter("stationId")).thenReturn(stationId);
         when(request.getParameter("stationName")).thenReturn(stationName);
         when(DBManager.getInstance().getStationDAO()).thenReturn(stationDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(stationDAO.checkIfStationExists(connection, stationName, null)).thenReturn(1);
+        when(scheduleDAO.checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(connection, Integer.parseInt(stationId))).thenReturn(false);
 
         assertEquals("controller?command=mainPage", new DeleteStationCommand().execute(request, response));
         verify(stationDAO, times(1)).deleteStation(connection, Integer.parseInt(stationId));
+    }
+
+    /**
+     * Test for method execute from {@link DeleteStationCommand} when trains that have this station on the route are in the schedule.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testExecuteTrainsThatHaveThisStationOnTheRouteAreInTheSchedule() throws Exception {
+        User user = new User();
+        user.setRole("admin");
+
+        String stationId = "1";
+        String stationName = "Станція";
+
+        when((User) session.getAttribute("user")).thenReturn(user);
+        when(request.getParameter("stationId")).thenReturn(stationId);
+        when(request.getParameter("stationName")).thenReturn(stationName);
+        when(DBManager.getInstance().getStationDAO()).thenReturn(stationDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
+        when(stationDAO.checkIfStationExists(connection, stationName, null)).thenReturn(1);
+        when(scheduleDAO.checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(connection, Integer.parseInt(stationId))).thenReturn(true);
+
+        assertEquals("controller?command=mainPage", new DeleteStationCommand().execute(request, response));
+        verify(scheduleDAO, times(1)).checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(connection, Integer.parseInt(stationId));
+        verify(stationDAO, times(0)).deleteStation(connection, Integer.parseInt(stationId));
     }
 
     /**

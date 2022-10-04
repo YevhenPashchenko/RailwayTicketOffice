@@ -81,14 +81,13 @@ public class DeleteCarriageFromTrainCommandTest {
         when(request.getParameter("carriageType")).thenReturn(carriageType);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
         when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(Integer.parseInt(trainId));
-        when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(Integer.parseInt(carriageId));
         when(trainDAO.getCarriagesTypes(connection)).thenReturn(carriagesTypes);
         when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(Integer.parseInt(carriageId));
         when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
-        when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(true);
+        when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(false);
 
         assertEquals("controller?command=mainPage", new DeleteCarriageFromTrainCommand().execute(request, response));
-        verify(scheduleDAO, times(1)).deleteCarriageFromSchedule(connection, Integer.parseInt(trainId), 1);
+        verify(trainDAO, times(1)).deleteCarriageFromTrain(connection, Integer.parseInt(trainId), Integer.parseInt(carriageId));
     }
 
     /**
@@ -122,10 +121,10 @@ public class DeleteCarriageFromTrainCommandTest {
         when(trainDAO.getCarriagesTypes(connection)).thenReturn(carriagesTypes);
         when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(Integer.parseInt(carriageId));
         when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
-        when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(false);
+        when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(true);
 
         assertEquals("controller?command=mainPage", new DeleteCarriageFromTrainCommand().execute(request, response));
-        verify(scheduleDAO, times(0)).deleteCarriageFromSchedule(connection, Integer.parseInt(trainId), 1);
+        verify(trainDAO, times(0)).deleteCarriageFromTrain(connection, Integer.parseInt(trainId), Integer.parseInt(carriageId));
     }
 
     /**

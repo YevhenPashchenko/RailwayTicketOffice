@@ -30,12 +30,13 @@ public class TrainSearchParameterServiceTest {
 
         ParameterService<String> searchTrainParameterService = new TrainSearchParameterService();
 
-        assertFalse(searchTrainParameterService.check(parameters, session));
-
         parameters.put(keys.get(0), values.get(3));
         assertFalse(searchTrainParameterService.check(parameters, session));
 
         parameters.put(keys.get(1), values.get(7));
+        assertTrue(searchTrainParameterService.check(parameters, session));
+
+        parameters.put(keys.get(2), values.get(11));
         assertTrue(searchTrainParameterService.check(parameters, session));
 
         int count = 0;

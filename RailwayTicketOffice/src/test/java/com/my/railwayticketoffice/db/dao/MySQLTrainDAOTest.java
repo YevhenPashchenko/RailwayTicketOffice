@@ -55,6 +55,28 @@ public class MySQLTrainDAOTest {
     }
 
     /**
+     * Test for method getTrainsThatCanBeAddedToSchedule from {@link MySQLTrainDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testGetTrainsThatCanBeAddedToSchedule() throws Exception {
+
+        LocalTime time = LocalTime.now();
+
+        Train train = getTrain(time);
+
+        when(connection.createStatement()).thenReturn(stmt);
+        when(stmt.executeQuery(MySQLTrainDAOQuery.GET_TRAINS_THAT_CAN_BE_ADDED_TO_SCHEDULE)).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("id")).thenReturn(1);
+        when(rs.getString("number")).thenReturn("number");
+        when(rs.getString("departure_time")).thenReturn(time.format(formatter));
+
+        assertEquals(Collections.singletonList(train), DBManager.getInstance().getTrainDAO().getTrainsThatCanBeAddedToSchedule(connection));
+    }
+
+    /**
      * Test for method getAllTrains from {@link MySQLTrainDAO}.
      *
      * @throws Exception if any {@link Exception} occurs.
@@ -73,7 +95,7 @@ public class MySQLTrainDAOTest {
         when(rs.getString("number")).thenReturn("number");
         when(rs.getString("departure_time")).thenReturn(time.format(formatter));
 
-        assertEquals(DBManager.getInstance().getTrainDAO().getAllTrains(connection), Collections.singletonList(train));
+        assertEquals(Collections.singletonList(train), DBManager.getInstance().getTrainDAO().getAllTrains(connection));
     }
 
     /**
@@ -942,5 +964,40 @@ public class MySQLTrainDAOTest {
         when(rs.getString("departure_time")).thenReturn(time.format(formatter));
 
         assertEquals(DBManager.getInstance().getTrainDAO().getTrain(connection, trainId), train);
+    }
+
+    /**
+     * Test for method switchAutoAdditionTrainToSchedule from {@link MySQLTrainDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testSwitchAutoAdditionTrainToSchedule() throws Exception {
+
+        int trainId = 1;
+        boolean inSchedule = true;
+
+        when(connection.prepareStatement(MySQLTrainDAOQuery.SWITCH_AUTO_ADDITION_TRAIN_TO_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(1);
+
+        DBManager.getInstance().getTrainDAO().switchAutoAdditionTrainToSchedule(connection, trainId, inSchedule);
+        verify(pstmt, times(1)).executeUpdate();
+    }
+
+    /**
+     * Test for method switchAutoAdditionTrainToSchedule from {@link MySQLTrainDAO} failed.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testFailedSwitchAutoAdditionTrainToSchedule() throws Exception {
+
+        int trainId = 1;
+        boolean inSchedule = true;
+
+        when(connection.prepareStatement(MySQLTrainDAOQuery.SWITCH_AUTO_ADDITION_TRAIN_TO_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(0);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getTrainDAO().switchAutoAdditionTrainToSchedule(connection, trainId, inSchedule));
     }
 }

@@ -34,8 +34,8 @@ public class UserRegistrationCommandTest {
     MockedStatic<DBManager> DBManagerMocked = Mockito.mockStatic(DBManager.class);
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
-    UserDAO userDAO = mock(UserDAO.class);
-    Mail mail = mock(Mail.class);
+    private final UserDAO userDAO = mock(UserDAO.class);
+    private final Mail mail = mock(Mail.class);
 
     @BeforeEach
     void beforeEach() throws Exception {

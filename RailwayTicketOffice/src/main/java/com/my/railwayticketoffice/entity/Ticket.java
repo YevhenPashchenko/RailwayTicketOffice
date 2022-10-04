@@ -24,10 +24,10 @@ public class Ticket implements Serializable {
         return ticketNumber;
     }
 
-    public void setTicketNumber() {
+    public void setTicketNumber(int trainId) {
         String joinedDepartureDateTime = String.join("",  departureDateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")).replaceAll("[\\s:]", ".").split("\\."));
         String joinedDestinationDateTime = String.join("",  destinationDateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")).replaceAll("[\\s:]", ".").split("\\."));
-        ticketNumber = "" + trainNumber + carriageNumber + seatNumber + "-" + joinedDepartureDateTime + "-" + joinedDestinationDateTime;
+        ticketNumber = trainId + "-" + carriageNumber + "-" + seatNumber + "-" + joinedDepartureDateTime + "-" + joinedDestinationDateTime;
     }
 
     public String getTrainNumber() {

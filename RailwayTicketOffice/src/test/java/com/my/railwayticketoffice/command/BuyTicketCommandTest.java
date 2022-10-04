@@ -117,7 +117,7 @@ public class BuyTicketCommandTest {
         field.set(buyTicketCommand, mail);
 
         assertEquals("success.jsp", buyTicketCommand.execute(request, response));
-        verify(mail, times(1)).send(user, session);
+        verify(mail, times(1)).send(Collections.singletonList(user), session);
     }
 
     /**

@@ -35,7 +35,7 @@ public class TrainScheduleManager implements Runnable {
     public void initialize() {
         try(Connection connection = DBManager.getInstance().getConnection()) {
             List<String> scheduleDates = scheduleService.create();
-            List<Train> trains = trainDAO.getAllTrains(connection);
+            List<Train> trains = trainDAO.getTrainsThatCanBeAddedToSchedule(connection);
             scheduleDAO.clearTable(connection);
             if (trains.size() > 0) {
                 trainDAO.getCarriagesForTrains(connection, trains);
@@ -59,7 +59,7 @@ public class TrainScheduleManager implements Runnable {
             List<String> scheduleDates = new ArrayList<>();
             scheduleDAO.deleteData(connection, currentDate);
             scheduleDates.add(newLastScheduleDate);
-            List<Train> trains = trainDAO.getAllTrains(connection);
+            List<Train> trains = trainDAO.getTrainsThatCanBeAddedToSchedule(connection);
             if (trains.size() > 0) {
                 trainDAO.getCarriagesForTrains(connection, trains);
                 scheduleDAO.addData(connection, scheduleDates, trains, null);

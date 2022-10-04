@@ -15,6 +15,15 @@ import java.util.Map;
 public interface TrainDAO {
 
     /**
+     * When a class implementing interface {@link TrainDAO} call this method should be return list of {@link Train}
+     * in which each {@link Train} field in_schedule in database equals true.
+     * @param connection Connection object.
+     * @return list of {@link Train}.
+     * @throws SQLException if a database access error occurs.
+     */
+    List<Train> getTrainsThatCanBeAddedToSchedule(Connection connection) throws SQLException;
+
+    /**
      * When a class implementing interface {@link TrainDAO} call this method should be return all {@link Train}.
      * @param connection Connection object.
      * @return a list of {@link Train}.
@@ -111,11 +120,12 @@ public interface TrainDAO {
      * When a class implementing interface {@link TrainDAO} call this method should be return {@link com.my.railwayticketoffice.entity.Train.Carriage} id if
      * {@link Train} has it with this number.
      * @param connection Connection object.
+     * @param trainId {@link Train} id.
      * @param carriageNumber {@link Train.Carriage} number.
      * @return {@link com.my.railwayticketoffice.entity.Train.Carriage} id if {@link Train} has it with this number exists or 0 if not.
      * @throws SQLException if a database access error occurs.
      */
-    int checkIfTrainHasCarriageWithThisNumber(Connection connection, int TrainId, int carriageNumber) throws SQLException;
+    int checkIfTrainHasCarriageWithThisNumber(Connection connection, int trainId, int carriageNumber) throws SQLException;
 
     /**
      * When a class implementing interface {@link TrainDAO} call this method should be return {@link com.my.railwayticketoffice.entity.Train.Carriage} id if
@@ -254,9 +264,18 @@ public interface TrainDAO {
     /**
      * When a class implementing interface {@link TrainDAO} call this method should return {@link com.my.railwayticketoffice.entity.Train}.
      * @param connection Connection object.
-     * @param trainId train id.
+     * @param trainId {@link com.my.railwayticketoffice.entity.Train} id.
      * @return {@link com.my.railwayticketoffice.entity.Train}.
      * @throws SQLException if a database access error occurs.
      */
     Train getTrain(Connection connection, int trainId) throws SQLException;
+
+    /**
+     * When a class implementing interface {@link TrainDAO} call this method should switch {@link com.my.railwayticketoffice.entity.Train} field inSchedule.
+     * @param connection Connection object.
+     * @param trainId {@link com.my.railwayticketoffice.entity.Train} id.
+     * @param inSchedule {@link com.my.railwayticketoffice.entity.Train} field inSchedule.
+     * @throws SQLException if a database access error occurs.
+     */
+    void switchAutoAdditionTrainToSchedule(Connection connection, int trainId, boolean inSchedule) throws SQLException;
 }

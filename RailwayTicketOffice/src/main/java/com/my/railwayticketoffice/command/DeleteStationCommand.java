@@ -2,6 +2,7 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
+import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.StationDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -26,6 +27,7 @@ public class DeleteStationCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(DeleteStationCommand.class);
     private final StationDAO stationDAO = DBManager.getInstance().getStationDAO();
+    private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final ParameterService<String> stationService = new StationParameterService();
 
     /**
@@ -54,11 +56,19 @@ public class DeleteStationCommand implements Command {
                             session.setAttribute("errorMessage", "Станції з такою назвою не існує");
                         }
                     } else {
-                        stationDAO.deleteStation(connection, Integer.parseInt(parameters.get("stationId")));
-                        if ("en".equals(locale)) {
-                            session.setAttribute("successMessage", "Station deleted");
+                        if (scheduleDAO.checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(connection, Integer.parseInt(parameters.get("stationId")))) {
+                            if ("en".equals(session.getAttribute("locale"))) {
+                                session.setAttribute("errorMessage", "Cannot be deleted, trains with this station on the route is in the schedule");
+                            } else {
+                                session.setAttribute("errorMessage", "Неможливо видалити, поїзди з цією станцію на маршруті є в розкладі");
+                            }
                         } else {
-                            session.setAttribute("successMessage", "Станцію видалено");
+                            stationDAO.deleteStation(connection, Integer.parseInt(parameters.get("stationId")));
+                            if ("en".equals(locale)) {
+                                session.setAttribute("successMessage", "Station deleted");
+                            } else {
+                                session.setAttribute("successMessage", "Станцію видалено");
+                            }
                         }
                     }
                 } catch (SQLException e) {

@@ -157,7 +157,8 @@
                         </c:when>
                         <c:otherwise>
                             <a href="controller?command=userLogout" class="d-block mb-2 btn btn-primary fs-5 fw-semibold lh-1"><fmt:message key="main_jsp.body.header.div.div.first_a"/></a>
-                            <a class="text-primary fw-semibold" role="button" data-bs-target="#editUserDataWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.body.header.div.div.second_a"/></a>
+                            <a class="text-primary fw-semibold d-inline-block" role="button" data-bs-target="#editUserDataWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.body.header.div.div.second_a"/></a>
+                            <a class="text-primary fw-semibold d-inline-block" role="button" data-bs-target="#returnTicketWindow" data-bs-toggle="modal"><fmt:message key="main_jsp.body.header.div.div.third_a"/></a>
                             <div class="modal fade" id="editUserDataWindow" aria-hidden="true" aria-labelledby="editUserDataWindowLabel" tabindex="-1">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content w-75">
@@ -259,7 +260,37 @@
                                     </div>
                                 </div>
                             </div>
-                            <script type="text/javascript" src="resources/js/mainEditUser.js"></script>
+                            <div class="modal fade" id="returnTicketWindow" aria-hidden="true" aria-labelledby="returnTicketWindowLabel" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content w-75">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="returnTicketWindowLabel"><fmt:message key="main_jsp.body.header.div.div.third_a"/></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="returnTicket" action="controller?command=returnTicket" method="post">
+                                                <label>
+                                                    <input type="number" name="from" hidden>
+                                                </label>
+                                                <label>
+                                                    <input type="number" name="to" hidden>
+                                                </label>
+                                                <label>
+                                                    <input name="departureDate" hidden>
+                                                </label>
+                                                <label class="form-label w-100 mb-1 text-primary fs-5 fw-semibold"><fmt:message key="main_jsp.label_for_ticketNumber"/>
+                                                    <input id="ticketNumber" class="form-control" name="ticketNumber" placeholder="1-1-1-111111111111-111111111111" autocomplete="off">
+                                                </label>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-primary" form="returnTicket"><fmt:message key="main_jsp.button_for_ticketNumber"/></button>
+                                            <button class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close"><fmt:message key="main_jsp.button_for_editUserForm_back"/></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script type="text/javascript" src="resources/js/mainUser.js"></script>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -563,7 +594,22 @@
                                                     <input type="number" name="trainId" hidden>
                                                 </label>
                                                 <input id="trainNumberForDeleteFromSchedule" class="form-control w-50 mb-2" type="text" name="trainNumber" list="trainNumberDatalist" autocomplete="off" required>
+                                                <label for="departureDateForDeleteFromSchedule" class="form-label"><fmt:message key="main_jsp.label_for_departureDate"/></label>
+                                                <input class="form-control w-50 mb-2 text-center" type="text" name="departureDate" id="departureDateForDeleteFromSchedule">
                                                 <button class="btn btn-primary" disabled><fmt:message key="main_jsp.button_for_deleteTrainFromSchedule"/></button>
+                                            </form>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link fw-semibold" href="#switchAutoAdditionTrainToSchedule" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                                                <fmt:message key="main_jsp.a_for_switchAutoAdditionTrainToSchedule"/>
+                                            </a>
+                                            <form id="switchAutoAdditionTrainToSchedule" class="collapse ps-2" action="controller?command=switchAutoAdditionTrainToSchedule" method="post">
+                                                <label for="trainNumberForSwitchAutoAdditionToSchedule" class="form-label"><fmt:message key="main_jsp.label_for_trainNumber"/></label>
+                                                <label>
+                                                    <input type="number" name="trainId" hidden>
+                                                </label>
+                                                <input id="trainNumberForSwitchAutoAdditionToSchedule" class="form-control w-50 mb-2" type="text" name="trainNumber" list="trainNumberDatalist" autocomplete="off" required>
+                                                <button class="btn btn-primary" disabled><fmt:message key="main_jsp.button_for_switchAutoAdditionTrainToSchedule"/></button>
                                             </form>
                                         </li>
                                     </ul>
@@ -874,6 +920,12 @@
                     <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.userErrorMessage}</div>
                 </div>
                 <c:remove var="userErrorMessage" scope="session"/>
+            </c:if>
+            <c:if test="${sessionScope.returnTicketErrorMessage ne null}">
+                <div class="row pb-4 justify-content-center">
+                    <div class="col text-center text-danger fs-4 fw-semibold">${sessionScope.returnTicketErrorMessage}</div>
+                </div>
+                <c:remove var="returnTicketErrorMessage" scope="session"/>
             </c:if>
             <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">

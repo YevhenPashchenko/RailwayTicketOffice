@@ -37,7 +37,7 @@ public class UserEditCommandTest {
     MockedStatic<PasswordAuthentication> PasswordAuthenticationMocked = Mockito.mockStatic(PasswordAuthentication.class);
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
-    UserDAO userDAO = mock(UserDAO.class);
+    private final UserDAO userDAO = mock(UserDAO.class);
     private final ParameterService<String> userService = mock(UserParameterService.class);
 
     @BeforeEach

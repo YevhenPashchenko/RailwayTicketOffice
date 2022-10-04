@@ -36,9 +36,9 @@ public class UserEditCommand implements Command {
 
     /**
      * Edit user data in database.
-     * @param request - HttpServletRequest object.
-     * @param response - HttpServletResponse object.
-     * @return - link to {@link MainPageCommand} or link to {@link GetTrainsCommand} if stations and date chosen.
+     * @param request HttpServletRequest object.
+     * @param response HttpServletResponse object.
+     * @return link to {@link MainPageCommand} or link to {@link GetTrainsCommand} if stations and date chosen.
      * @throws DBException if {@link SQLException} occurs.
      * @throws AuthenticationException if {@link NoSuchAlgorithmException} or {@link InvalidKeySpecException} occurs.
      */

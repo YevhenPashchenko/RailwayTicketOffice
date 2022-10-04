@@ -60,7 +60,7 @@
             <nav class="navbar border border-secondary rounded">
                 <div class="container-fluid justify-content-start">
                     <a href="controller?command=chooseSeatsPage&trainId=${requestScope.train.getId()}&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}&carriageType=${requestScope.carriageType}${pageScope.link}"><img src="resources/images/back-icon.png" alt="Back to choice trains"></a>
-                    <a type="button" class="btn btn-primary ms-3 fs-5" href="controller?command=getTrains&page=1&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}">До вибору поїздів</a>
+                    <a type="button" class="btn btn-primary ms-3 fs-5" href="controller?command=getTrains&page=1&from=${requestScope.from}&to=${requestScope.to}&departureDate=${requestScope.departureDate}"><fmt:message key="ticket_jsp.main.nav.second_a"/></a>
                 </div>
             </nav>
             <div class="text-center text-primary fs-4 fw-semibold lh-1 py-2">

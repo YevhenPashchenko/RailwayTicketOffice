@@ -1,6 +1,7 @@
 package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
+import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -34,6 +35,7 @@ public class DeleteCarriageTypeCommandTest {
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
+    private final ScheduleDAO scheduleDAO = mock(ScheduleDAO.class);
     private final ParameterService<String> trainParameterService = mock(TrainParameterService.class);
 
     @BeforeEach
@@ -63,10 +65,36 @@ public class DeleteCarriageTypeCommandTest {
         when(request.getParameter("typeId")).thenReturn(typeId);
         when(request.getParameter("carriageType")).thenReturn(carriageType);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(trainDAO.checkIfCarriageTypeExists(connection, carriageType)).thenReturn(1);
+        when(scheduleDAO.checkIfCarriagesIsInSchedule(connection, Integer.parseInt(typeId))).thenReturn(false);
 
         assertEquals("controller?command=mainPage", new DeleteCarriageTypeCommand().execute(request, response));
         verify(trainDAO, times(1)).deleteCarriageType(connection, Integer.parseInt(typeId));
+    }
+
+    /**
+     * Test for method execute from {@link DeleteCarriageTypeCommand} when carriages is in schedule.
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testExecuteCarriagesIsInSchedule() throws Exception {
+        User user = new User();
+        user.setRole("admin");
+        String typeId = "1";
+        String carriageType = "Тип";
+
+        when((User) session.getAttribute("user")).thenReturn(user);
+        when(request.getParameter("typeId")).thenReturn(typeId);
+        when(request.getParameter("carriageType")).thenReturn(carriageType);
+        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
+        when(trainDAO.checkIfCarriageTypeExists(connection, carriageType)).thenReturn(1);
+        when(scheduleDAO.checkIfCarriagesIsInSchedule(connection, Integer.parseInt(typeId))).thenReturn(true);
+
+        assertEquals("controller?command=mainPage", new DeleteCarriageTypeCommand().execute(request, response));
+        verify(scheduleDAO, times(1)).checkIfCarriagesIsInSchedule(connection, Integer.parseInt(typeId));
+        verify(trainDAO, times(0)).deleteCarriageType(connection, Integer.parseInt(typeId));
     }
 
     /**

@@ -78,17 +78,6 @@ public class MySQLScheduleDAO implements ScheduleDAO {
     }
 
     @Override
-    public void deleteCarriageFromSchedule(Connection connection, int trainId, int carriageId) throws SQLException {
-        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_CARRIAGE_FROM_SCHEDULE);
-        pstmt.setInt(1, trainId);
-        pstmt.setInt(2, carriageId);
-        int deletedRows = pstmt.executeUpdate();
-        if (deletedRows == 0) {
-            throw new SQLException("Failed to delete carriage that deleted from train from schedule");
-        }
-    }
-
-    @Override
     public int getTrainAvailableSeatsOnThisDate(Connection connection, int trainId, String selectedDate) throws SQLException {
         int availableSeats;
         PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.GET_AVAILABLE_SEATS);
@@ -118,9 +107,10 @@ public class MySQLScheduleDAO implements ScheduleDAO {
     }
 
     @Override
-    public void deleteTrainFromSchedule(Connection connection, int trainId) throws SQLException {
+    public void deleteTrainFromScheduleAtDate(Connection connection, String departureDate, int trainId) throws SQLException {
         PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_TRAIN_FROM_SCHEDULE);
-        pstmt.setInt(1, trainId);
+        pstmt.setString(1, departureDate);
+        pstmt.setInt(2, trainId);
         int affectedRow = pstmt.executeUpdate();
         if (affectedRow == 0) {
             throw new SQLException("Failed to delete train from schedule");
@@ -152,13 +142,76 @@ public class MySQLScheduleDAO implements ScheduleDAO {
     }
 
     @Override
-    public void editCarriageData(Connection connection, int trainId, int carriageId) throws SQLException {
+    public void editCarriageData(Connection connection, int newCarriageId, int trainId, int carriageId) throws SQLException {
         PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.EDIT_CARRIAGE_DATA);
-        pstmt.setInt(1, carriageId);
+        pstmt.setInt(1, newCarriageId);
         pstmt.setInt(2, trainId);
+        pstmt.setInt(3, carriageId);
         int affectedRow = pstmt.executeUpdate();
         if (affectedRow == 0) {
             throw new SQLException("Failed to delete train from schedule");
         }
+    }
+
+    @Override
+    public Integer checkIfSeatBooked(Connection connection, String departureDate, int trainId, int carriageId, int seatNumber) throws SQLException {
+        Integer userId = null;
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_SEAT_BOOKED);
+        pstmt.setString(1, departureDate);
+        pstmt.setInt(2, trainId);
+        pstmt.setInt(3, carriageId);
+        pstmt.setInt(4, seatNumber);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            userId = rs.getInt("user_id");
+        }
+        return userId;
+    }
+
+    @Override
+    public void returnTicket(Connection connection, String departureDate, int trainId, int carriageId, int seatNumber) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.RETURN_TICKET);
+        pstmt.setString(1, departureDate);
+        pstmt.setInt(2, trainId);
+        pstmt.setInt(3, carriageId);
+        pstmt.setInt(4, seatNumber);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to return ticket");
+        }
+    }
+
+    @Override
+    public boolean checkIfCarriagesIsInSchedule(Connection connection, int typeId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_CARRIAGES_IS_IN_SCHEDULE);
+        pstmt.setInt(1, typeId);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("count") > 0;
+        }
+        throw new SQLException("Failed to check if carriages is in schedule");
+    }
+
+    @Override
+    public boolean checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(Connection connection, int stationId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAINS_THAT_HAS_THIS_STATION_ON_THE_ROUTE_IS_IN_SCHEDULE);
+        pstmt.setInt(1, stationId);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("count") > 0;
+        }
+        throw new SQLException("Failed to check if trains that has this station on the route is in schedule");
+    }
+
+    @Override
+    public boolean checkIfTrainHasBookedSeatsAtDate(Connection connection, String departureDate, int trainId) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAIN_HAS_BOOKED_SEATS_AT_DATE);
+        pstmt.setString(1, departureDate);
+        pstmt.setInt(2, trainId);
+        ResultSet rs = pstmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("count") > 0;
+        }
+        throw new SQLException("Failed to check if train has has booked seats at day");
     }
 }

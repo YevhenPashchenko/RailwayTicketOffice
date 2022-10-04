@@ -2,6 +2,7 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
+import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -24,6 +25,7 @@ public class DeleteCarriageTypeCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(DeleteCarriageTypeCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
+    private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
 
     /**
@@ -51,11 +53,19 @@ public class DeleteCarriageTypeCommand implements Command {
                             session.setAttribute("errorMessage", "В базі даних немає вагонів даного типу");
                         }
                     } else {
-                        trainDAO.deleteCarriageType(connection, Integer.parseInt(parameters.get("typeId")));
-                        if ("en".equals(session.getAttribute("locale"))) {
-                            session.setAttribute("successMessage", "Carriages of this type have been deleted");
+                        if (scheduleDAO.checkIfCarriagesIsInSchedule(connection, Integer.parseInt(parameters.get("typeId")))) {
+                            if ("en".equals(session.getAttribute("locale"))) {
+                                session.setAttribute("errorMessage", "Cannot be deleted, carriages this type is on the schedule");
+                            } else {
+                                session.setAttribute("errorMessage", "Неможливо видалити, вагони цього типу є в розкладі");
+                            }
                         } else {
-                            session.setAttribute("successMessage", "Вагони цього типу видалено");
+                            trainDAO.deleteCarriageType(connection, Integer.parseInt(parameters.get("typeId")));
+                            if ("en".equals(session.getAttribute("locale"))) {
+                                session.setAttribute("successMessage", "Carriages of this type have been deleted");
+                            } else {
+                                session.setAttribute("successMessage", "Вагони цього типу видалено");
+                            }
                         }
                     }
                 } catch (SQLException e) {

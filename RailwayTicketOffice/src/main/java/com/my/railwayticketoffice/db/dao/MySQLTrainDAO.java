@@ -18,6 +18,21 @@ public class MySQLTrainDAO implements TrainDAO {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH);
 
     @Override
+    public List<Train> getTrainsThatCanBeAddedToSchedule(Connection connection) throws SQLException {
+        List<Train> trains = new ArrayList<>();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(MySQLTrainDAOQuery.GET_TRAINS_THAT_CAN_BE_ADDED_TO_SCHEDULE);
+        while (rs.next()) {
+            Train train = new Train();
+            train.setId(rs.getInt("id"));
+            train.setNumber(rs.getString("number"));
+            train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
+            trains.add(train);
+        }
+        return trains;
+    }
+
+    @Override
     public List<Train> getAllTrains(Connection connection) throws SQLException {
         List<Train> trains = new ArrayList<>();
         Statement stmt = connection.createStatement();
@@ -401,7 +416,19 @@ public class MySQLTrainDAO implements TrainDAO {
             train.setId(trainId);
             train.setNumber(rs.getString("number"));
             train.setDepartureTime(LocalTime.parse(rs.getString("departure_time"), formatter));
+            train.setInSchedule(rs.getBoolean("in_schedule"));
         }
         return train;
+    }
+
+    @Override
+    public void switchAutoAdditionTrainToSchedule(Connection connection, int trainId, boolean inSchedule) throws SQLException {
+        PreparedStatement pstmt = connection.prepareStatement(MySQLTrainDAOQuery.SWITCH_AUTO_ADDITION_TRAIN_TO_SCHEDULE);
+        pstmt.setBoolean(1, inSchedule);
+        pstmt.setInt(2, trainId);
+        int affectedRow = pstmt.executeUpdate();
+        if (affectedRow == 0) {
+            throw new SQLException("Failed to switch auto addition train to schedule");
+        }
     }
 }

@@ -108,7 +108,7 @@ public class BuyTicketCommand implements Command {
                     }
                     connection.commit();
                     connection.setAutoCommit(true);
-                    mail.send(user, session);
+                    mail.send(Collections.singletonList(user), session);
                     return "success.jsp";
                 } catch (SQLException e) {
                     logger.info("Failed to connect to database for change train available seats on this date");

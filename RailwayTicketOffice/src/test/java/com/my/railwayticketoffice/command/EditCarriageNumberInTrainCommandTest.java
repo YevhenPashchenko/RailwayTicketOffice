@@ -3,6 +3,7 @@ package com.my.railwayticketoffice.command;
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.db.dao.UserDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
 import com.my.railwayticketoffice.service.TrainParameterService;
@@ -39,6 +40,7 @@ public class EditCarriageNumberInTrainCommandTest {
     private final Connection connection = mock(Connection.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
     private final ScheduleDAO scheduleDAO = mock(ScheduleDAO.class);
+    private final UserDAO userDAO = mock(UserDAO.class);
     private final ParameterService<String> trainParameterService = mock(TrainParameterService.class);
 
     @BeforeEach
@@ -81,15 +83,16 @@ public class EditCarriageNumberInTrainCommandTest {
         when(request.getParameter("typeId")).thenReturn(typeId);
         when(request.getParameter("carriageType")).thenReturn(carriageType);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
+        when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
         when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(Integer.parseInt(trainId));
         when(trainDAO.getCarriagesTypes(connection)).thenReturn(carriagesTypes);
         when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(carriageNumber))).thenReturn(Integer.parseInt(carriageId));
         when(trainDAO.checkIfTrainHasCarriageWithThisNumber(connection, Integer.parseInt(trainId), Integer.parseInt(newCarriageNumber))).thenReturn(0);
-        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(true);
 
         assertEquals("controller?command=mainPage", new EditCarriageNumberInTrainCommand().execute(request, response));
-        verify(scheduleDAO, times(1)).editCarriageData(connection, Integer.parseInt(trainId), 0);
+        verify(scheduleDAO, times(1)).editCarriageData(connection, 0, Integer.parseInt(trainId), Integer.parseInt(carriageId));
     }
 
     /**
@@ -128,7 +131,7 @@ public class EditCarriageNumberInTrainCommandTest {
         when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(false);
 
         assertEquals("controller?command=mainPage", new EditCarriageNumberInTrainCommand().execute(request, response));
-        verify(scheduleDAO, times(0)).editCarriageData(connection, Integer.parseInt(trainId), 0);
+        verify(scheduleDAO, times(0)).editCarriageData(connection, 0, Integer.parseInt(trainId), Integer.parseInt(carriageId));
     }
 
     /**

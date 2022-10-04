@@ -2,6 +2,10 @@ let editUserForm = document.querySelector('#editUserForm');
 let editUserFormButton = document.querySelector('button[form="editUserForm"]');
 let editUserCheckboxes = editUserForm.querySelectorAll('.form-check-input');
 
+let ticketNumberInput = document.querySelector('#ticketNumber');
+let regex = new RegExp(/[1-9]+-[1-9]+-[1-9]+-\d{12}-\d{12}/);
+let returnTicketButton = document.querySelector('button[form="returnTicket"]');
+
 editUserFormButton.addEventListener("click", (ev) => {
     let password = document.querySelector("#editUserPasswordField").value;
     let confirmPassword = document.querySelector("#editUserConfirmPasswordField").value;
@@ -68,3 +72,21 @@ for (let i = 0; i < editUserCheckboxes.length; i++) {
         }
     });
 }
+
+ticketNumberInput.addEventListener("change", evt => {
+    let input = evt.currentTarget;
+    if (regex.test(input.value)) {
+        input.classList.remove("is-invalid");
+        input.classList.add("is-valid");
+    } else {
+        input.classList.remove("is-valid");
+        input.classList.add("is-invalid");
+    }
+});
+
+returnTicketButton.addEventListener("click", evt => {
+    if (!regex.test(ticketNumberInput.value)) {
+        evt.preventDefault();
+        ticketNumberInput.dispatchEvent(new Event("change"));
+    }
+});

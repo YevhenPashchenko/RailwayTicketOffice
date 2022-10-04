@@ -1,6 +1,7 @@
 package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
+import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -34,6 +35,7 @@ public class DeleteTrainCommandTest {
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
+    private final ScheduleDAO scheduleDAO = mock(ScheduleDAO.class);
     private final ParameterService<String> trainService = mock(TrainParameterService.class);
 
     @BeforeEach
@@ -65,10 +67,38 @@ public class DeleteTrainCommandTest {
         when(request.getParameter("trainId")).thenReturn(trainId);
         when(request.getParameter("trainNumber")).thenReturn(trainNumber);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
         when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(1);
+        when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(false);
 
         assertEquals("controller?command=mainPage", new DeleteTrainCommand().execute(request, response));
         verify(trainDAO, times(1)).deleteTrain(connection, Integer.parseInt(trainId));
+    }
+
+    /**
+     * Test for method execute from {@link DeleteTrainCommand} when train is in schedule.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testExecuteTrainIsInSchedule() throws Exception {
+        User user = new User();
+        user.setRole("admin");
+
+        String trainId = "1";
+        String trainNumber = "Номер";
+
+        when((User) session.getAttribute("user")).thenReturn(user);
+        when(request.getParameter("trainId")).thenReturn(trainId);
+        when(request.getParameter("trainNumber")).thenReturn(trainNumber);
+        when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
+        when(DBManager.getInstance().getScheduleDAO()).thenReturn(scheduleDAO);
+        when(trainDAO.checkIfTrainExists(connection, trainNumber)).thenReturn(1);
+        when(scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(trainId))).thenReturn(true);
+
+        assertEquals("controller?command=mainPage", new DeleteTrainCommand().execute(request, response));
+        verify(scheduleDAO, times(1)).checkIfRecordExists(connection, Integer.parseInt(trainId));
+        verify(trainDAO, times(0)).deleteTrain(connection, Integer.parseInt(trainId));
     }
 
     /**

@@ -80,7 +80,12 @@ public class DeleteCarriageFromTrainCommand implements Command {
                             } else {
                                 session.setAttribute("successMessage", "Вагон видалено з поїзда");
                             }
-                            return "controller?command=mainPage";
+                        } else {
+                            if ("en".equals(session.getAttribute("locale"))) {
+                                session.setAttribute("errorMessage", "Cannot be deleted, train is on the schedule");
+                            } else {
+                                session.setAttribute("errorMessage", "Неможливо видалити, поїзд є в розкладі");
+                            }
                         }
                     } else {
                         if ("en".equals(session.getAttribute("locale"))) {
@@ -88,7 +93,6 @@ public class DeleteCarriageFromTrainCommand implements Command {
                         } else {
                             session.setAttribute("errorMessage", "В поїзді немає вагона з таким номером");
                         }
-                        return "controller?command=mainPage";
                     }
                 } catch (SQLException e) {
                     logger.info("Failed to connect to database to delete carriage from train");
@@ -98,24 +102,6 @@ public class DeleteCarriageFromTrainCommand implements Command {
                         session.setAttribute("errorMessage", "Не вдалося зв'язатися з базою даних, щоб видалити вагон з поїзда");
                     }
                     throw new DBException("Failed to connect to database to delete carriage from train");
-                }
-                Connection connection = null;
-                try {
-                    connection = DBManager.getInstance().getConnection();
-                    connection.setAutoCommit(false);
-                    trainDAO.deleteCarriageFromTrain(connection, Integer.parseInt(parameters.get("trainId")), isTrainHasCarriageWithThisNumber);
-                    scheduleDAO.deleteCarriageFromSchedule(connection, Integer.parseInt(parameters.get("trainId")), isTrainHasCarriageWithThisNumber);
-                    connection.setAutoCommit(true);
-                    if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("successMessage", "Carriage has been deleted from train");
-                    } else {
-                        session.setAttribute("successMessage", "Вагон видалено з поїзда");
-                    }
-                } catch (SQLException e) {
-                    logger.info("Failed to connect to database to delete carriage from train");
-                    DBManager.getInstance().rollback(session, connection, e);
-                } finally {
-                    DBManager.getInstance().close(connection);
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBManager;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
+import com.my.railwayticketoffice.db.dao.UserDAO;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
@@ -36,6 +37,7 @@ public class EditTrainCommandTest {
     private final DBManager DBManagerInstance = mock(DBManager.class);
     private final Connection connection = mock(Connection.class);
     private final TrainDAO trainDAO = mock(TrainDAO.class);
+    private final UserDAO userDAO = mock(UserDAO.class);
     private final ParameterService<String> trainService = mock(TrainParameterService.class);
 
     @BeforeEach
@@ -76,7 +78,9 @@ public class EditTrainCommandTest {
         when(request.getParameter("oldTrainNumber")).thenReturn(oldTrainNumber);
         when(request.getParameter("trainDepartureTime")).thenReturn(trainDepartureTime);
         when(DBManager.getInstance().getTrainDAO()).thenReturn(trainDAO);
-        when(trainDAO.checkIfTrainExists(connection, oldTrainNumber)).thenReturn(1);
+        when(DBManager.getInstance().getUserDAO()).thenReturn(userDAO);
+        when(trainDAO.checkIfTrainExists(connection, oldTrainNumber)).thenReturn(train.getId());
+        when(trainDAO.getTrain(connection, train.getId())).thenReturn(train);
 
         assertEquals("controller?command=mainPage", new EditTrainCommand().execute(request, response));
         verify(trainDAO, times(1)).editTrain(connection, train);

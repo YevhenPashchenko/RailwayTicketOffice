@@ -7,6 +7,7 @@ import jakarta.mail.internet.*;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -17,7 +18,8 @@ import java.util.Properties;
 public class RegistrationMail implements Mail {
 
     @Override
-    public void send(User user, HttpSession httpSession) throws IOException, MessagingException {
+    public void send(List<User> users, HttpSession httpSession) throws IOException, MessagingException {
+        User user = users.get(0);
         String locale = (String) httpSession.getAttribute("locale");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream("mail.properties");

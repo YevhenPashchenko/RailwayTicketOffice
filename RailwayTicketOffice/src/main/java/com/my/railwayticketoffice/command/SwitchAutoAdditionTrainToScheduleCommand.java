@@ -2,14 +2,11 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
-import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
 import com.my.railwayticketoffice.service.ParameterService;
-import com.my.railwayticketoffice.service.ScheduleService;
 import com.my.railwayticketoffice.service.TrainParameterService;
-import com.my.railwayticketoffice.service.TrainScheduleService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,24 +15,25 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Class that built at command pattern. Add train to the schedule.
+ * Class that built at command pattern. Switch auto addition train to the schedule.
+ *
+ * @author Yevhen Pashchenko
  */
-public class AddTrainToScheduleCommand implements Command {
+public class SwitchAutoAdditionTrainToScheduleCommand implements Command {
 
-    private static final Logger logger = LogManager.getLogger(AddTrainToScheduleCommand.class);
-    private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
+    private static final Logger logger = LogManager.getLogger(SwitchAutoAdditionTrainToScheduleCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
-    private final ScheduleService service = new TrainScheduleService();
 
     /**
-     * Add train to the schedule.
-     * @param request - HttpServletRequest object.
-     * @param response - HttpServletResponse object.
-     * @return link to {@link MainPageCommand}.
+     * Switch auto addition train to the schedule.
+     * @param request HttpServletRequest object.
+     * @param response HttpServletResponse object.
+     * @return link to {@link MainPageCommand}
      * @throws DBException if {@link SQLException} occurs.
      */
     @Override
@@ -48,14 +46,6 @@ public class AddTrainToScheduleCommand implements Command {
             parameters.put("trainNumber", request.getParameter("trainNumber"));
             if (trainService.check(parameters, session)) {
                 try(Connection connection = DBManager.getInstance().getConnection()) {
-                    if (scheduleDAO.checkIfRecordExists(connection, Integer.parseInt(parameters.get("trainId")))) {
-                        if ("en".equals(session.getAttribute("locale"))) {
-                            session.setAttribute("errorMessage", "Train has already been added to the schedule");
-                        } else {
-                            session.setAttribute("errorMessage", "Поїзд вже додано до розкладу");
-                        }
-                        return "controller?command=mainPage";
-                    }
                     int isTrainExists = trainDAO.checkIfTrainExists(connection, parameters.get("trainNumber"));
                     if (isTrainExists == 0 || isTrainExists != Integer.parseInt(parameters.get("trainId"))) {
                         if ("en".equals(session.getAttribute("locale"))) {
@@ -66,30 +56,28 @@ public class AddTrainToScheduleCommand implements Command {
                         return "controller?command=mainPage";
                     }
                     Train train = trainDAO.getTrain(connection, Integer.parseInt(parameters.get("trainId")));
-                    trainDAO.getCarriagesForTrains(connection, Collections.singletonList(train));
-                    if (train.getCarriages().size() == 0) {
+                    trainDAO.switchAutoAdditionTrainToSchedule(connection, train.getId(), !train.isInSchedule());
+                    if (train.isInSchedule()) {
                         if ("en".equals(session.getAttribute("locale"))) {
-                            session.setAttribute("errorMessage", "The train has no carriages");
+                            session.setAttribute("successMessage", "Auto addition train to schedule disabled");
                         } else {
-                            session.setAttribute("errorMessage", "Поїзд не має вагонів");
+                            session.setAttribute("successMessage", "Автоматичне додавання поїзда до розкладу вимкнено");
                         }
-                        return "controller?command=mainPage";
-                    }
-                    List<String> scheduleDates = service.create();
-                    scheduleDAO.addData(connection, scheduleDates, Collections.singletonList(train), null);
-                    if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("successMessage", "Train has been added to schedule");
                     } else {
-                        session.setAttribute("successMessage", "Поїзд додано до розкладу");
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("successMessage", "Auto addition train to schedule enabled");
+                        } else {
+                            session.setAttribute("successMessage", "Автоматичне додавання поїзда до розкладу ввімкнено");
+                        }
                     }
                 } catch (SQLException e) {
-                    logger.warn("Failed to connect to database for add train to schedule", e);
+                    logger.warn("Failed to connect to database for switch auto addition train to schedule", e);
                     if ("en".equals(session.getAttribute("locale"))) {
-                        session.setAttribute("errorMessage", "Failed to connect to database for add train to schedule");
+                        session.setAttribute("errorMessage", "Failed to connect to database for switch auto addition train to schedule");
                     } else {
-                        session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб додати поїзд до розкладу");
+                        session.setAttribute("errorMessage", "Не вийшло зв'язатися з базою даних, щоб перемкнути автоматичне додавання поїзда до розкладу");
                     }
-                    throw new DBException("Failed to connect to database for add train to schedule");
+                    throw new DBException("Failed to connect to database for switch auto addition train to schedule");
                 }
             }
         }

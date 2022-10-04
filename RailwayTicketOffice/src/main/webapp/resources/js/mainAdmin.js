@@ -78,6 +78,9 @@ confirmDeleteTrainFromScheduleModal = new bootstrap.Modal(confirmDeleteTrainFrom
     keyboard: false,
 });
 
+let trainNumberForSwitchAutoAdditionToScheduleInput = document.querySelector('#trainNumberForSwitchAutoAdditionToSchedule');
+let switchAutoAdditionToScheduleButton = document.querySelector('#switchAutoAdditionTrainToSchedule button');
+
 let adminInputs = [
     trainNumberForDeleteInput,
     trainNumberForEditRouteInput,
@@ -208,7 +211,7 @@ for (const carriageNumberIsNotInTrainInputsKey in carriageNumberIsNotInTrainInpu
     });
 }
 
-let scheduleInputs = [trainNumberForAddToScheduleInput, trainNumberForDeleteFromScheduleInput];
+let scheduleInputs = [trainNumberForAddToScheduleInput, trainNumberForDeleteFromScheduleInput, trainNumberForSwitchAutoAdditionToScheduleInput];
 
 scheduleInputs.map(input => {
     input.addEventListener("change", evt => {
@@ -221,6 +224,24 @@ scheduleInputs.map(input => {
             button.removeAttribute("disabled");
         } else {
             button.setAttribute("disabled", "");
+        }
+    });
+});
+
+let scheduleButtons = [addTrainToScheduleButton, switchAutoAdditionToScheduleButton];
+
+scheduleButtons.map(button => {
+    button.addEventListener("click", evt => {
+        let form = evt.currentTarget.parentElement;
+        let trainIdInput = form.querySelector('input[name="trainId"]');
+        if (!trainIdInput.hasAttribute("value")) {
+            evt.preventDefault();
+            if (currentLocale === "en") {
+                modalBody.innerHTML = "Select an existing train";
+            } else {
+                modalBody.innerHTML = "Виберіть існуючий поїзд";
+            }
+            errorModal.show();
         }
     });
 });
@@ -678,21 +699,97 @@ editStationButton.addEventListener("click", evt => {
     }
 });
 
-addTrainToScheduleButton.addEventListener("click", evt => {
-    let trainIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
-    if (!trainIdInput.hasAttribute("value")) {
-        evt.preventDefault();
-        if (currentLocale === "en") {
-            modalBody.innerHTML = "Select an existing train";
-        } else {
-            modalBody.innerHTML = "Виберіть існуючий поїзд";
-        }
-        errorModal.show();
+$(function() {
+    let dateNow = Date.now();
+    let minDate = new Date(dateNow).getDate() + "." + (new Date(dateNow).getMonth() + 1) + "." + new Date(dateNow).getFullYear();
+    let maxDate = new Date(dateNow).getDate() + "." + (new Date(dateNow).getMonth() + 1) + "." + (new Date(dateNow).getFullYear() + 1);
+    let ukLocale = {
+        "format": "DD.MM.YYYY",
+        "separator": "-",
+        "applyLabel": "Готово",
+        "cancelLabel": "Відміна",
+        "daysOfWeek": [
+            "Нд",
+            "Пн",
+            "Вт",
+            "Ср",
+            "Чт",
+            "Пт",
+            "Сб"
+        ],
+        "monthNames": [
+            "Січень",
+            "Лютий",
+            "Березень",
+            "Квітень",
+            "Травень",
+            "Червень",
+            "Липень",
+            "Серпень",
+            "Вересень",
+            "Жовтень",
+            "Листопад",
+            "Грудень"
+        ],
+        "firstDay": 1
+    };
+    let enLocale = {
+        "format": "DD.MM.YYYY",
+        "separator": "-",
+        "applyLabel": "Ok",
+        "cancelLabel": "Cancel",
+        "daysOfWeek": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "firstDay": 0
+    };
+
+    let locale;
+
+    if (currentLocale === "en") {
+        locale = enLocale;
+    } else {
+        locale = ukLocale;
     }
+
+    $('#departureDateForDeleteFromSchedule').daterangepicker({
+        "singleDatePicker": true,
+        "showDropdowns": true,
+        "minYear": minDate.split(".")[2],
+        "maxYear": maxDate.split(".")[2],
+        "locale": locale,
+        "startDate": minDate,
+        "endDate": maxDate,
+        "minDate": minDate,
+        "maxDate": maxDate,
+        "opens": "right",
+        "linkedCalendars": false
+    });
 });
 
 deleteTrainFromScheduleButton.addEventListener("click", evt => {
-    let trainIdInput = evt.currentTarget.previousElementSibling.previousElementSibling.firstElementChild;
+    let form = evt.currentTarget.parentElement;
+    let trainIdInput = form.querySelector('input[name="trainId"]');
     evt.preventDefault();
     if (!trainIdInput.hasAttribute("value")) {
         if (currentLocale === "en") {

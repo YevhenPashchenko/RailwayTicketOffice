@@ -2,6 +2,7 @@ package com.my.railwayticketoffice.command;
 
 import com.my.railwayticketoffice.db.DBException;
 import com.my.railwayticketoffice.db.DBManager;
+import com.my.railwayticketoffice.db.dao.ScheduleDAO;
 import com.my.railwayticketoffice.db.dao.TrainDAO;
 import com.my.railwayticketoffice.entity.Train;
 import com.my.railwayticketoffice.entity.User;
@@ -29,6 +30,7 @@ public class DeleteStationFromTrainRouteCommand implements Command {
 
     private static final Logger logger = LogManager.getLogger(DeleteStationFromTrainRouteCommand.class);
     private final TrainDAO trainDAO = DBManager.getInstance().getTrainDAO();
+    private final ScheduleDAO scheduleDAO = DBManager.getInstance().getScheduleDAO();
     private final ParameterService<String> trainService = new TrainParameterService();
     private final ParameterService<String> stationService = new StationParameterService();
 
@@ -57,6 +59,14 @@ public class DeleteStationFromTrainRouteCommand implements Command {
                             session.setAttribute("errorMessage", "Train not found");
                         } else {
                             session.setAttribute("errorMessage", "Поїзд не знайдено");
+                        }
+                        return "controller?command=showRoute&trainId=" + trainId;
+                    }
+                    if (scheduleDAO.checkIfRecordExists(connection, trainId)) {
+                        if ("en".equals(session.getAttribute("locale"))) {
+                            session.setAttribute("errorMessage", "Cannot be deleted, train is on the schedule");
+                        } else {
+                            session.setAttribute("errorMessage", "Неможливо видалити, поїзд є в розкладі");
                         }
                         return "controller?command=showRoute&trainId=" + trainId;
                     }

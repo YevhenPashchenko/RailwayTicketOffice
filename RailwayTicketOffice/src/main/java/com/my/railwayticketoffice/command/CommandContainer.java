@@ -44,7 +44,9 @@ public class CommandContainer {
         COMMANDS.put("editTrain", new EditTrainCommand());
         COMMANDS.put("getTrains", new GetTrainsCommand());
         COMMANDS.put("mainPage", new MainPageCommand());
+        COMMANDS.put("returnTicket", new ReturnTicketCommand());
         COMMANDS.put("showRoute", new ShowRouteCommand());
+        COMMANDS.put("switchAutoAdditionTrainToSchedule", new SwitchAutoAdditionTrainToScheduleCommand());
         COMMANDS.put("ticketPage", new TicketPageCommand());
         COMMANDS.put("userEdit", new UserEditCommand());
         COMMANDS.put("userLogin", new UserLoginCommand());

@@ -3,10 +3,10 @@ package com.my.railwayticketoffice.mail;
 import com.itextpdf.text.DocumentException;
 import com.my.railwayticketoffice.entity.User;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.AddressException;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Interface that provides a method that send a mail
@@ -17,8 +17,8 @@ public interface Mail {
 
     /**
      * Method that send email.
-     * @param user - {@link User}.
+     * @param users - list of {@link User}.
      * @param session - current session.
      */
-    void send(User user, HttpSession session) throws IOException, MessagingException, DocumentException;
+    void send(List<User> users, HttpSession session) throws IOException, MessagingException, DocumentException;
 }

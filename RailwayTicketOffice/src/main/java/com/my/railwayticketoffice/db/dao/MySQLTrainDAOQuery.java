@@ -7,6 +7,8 @@ package com.my.railwayticketoffice.db.dao;
  */
 public class MySQLTrainDAOQuery {
 
+    public static final String GET_TRAINS_THAT_CAN_BE_ADDED_TO_SCHEDULE = "SELECT id, number, departure_time FROM railwayticketofficedb.trains " +
+            "WHERE in_schedule = true";
     public static final String GET_ALL_TRAINS = "SELECT id, number, departure_time FROM railwayticketofficedb.trains";
     public static final String GET_CARRIAGES_FOR_TRAINS = "SELECT carriages.id, number, type, max_seats, train_id " +
             "FROM railwayticketofficedb.types, railwayticketofficedb.carriages, railwayticketofficedb.trains_carriages " +
@@ -23,7 +25,7 @@ public class MySQLTrainDAOQuery {
             "FROM railwayticketofficedb.trains_stations WHERE trains_stations.train_id IN ";
     public static final String ORDER_BY = "ORDER BY distance_from_start";
     public static final String CHECK_IF_TRAIN_EXISTS = "SELECT id FROM railwayticketofficedb.trains WHERE number = ?";
-    public static final String ADD_TRAIN = "INSERT INTO railwayticketofficedb.trains VALUES (default, ?, ?)";
+    public static final String ADD_TRAIN = "INSERT INTO railwayticketofficedb.trains VALUES (default, ?, ?, false)";
     public static final String DELETE_TRAIN = "DELETE FROM railwayticketofficedb.trains WHERE id = ?";
     public static final String EDIT_TRAIN = "UPDATE railwayticketofficedb.trains SET number = ?, departure_time = ? WHERE id = ?";
     public static final String GET_CARRIAGES_TYPES = "SELECT id, type FROM railwayticketofficedb.types";
@@ -44,5 +46,6 @@ public class MySQLTrainDAOQuery {
     public static final String DELETE_STATION_FROM_TRAIN_ROUTE = "DELETE FROM railwayticketofficedb.trains_stations WHERE train_id = ? AND station_id = ?";
     public static final String ADD_STATION_TO_TRAIN_ROUTE = "INSERT INTO railwayticketofficedb.trains_stations VALUES (?, ?, ?, ?, ?)";
     public static final String EDIT_STATION_DATA_ON_TRAIN_ROUTE = "UPDATE railwayticketofficedb.trains_stations SET time_since_start = ?, stop_time = ?, distance_from_start = ? WHERE train_id = ? AND station_id = ?";
-    public static final String GET_TRAIN = "SELECT number, departure_time FROM railwayticketofficedb.trains WHERE id = ?";
+    public static final String GET_TRAIN = "SELECT number, departure_time, in_schedule FROM railwayticketofficedb.trains WHERE id = ?";
+    public static final String SWITCH_AUTO_ADDITION_TRAIN_TO_SCHEDULE = "UPDATE railwayticketofficedb.trains SET in_schedule = ? WHERE id = ?";
 }

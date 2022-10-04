@@ -126,40 +126,6 @@ public class MySQLScheduleDAOTest {
     }
 
     /**
-     * Test for method deleteCarriageFromSchedule from {@link MySQLScheduleDAO}.
-     *
-     * @throws Exception if any {@link Exception} occurs.
-     */
-    @Test
-    void testDeleteCarriageFromSchedule() throws Exception {
-        int trainId = 1;
-        int carriageId = 1;
-
-        when(connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_CARRIAGE_FROM_SCHEDULE)).thenReturn(pstmt);
-        when(pstmt.executeUpdate()).thenReturn(1);
-
-        DBManager.getInstance().getScheduleDAO().deleteCarriageFromSchedule(connection, trainId, carriageId);
-
-        verify(pstmt, times(1)).executeUpdate();
-    }
-
-    /**
-     * Test for method deleteCarriageFromSchedule from {@link MySQLScheduleDAO} failed.
-     *
-     * @throws Exception if any {@link Exception} occurs.
-     */
-    @Test
-    void testFailedDeleteCarriageFromSchedule() throws Exception {
-        int trainId = 1;
-        int carriageId = 1;
-
-        when(connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_CARRIAGE_FROM_SCHEDULE)).thenReturn(pstmt);
-        when(pstmt.executeUpdate()).thenReturn(0);
-
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().deleteCarriageFromSchedule(connection, trainId, carriageId));
-    }
-
-    /**
      * Test for method getTrainAvailableSeatsOnThisDate from {@link MySQLScheduleDAO}.
      *
      * @throws Exception if any {@link Exception} occurs.
@@ -244,7 +210,7 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_TRAIN_FROM_SCHEDULE)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(1);
 
-        DBManager.getInstance().getScheduleDAO().deleteTrainFromSchedule(connection, trainId);
+        DBManager.getInstance().getScheduleDAO().deleteTrainFromScheduleAtDate(connection, "", trainId);
 
         verify(pstmt, times(1)).executeUpdate();
     }
@@ -262,7 +228,7 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.DELETE_TRAIN_FROM_SCHEDULE)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(0);
 
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().deleteTrainFromSchedule(connection, trainId));
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().deleteTrainFromScheduleAtDate(connection, "", trainId));
     }
 
     /**
@@ -322,7 +288,7 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.EDIT_CARRIAGE_DATA)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(1);
 
-        DBManager.getInstance().getScheduleDAO().editCarriageData(connection, trainId, carriageId);
+        DBManager.getInstance().getScheduleDAO().editCarriageData(connection, 2, trainId, carriageId);
         verify(pstmt, times(1)).executeUpdate();
     }
 
@@ -340,6 +306,194 @@ public class MySQLScheduleDAOTest {
         when(connection.prepareStatement(MySQLScheduleDAOQuery.EDIT_CARRIAGE_DATA)).thenReturn(pstmt);
         when(pstmt.executeUpdate()).thenReturn(0);
 
-        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().editCarriageData(connection, trainId, carriageId));
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().editCarriageData(connection, 2, trainId, carriageId));
+    }
+
+    /**
+     * Test for method checkIfSeatBooked from {@link MySQLScheduleDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testCheckIfSeatBooked() throws Exception {
+
+        String departureDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int trainId = 1;
+        int carriageId = 1;
+        int seatNumber = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_SEAT_BOOKED)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("user_id")).thenReturn(1);
+
+        assertEquals(1, DBManager.getInstance().getScheduleDAO().checkIfSeatBooked(connection, departureDate, trainId, carriageId, seatNumber));
+    }
+
+    /**
+     * Test for method returnTicket from {@link MySQLScheduleDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testReturnTicket() throws Exception {
+
+        String departureDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int trainId = 1;
+        int carriageId = 1;
+        int seatNumber = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.RETURN_TICKET)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(1);
+
+        DBManager.getInstance().getScheduleDAO().returnTicket(connection, departureDate, trainId, carriageId, seatNumber);
+        verify(pstmt, times(1)).executeUpdate();
+    }
+
+    /**
+     * Test for method returnTicket from {@link MySQLScheduleDAO} failed.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testFailedReturnTicket() throws Exception {
+
+        String departureDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int trainId = 1;
+        int carriageId = 1;
+        int seatNumber = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.RETURN_TICKET)).thenReturn(pstmt);
+        when(pstmt.executeUpdate()).thenReturn(0);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().returnTicket(connection, departureDate, trainId, carriageId, seatNumber));
+    }
+
+    /**
+     * Test for method checkIfCarriagesIsInSchedule from {@link MySQLScheduleDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testCheckIfCarriagesIsInSchedule() throws Exception {
+
+        int typeId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_CARRIAGES_IS_IN_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("count")).thenReturn(1);
+
+        assertTrue(DBManager.getInstance().getScheduleDAO().checkIfCarriagesIsInSchedule(connection, typeId));
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_CARRIAGES_IS_IN_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("count")).thenReturn(0);
+
+        assertFalse(DBManager.getInstance().getScheduleDAO().checkIfCarriagesIsInSchedule(connection, typeId));
+    }
+
+    /**
+     * Test for method checkIfCarriagesIsInSchedule from {@link MySQLScheduleDAO} failed.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testFailedCheckIfCarriagesIsInSchedule() throws Exception {
+
+        int typeId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_CARRIAGES_IS_IN_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().checkIfCarriagesIsInSchedule(connection, typeId));
+    }
+
+    /**
+     * Test for method checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule from {@link MySQLScheduleDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testCheckIfTrainsThatHasThisStationOnTheRouteIsInSchedule() throws Exception {
+
+        int stationId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAINS_THAT_HAS_THIS_STATION_ON_THE_ROUTE_IS_IN_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("count")).thenReturn(1);
+
+        assertTrue(DBManager.getInstance().getScheduleDAO().checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(connection, stationId));
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAINS_THAT_HAS_THIS_STATION_ON_THE_ROUTE_IS_IN_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("count")).thenReturn(0);
+
+        assertFalse(DBManager.getInstance().getScheduleDAO().checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(connection, stationId));
+    }
+
+    /**
+     * Test for method checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule from {@link MySQLScheduleDAO} failed.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testFailedCheckIfTrainsThatHasThisStationOnTheRouteIsInSchedule() throws Exception {
+
+        int stationId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAINS_THAT_HAS_THIS_STATION_ON_THE_ROUTE_IS_IN_SCHEDULE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().checkIfTrainsThatHasThisStationOnTheRouteIsInSchedule(connection, stationId));
+    }
+
+    /**
+     * Test for method checkIfTrainHasBookedSeatsAtDate from {@link MySQLScheduleDAO}.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testCheckIfTrainHasBookedSeatsAtDate() throws Exception {
+
+        String departureDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int trainId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAIN_HAS_BOOKED_SEATS_AT_DATE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("count")).thenReturn(1);
+
+        assertTrue(DBManager.getInstance().getScheduleDAO().checkIfTrainHasBookedSeatsAtDate(connection, departureDate, trainId));
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAIN_HAS_BOOKED_SEATS_AT_DATE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true).thenReturn(false);
+        when(rs.getInt("count")).thenReturn(0);
+
+        assertFalse(DBManager.getInstance().getScheduleDAO().checkIfTrainHasBookedSeatsAtDate(connection, departureDate, trainId));
+    }
+
+    /**
+     * Test for method checkIfTrainHasBookedSeatsAtDate from {@link MySQLScheduleDAO} failed.
+     *
+     * @throws Exception if any {@link Exception} occurs.
+     */
+    @Test
+    void testFailedCheckIfTrainHasBookedSeatsAtDate() throws Exception {
+
+        String departureDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int trainId = 1;
+
+        when(connection.prepareStatement(MySQLScheduleDAOQuery.CHECK_IF_TRAIN_HAS_BOOKED_SEATS_AT_DATE)).thenReturn(pstmt);
+        when(pstmt.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
+
+        assertThrows(SQLException.class, () -> DBManager.getInstance().getScheduleDAO().checkIfTrainHasBookedSeatsAtDate(connection, departureDate, trainId));
     }
 }

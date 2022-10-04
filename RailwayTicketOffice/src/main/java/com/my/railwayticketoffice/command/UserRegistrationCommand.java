@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ public class UserRegistrationCommand implements Command {
                 user.setPassword(PasswordAuthentication.getSaltedHash(parameters.get("password")));
                 user.setLastName(parameters.get("surname"));
                 user.setFirstName(parameters.get("name"));
-                mail.send(user, session);
+                mail.send(Collections.singletonList(user), session);
                 userDAO.addUser(connection, user);
                 if ("en".equals(locale)) {
                     session.setAttribute("successMessage", "To complete the registration, follow the link in the letter sent to the mail");

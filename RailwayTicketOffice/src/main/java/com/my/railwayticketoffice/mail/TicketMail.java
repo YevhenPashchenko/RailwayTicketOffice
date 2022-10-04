@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -29,7 +30,8 @@ public class TicketMail implements Mail {
     private final TicketReceipt ticketReceipt = new PdfTicketReceipt();
 
     @Override
-    public void send(User user, HttpSession httpSession) throws DocumentException, IOException, MessagingException {
+    public void send(List<User> users, HttpSession httpSession) throws DocumentException, IOException, MessagingException {
+        User user = users.get(0);
         String locale = (String) httpSession.getAttribute("locale");
         ticketReceipt.create(user);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

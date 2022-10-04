@@ -12,43 +12,45 @@ public class TrainSearchParameterService implements ParameterService<String> {
 
     @Override
     public boolean check(Map<String, String> parameters, HttpSession session) {
-        String from = parameters.get("from");
-        String to = parameters.get("to");
-        if (from == null || to == null) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("searchTrainErrorMessage", "Departure station or destination station is not specified");
-            } else {
-                session.setAttribute("searchTrainErrorMessage", "Станцію відправлення або призначення не задано");
+        if (parameters.containsKey("from") || parameters.containsKey("to")) {
+            String from = parameters.get("from");
+            String to = parameters.get("to");
+            if (from == null || to == null) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("searchTrainErrorMessage", "Departure station or destination station is not specified");
+                } else {
+                    session.setAttribute("searchTrainErrorMessage", "Станцію відправлення або призначення не задано");
+                }
+                return false;
             }
-            return false;
-        }
-        try {
-            Integer.parseInt(parameters.get("from"));
-        } catch (NumberFormatException e) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("searchTrainErrorMessage", "Departure station is not specified");
-            } else {
-                session.setAttribute("searchTrainErrorMessage", "Станцію відправлення не задано");
+            try {
+                Integer.parseInt(parameters.get("from"));
+            } catch (NumberFormatException e) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("searchTrainErrorMessage", "Departure station is not specified");
+                } else {
+                    session.setAttribute("searchTrainErrorMessage", "Станцію відправлення не задано");
+                }
+                return false;
             }
-            return false;
-        }
-        try {
-            Integer.parseInt(parameters.get("to"));
-        } catch (NumberFormatException e) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("searchTrainErrorMessage", "Destination station is not specified");
-            } else {
-                session.setAttribute("searchTrainErrorMessage", "Станцію призначення не задано");
+            try {
+                Integer.parseInt(parameters.get("to"));
+            } catch (NumberFormatException e) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("searchTrainErrorMessage", "Destination station is not specified");
+                } else {
+                    session.setAttribute("searchTrainErrorMessage", "Станцію призначення не задано");
+                }
+                return false;
             }
-            return false;
-        }
-        if (Integer.parseInt(parameters.get("from")) == Integer.parseInt(parameters.get("to"))) {
-            if ("en".equals(session.getAttribute("locale"))) {
-                session.setAttribute("searchTrainErrorMessage", "Departure and destination stations match");
-            } else {
-                session.setAttribute("searchTrainErrorMessage", "Станції відправлення та призначення співпадають");
+            if (Integer.parseInt(parameters.get("from")) == Integer.parseInt(parameters.get("to"))) {
+                if ("en".equals(session.getAttribute("locale"))) {
+                    session.setAttribute("searchTrainErrorMessage", "Departure and destination stations match");
+                } else {
+                    session.setAttribute("searchTrainErrorMessage", "Станції відправлення та призначення співпадають");
+                }
+                return false;
             }
-            return false;
         }
         if (parameters.containsKey("date")) {
             String trainDepartureDate = parameters.get("date");
